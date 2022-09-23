@@ -7,4 +7,6 @@ typedef struct Vec2_st
     float y;
 } Vec2;
 
+void vec2_normalize(Vec2 *vector);
+
 #endif

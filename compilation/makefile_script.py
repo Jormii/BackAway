@@ -142,7 +142,9 @@ def main():
         makefile.objs.append(_src)
 
     # Libs
-    libs = []
+    libs = [
+        File("-lm")
+    ]
     for _lib in libs:
         makefile.libs.append(_lib)
 

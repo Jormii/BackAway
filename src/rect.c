@@ -21,14 +21,14 @@ void rect_draw(const Rect *rect, rgb_t color)
     int px_end = MIN(x_end, SCREEN_WIDTH);
     if (y >= 0 && y < SCREEN_HEIGHT)
     {
-        for (int xx = px; xx < px_end; ++xx)
+        for (int xx = px; xx <= px_end; ++xx)
         {
             draw_buffer[SCREEN_BUFFER_INDEX(xx, y)] = color;
         }
     }
     if (y_end >= 0 && y_end < SCREEN_HEIGHT)
     {
-        for (int xx = px; xx < px_end; ++xx)
+        for (int xx = px; xx <= px_end; ++xx)
         {
             draw_buffer[SCREEN_BUFFER_INDEX(xx, y_end)] = color;
         }
@@ -38,14 +38,14 @@ void rect_draw(const Rect *rect, rgb_t color)
     int py_end = MIN(y_end, SCREEN_HEIGHT);
     if (x >= 0 && x < SCREEN_WIDTH)
     {
-        for (int yy = py; yy < py_end; ++yy)
+        for (int yy = py; yy <= py_end; ++yy)
         {
             draw_buffer[SCREEN_BUFFER_INDEX(x, yy)] = color;
         }
     }
     if (x_end >= 0 && x_end < SCREEN_WIDTH)
     {
-        for (int yy = py; yy < py_end; ++yy)
+        for (int yy = py; yy <= py_end; ++yy)
         {
             draw_buffer[SCREEN_BUFFER_INDEX(x_end, yy)] = color;
         }
