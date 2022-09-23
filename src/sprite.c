@@ -6,17 +6,11 @@
 
 Sprite *sprite_allocate(int width, int height)
 {
-    Sprite tmp_sprite;
-    void *start = &tmp_sprite;
-    void *end = &(tmp_sprite.bitmap);
-    size_t offset = (size_t)(end) - (size_t)(start);
+    size_t area = width * height;
+    size_t offset = 2 * sizeof(int);
+    size_t bytes = offset + area * sizeof(rgb_t);
 
-    size_t bitmap_dimensions = width * height;
-    size_t bytes = offset + sizeof(tmp_sprite.bitmap) * bitmap_dimensions;
     Sprite *sprite = malloc(bytes);
-
-    sprite->origin.x = 0;
-    sprite->origin.y = 0;
     sprite->width = width;
     sprite->height = height;
     sprite->bitmap = (rgb_t *)(sprite + offset);
@@ -24,10 +18,8 @@ Sprite *sprite_allocate(int width, int height)
     return sprite;
 }
 
-void sprite_draw(const Sprite *sprite)
+void sprite_draw(int x, int y, const Sprite *sprite)
 {
-    int x = sprite->origin.x;
-    int y = sprite->origin.y;
     int x_end = x + sprite->width;
     int y_end = y + sprite->height;
 

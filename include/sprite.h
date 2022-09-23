@@ -6,14 +6,12 @@
 
 typedef struct Sprite_st
 {
-    Vec2 origin;
     int width;
     int height;
-
     rgb_t *bitmap;
 } Sprite;
 
 Sprite *sprite_allocate(int width, int height);
-void sprite_draw(const Sprite *sprite);
+void sprite_draw(int x, int y, const Sprite *sprite);
 
 #endif
