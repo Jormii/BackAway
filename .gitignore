@@ -1,0 +1,8 @@
+**/.vscode/
+
+*.o
+*.elf
+*.prx
+*.PBP
+*.SFO
+/compilation/Makefile
