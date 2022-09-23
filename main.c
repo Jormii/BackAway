@@ -1,5 +1,6 @@
 #include <pspkernel.h>
 
+#include "time.h"
 #include "player.h"
 #include "callbacks.h"
 #include "screen_buffer.h"
@@ -9,7 +10,7 @@ PSP_MAIN_THREAD_ATTR(THREAD_ATTR_USER);
 
 void create_player(Player *player)
 {
-    player->pbody.mass = 50;
+    player->pbody.mass = 1;
     player->pbody.position.x = 0;
     player->pbody.position.y = 0;
     player->pbody.velocity.x = 0;
@@ -52,13 +53,20 @@ int main()
 
     Player player;
     create_player(&player);
+
+    clock_t frame_start = clock();
+    clock_t frame_end = clock();
     while (running())
     {
+        clock_t ellapsed = frame_end - frame_start;
+        float delta = ((float)ellapsed) / CLOCKS_PER_SEC;
+        frame_start = clock();
+
         screen_buffer_clear(0x00444444);
-
-        player_update(&player, 0.1);
-
+        player_update(&player, delta);
         screen_buffer_swap();
+
+        frame_end = clock();
     }
 
     sceKernelExitGame();
