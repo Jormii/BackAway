@@ -8,6 +8,7 @@
 #define TRUE 1
 
 typedef uint8_t bool_t;
+typedef uint8_t u8_t;
 
 typedef uint32_t rgb_t;
 
