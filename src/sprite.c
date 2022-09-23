@@ -6,14 +6,10 @@
 
 Sprite *sprite_allocate(int width, int height)
 {
-    size_t area = width * height;
-    size_t offset = 2 * sizeof(int);
-    size_t bytes = offset + area * sizeof(rgb_t);
-
-    Sprite *sprite = malloc(bytes);
+    Sprite *sprite = malloc(sizeof(Sprite));
     sprite->width = width;
     sprite->height = height;
-    sprite->bitmap = (rgb_t *)(sprite + offset);
+    sprite->bitmap = malloc(width * height * sizeof(rgb_t));
 
     return sprite;
 }

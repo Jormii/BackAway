@@ -6,10 +6,12 @@
 typedef struct PhysicsBody_st
 {
     float mass;
-    Vec2 position;
+    Vec2 force;
     Vec2 velocity;
+    Vec2 position;
 } PhysicsBody;
 
+void physics_body_reset(PhysicsBody *pbody);
 void physics_body_update(PhysicsBody *pbody, float delta);
 
 #endif
