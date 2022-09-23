@@ -7,6 +7,9 @@
 struct
 {
     Player player;
+
+    size_t n_colliders;
+    Rect *colliders;
 } game_state;
 
 void init_player()
@@ -23,15 +26,42 @@ void init_player()
     {
         player->sprite->bitmap[i] = 0x00AAAAAA;
     }
+
+    player->collider.origin = player->pbody.position;
+    player->collider.width = player->sprite->width;
+    player->collider.height = player->sprite->height;
 }
 
 void game_state_initialize()
 {
     init_player();
+
+    game_state.n_colliders = 1;
+    game_state.colliders = malloc(game_state.n_colliders * sizeof(Rect));
+
+    Rect *rect = game_state.colliders;
+    rect->origin.x = 0;
+    rect->origin.y = SCREEN_HEIGHT / 2;
+    rect->width = SCREEN_WIDTH;
+    rect->height = 20;
 }
 
 void game_state_update(float delta)
 {
     physics_body_reset(&(game_state.player.pbody));
     player_update(&(game_state.player), delta);
+
+    rect_draw(game_state.colliders, 0x008888FF);
+}
+
+void check_collisions(const Rect *rect, CollisionCB collision_cb)
+{
+    for (size_t i = 0; i < game_state.n_colliders; ++i)
+    {
+        const Rect *collider = game_state.colliders + i;
+        if (rect_within_rect(rect, collider))
+        {
+            collision_cb(collider);
+        }
+    }
 }
