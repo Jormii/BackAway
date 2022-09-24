@@ -13,9 +13,9 @@ bool_t rect_within_rect(const Rect *r1, const Rect *r2)
 void rect_draw(const Rect *rect, rgb_t color)
 {
     int x = rect->origin.x - 1;
-    int x_end = rect->origin.x + rect->width;
+    int x_end = rect->origin.x + rect->width + 1;
     int y = rect->origin.y - 1;
-    int y_end = rect->origin.y + rect->height;
+    int y_end = rect->origin.y + rect->height + 1;
 
     int px = MAX(x, 0);
     int px_end = MIN(x_end, SCREEN_WIDTH);
