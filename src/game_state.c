@@ -17,10 +17,6 @@ void init_player()
 {
     Player *player = &(game_state.player);
 
-    player->pbody.mass = 0.1;
-    player->pbody.position.x = SCREEN_BUFFER_WIDTH / 2;
-    player->pbody.position.y = 30;
-
     player->sprite = sprite_allocate(30, 30);
     size_t dim = player->sprite->width * player->sprite->height;
     for (size_t i = 0; i < dim; ++i)
@@ -29,7 +25,7 @@ void init_player()
     }
 
     Rect rect = {
-        .origin = player->pbody.position,
+        .origin = {.x = SCREEN_BUFFER_WIDTH / 2, .y = 30},
         .width = player->sprite->width,
         .height = player->sprite->height};
     polygon_from_rect(&rect, &(player->collider));
@@ -51,7 +47,6 @@ void game_state_initialize()
 
 void game_state_update(float delta)
 {
-    physics_body_reset(&(game_state.player.pbody));
     player_update(&(game_state.player), delta);
 
     for (size_t i = 0; i < game_state.n_colliders; ++i)
@@ -60,14 +55,14 @@ void game_state_update(float delta)
     }
 }
 
-void check_collisions(PhysicsBody *pbody, const Polygon *collider, CollisionCB collision_cb)
+void check_collisions(const Polygon *collider, CollisionCB collision_cb)
 {
     for (size_t i = 0; i < game_state.n_colliders; ++i)
     {
         const Polygon *other_collider = game_state.colliders + i;
         if (rect_within_rect(&(collider->bbox), &(other_collider->bbox)))
         {
-            collision_cb(pbody, collider, other_collider);
+            collision_cb(collider, other_collider);
         }
     }
 }
