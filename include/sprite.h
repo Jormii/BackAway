@@ -11,7 +11,7 @@ typedef struct Sprite_st
     rgb_t *bitmap;
 } Sprite;
 
-Sprite *sprite_allocate(int width, int height);
+void sprite_create(int width, int height, Sprite *dst_sprite);
 void sprite_draw(int x, int y, const Sprite *sprite);
 
 #endif

@@ -17,17 +17,24 @@ void init_player()
 {
     Player *player = &(game_state.player);
 
-    player->sprite = sprite_allocate(30, 30);
-    size_t dim = player->sprite->width * player->sprite->height;
+    player->entity.position.x = 50;
+    player->entity.position.y = 100;
+    player->entity.direction.x = 0;
+    player->entity.direction.y = 1;
+    player->entity.speed.x = 10;
+    player->entity.speed.y = 10;
+
+    sprite_create(30, 30, &(player->sprite));
+    size_t dim = player->sprite.width * player->sprite.height;
     for (size_t i = 0; i < dim; ++i)
     {
-        player->sprite->bitmap[i] = 0x00AAAAAA;
+        player->sprite.bitmap[i] = 0x00AAAAAA;
     }
 
     Rect rect = {
-        .origin = {.x = SCREEN_BUFFER_WIDTH / 2, .y = 30},
-        .width = player->sprite->width,
-        .height = player->sprite->height};
+        .origin = player->entity.position,
+        .width = player->sprite.width,
+        .height = player->sprite.height};
     polygon_from_rect(&rect, &(player->collider));
 }
 
