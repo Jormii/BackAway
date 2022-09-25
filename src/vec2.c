@@ -2,18 +2,21 @@
 
 #include "vec2.h"
 
-float vec2_dot(const Vec2 *a, const Vec2 *b)
+float vec2_magnitude(const Vec2 *vector)
 {
-    return (a->x * b->x) + (a->y * b->y);
+    return sqrtf(vec2_dot(vector, vector));
 }
 
 void vec2_normalize(Vec2 *vector)
 {
-    float sqr_magnitude = (vector->x * vector->x) + (vector->y * vector->y);
-    float magnitude = sqrtf(sqr_magnitude);
-
+    float magnitude = vec2_magnitude(vector);
     vector->x /= magnitude;
     vector->y /= magnitude;
+}
+
+float vec2_dot(const Vec2 *a, const Vec2 *b)
+{
+    return (a->x * b->x) + (a->y * b->y);
 }
 
 Vec2 vec2_project(const Vec2 *vector, const Vec2 *onto)

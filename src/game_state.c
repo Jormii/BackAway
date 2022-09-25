@@ -17,12 +17,8 @@ void init_player()
 {
     Player *player = &(game_state.player);
 
-    player->entity.position.x = 50;
-    player->entity.position.y = 100;
-    player->entity.direction.x = 0;
-    player->entity.direction.y = 1;
-    player->entity.speed.x = 10;
-    player->entity.speed.y = 10;
+    player->entity.position.x = SCREEN_WIDTH / 2;
+    player->entity.position.y = 50;
 
     sprite_create(30, 30, &(player->sprite));
     size_t dim = player->sprite.width * player->sprite.height;
@@ -58,18 +54,18 @@ void game_state_update(float delta)
 
     for (size_t i = 0; i < game_state.n_colliders; ++i)
     {
-        draw_polygon(game_state.colliders + i, 0x008888FF);
+        //draw_polygon(game_state.colliders + i, 0x008888FF);
     }
 }
 
-void check_collisions(const Polygon *collider, CollisionCB collision_cb)
+void check_collisions(const Polygon *collider, void *ptr, CollisionCB collision_cb)
 {
     for (size_t i = 0; i < game_state.n_colliders; ++i)
     {
         const Polygon *other_collider = game_state.colliders + i;
         if (rect_within_rect(&(collider->bbox), &(other_collider->bbox)))
         {
-            collision_cb(collider, other_collider);
+            collision_cb(collider, other_collider, ptr);
         }
     }
 }
