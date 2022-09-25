@@ -16,6 +16,4 @@ typedef struct Polygon_st
 void polygon_create(const Vec2 *vertices, size_t n_vertices, Polygon *out_polygon);
 void polygon_from_rect(const Rect *rect, Polygon *out_polygon);
 
-void polygon_draw(const Polygon *polygon, rgb_t color);
-
 #endif

@@ -13,6 +13,4 @@ typedef struct Rect_st
 
 bool_t rect_within_rect(const Rect *r1, const Rect *r2);
 
-void rect_draw(const Rect *rect, rgb_t color);
-
 #endif

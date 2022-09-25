@@ -6,9 +6,6 @@
 #include "polygon.h"
 #include "screen_buffer.h"
 
-void draw_line(int x0, int y0, int xf, int yf, rgb_t color);
-void draw_vertical_line(int x, int y0, int yf, rgb_t color);
-
 void polygon_create(const Vec2 *vertices, size_t n_vertices, Polygon *out_polygon)
 {
     assert(n_vertices >= 3);
@@ -62,66 +59,4 @@ void polygon_from_rect(const Rect *rect, Polygon *out_polygon)
     corners[3].y += rect->height;
 
     polygon_create(corners, 4, out_polygon);
-}
-
-void polygon_draw(const Polygon *polygon, rgb_t color)
-{
-    rect_draw(&(polygon->bbox), 0x00AAFFAA);
-
-    for (size_t i = 0; i < polygon->n_vertices; ++i)
-    {
-        const Vec2 *p0 = polygon->vertices + i;
-        const Vec2 *pf = polygon->vertices + ((i + 1) % polygon->n_vertices);
-        draw_line(p0->x, p0->y, pf->x, pf->y, color);
-
-        Vec2 pm_0 = {
-            .x = (p0->x + pf->x) / 2,
-            .y = (p0->y + pf->y) / 2};
-        Vec2 pm_f = {
-            .x = pm_0.x + 10 * polygon->normals[i].x,
-            .y = pm_0.y + 10 * polygon->normals[i].y};
-
-        draw_line(pm_0.x, pm_0.y, pm_f.x, pm_f.y, 0x00CCCCCC);
-    }
-}
-
-void draw_line(int x0, int y0, int xf, int yf, rgb_t color)
-{
-    if (x0 > xf)
-    {
-        draw_line(xf, yf, x0, y0, color);
-    }
-    else if (x0 == xf)
-    {
-        draw_vertical_line(x0, y0, yf, color);
-    }
-    else
-    {
-        int dx = xf - x0;
-        int dy = yf - y0;
-
-        x0 = MAX(x0, 0);
-        xf = MIN(xf, SCREEN_WIDTH);
-        for (int x = x0; x <= xf; ++x)
-        {
-            int y = y0 + dy * (x - x0) / dx;
-
-            size_t idx = SCREEN_BUFFER_INDEX(x, y);
-            draw_buffer[idx] = color;
-        }
-    }
-}
-
-void draw_vertical_line(int x, int y0, int yf, rgb_t color)
-{
-    int _y0 = MIN(y0, yf);
-    int _yf = MAX(y0, yf);
-
-    _y0 = MAX(_y0, 0);
-    _yf = MIN(_yf, SCREEN_HEIGHT);
-    for (int y = _y0; y <= _yf; ++y)
-    {
-        size_t idx = SCREEN_BUFFER_INDEX(x, y);
-        draw_buffer[idx] = color;
-    }
 }
