@@ -1,4 +1,5 @@
 #include <pspkernel.h>
+#include <pspdisplay.h>
 
 #include "time.h"
 #include "callbacks.h"
@@ -25,6 +26,7 @@ int main()
         screen_buffer_clear(0x00444444);
         game_state_update(delta);
         screen_buffer_swap();
+        sceDisplayWaitVblankStart();
 
         frame_end = clock();
     }

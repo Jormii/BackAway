@@ -11,6 +11,7 @@ typedef struct Rect_st
     int height;
 } Rect;
 
+bool_t rect_contains_point(const Rect *rect, const Vec2 *p);
 bool_t rect_within_rect(const Rect *r1, const Rect *r2);
 
 #endif

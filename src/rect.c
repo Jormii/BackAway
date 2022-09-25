@@ -2,6 +2,13 @@
 #include "macros.h"
 #include "screen_buffer.h"
 
+bool_t rect_contains_point(const Rect *rect, const Vec2 *p)
+{
+    float dx = p->x - rect->origin.x;
+    float dy = p->y - rect->origin.y;
+    return (dx >= 0 && dx <= rect->width) && (dy >= 0 && dy <= rect->height);
+}
+
 bool_t rect_within_rect(const Rect *r1, const Rect *r2)
 {
     return r1->origin.x + r1->width >= r2->origin.x &&  // r1 right edge past r2 left
