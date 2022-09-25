@@ -65,24 +65,3 @@ void draw_rect(const Rect *rect, rgb_t color)
     draw_line(&c3, &c4, color);
     draw_line(&c4, &c1, color);
 }
-
-void draw_polygon(const Polygon *polygon, rgb_t color)
-{
-    for (size_t i = 0; i < polygon->n_vertices; ++i)
-    {
-        const Vec2 *p0 = polygon->vertices + i;
-        const Vec2 *pf = polygon->vertices + ((i + 1) % polygon->n_vertices);
-        draw_line(p0, pf, color);
-
-        Vec2 pm_0 = {
-            .x = (p0->x + pf->x) / 2,
-            .y = (p0->y + pf->y) / 2};
-        Vec2 pm_f = {
-            .x = pm_0.x + 10 * polygon->normals[i].x,
-            .y = pm_0.y + 10 * polygon->normals[i].y};
-
-        int r = 255 * ((1 + polygon->normals[i].x) / 2);
-        int g = 255 * ((1 + polygon->normals[i].y) / 2);
-        draw_line(&pm_0, &pm_f, RGB(r, g, 0));
-    }
-}
