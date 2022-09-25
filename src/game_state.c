@@ -16,6 +16,8 @@ void init_player()
 {
     Player *player = &(game_state.player);
 
+    entity_init(&(player->entity), 1.0f);
+
     player->entity.position.x = SCREEN_WIDTH / 2;
     player->entity.position.y = 50;
 
@@ -36,6 +38,7 @@ void game_state_initialize()
 
 void game_state_update(float delta)
 {
+    entity_preupdate(&(game_state.player.entity));
     player_update(&(game_state.player), delta);
 
     for (size_t i = 0; i < game_state.n_colliders; ++i)
