@@ -13,7 +13,7 @@ typedef struct Polygon_st
     Rect bbox;
 } Polygon;
 
-void polygon_create(const Vec2 *vertices, size_t n_vertices, Polygon *out_polygon);
-void polygon_from_rect(const Rect *rect, Polygon *out_polygon);
+void polygon_create(const Vec2 *vertices, size_t n_vertices, Polygon *dst_polygon);
+void polygon_from_rect(const Rect *rect, Polygon *dst_polygon);
 
 #endif

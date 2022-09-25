@@ -5,69 +5,82 @@
 #include "game_state.h"
 #include "draw_geometries.h"
 
-void player_on_collision(PhysicsBody *pbody, const Polygon *collider, const Polygon *collided_with);
+void player_on_collision(const Polygon *collider, const Polygon *collided_with, void *ptr);
+void resolve_penetration(Entity *entity, const Vec2 *point, const Polygon *penetrated);
 
 void player_update(Player *player, float delta)
 {
-    // Update position
-    check_collisions(&(player->pbody), &(player->collider), player_on_collision);
-    physics_body_update(&(player->pbody), delta);
+    // Reset entity and check for collisions
+    player->entity.speed.x = 100.0f;
+    player->entity.speed.y = 100.0f;
+    player->entity.direction.x = 1.0f;
+    player->entity.direction.y = 1.0f;
+    check_collisions(&(player->collider), player, player_on_collision);
 
-    // Update collider
-    const Vec2 *p0 = &(player->pbody.position_last_frame);
-    const Vec2 *pf = &(player->pbody.position);
-    Vec2 v = {
-        .x = pf->x - p0->x,
-        .y = pf->y - p0->y};
+    // Update positions
+    Vec2 old_position = entity_update(&(player->entity), delta);
+    Vec2 v = vec2_subtract(&(player->entity.position), &old_position);
 
     for (size_t i = 0; i < player->collider.n_vertices; ++i)
     {
         Vec2 *vertex = player->collider.vertices + i;
-        vertex->x += v.x;
-        vertex->y += v.y;
+        *vertex = vec2_add(vertex, &v);
     }
 
-    player->collider.bbox.origin.x += v.x;
-    player->collider.bbox.origin.y += v.y;
+    Vec2 *bbox = &(player->collider.bbox.origin);
+    *bbox = vec2_add(bbox, &v);
 
     // Render
-    sprite_draw(player->pbody.position.x, player->pbody.position.y, player->sprite);
+    //sprite_draw(player->entity.position.x, player->entity.position.y, &(player->sprite));
     draw_polygon(&(player->collider), 0x00FFFFFF);
 }
 
-void player_on_collision(PhysicsBody *pbody, const Polygon *collider, const Polygon *collided_with)
+void player_on_collision(const Polygon *collider, const Polygon *collided_with, void *ptr)
 {
-    const Vec2 v = {
-        pbody->position.x - pbody->position_last_frame.x,
-        pbody->position.y - pbody->position_last_frame.y};
+    Player *player = (Player *)ptr;
 
     for (size_t i = 0; i < collider->n_vertices; ++i)
     {
-        const Vec2 *pf = collider->vertices + i;
-        if (!rect_contains_point(&(collided_with->bbox), pf))
+        const Vec2 *vertex = collider->vertices + i;
+        if (rect_contains_point(&(collided_with->bbox), vertex))
+        {
+            resolve_penetration(&(player->entity), vertex, collided_with);
+        }
+    }
+}
+
+void resolve_penetration(Entity *entity, const Vec2 *point, const Polygon *penetrated)
+{
+    Vec2 direction = entity->direction;
+    vec2_normalize(&direction);
+
+    for (size_t i = 0; i < penetrated->n_vertices; ++i)
+    {
+        const Vec2 *normal = penetrated->normals + i;
+        const Vec2 *vertex = penetrated->vertices + i;
+
+        float dot = vec2_dot(normal, &direction);
+        if (dot >= 0)
         {
             continue;
         }
 
-        Vec2 p0 = {
-            .x = pf->x - v.x,
-            .y = pf->y - v.y};
-        for (size_t j = 0; j < collided_with->n_vertices; ++j)
-        {
-            const Vec2 *n = collided_with->normals + j;
-            float dot = vec2_dot(&v, n);
-            if (dot >= 0.0f)
-            {
-                continue;
-            }
+        // TODO: Remove
+        draw_line(
+            penetrated->vertices + i,
+            penetrated->vertices + ((i + 1) % penetrated->n_vertices),
+            0x008888FF);
 
-            const Vec2 *q0 = collided_with->vertices + j;
-            const Vec2 *qf = collided_with->vertices + ((j + 1) % collided_with->n_vertices);
-            if (lines_intersect(&p0, pf, q0, qf))
-            {
-                // TODO: Resolve collision
-                Vec2 penalty = vec2_project(&(pbody->force), n);
-            }
-        }
+        Vec2 v = vec2_subtract(vertex, point);
+        Vec2 v_on_normal = vec2_project(&v, normal);
+
+        // TODO: Remove
+        Vec2 p_plus_proj = vec2_add(point, &v_on_normal);
+        draw_line(point, &p_plus_proj, 0x0088FF88);
+        draw_line(point, vertex, 0x00FF8888);
+    
+        float distance_penetrated = vec2_magnitude(&v_on_normal);
+        Vec2 penalty = vec2_mult_scalar(-distance_penetrated, &direction);
+        entity->direction = vec2_add(&(entity->direction), &penalty);
     }
 }

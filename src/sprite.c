@@ -4,14 +4,11 @@
 #include "sprite.h"
 #include "screen_buffer.h"
 
-Sprite *sprite_allocate(int width, int height)
+void sprite_create(int width, int height, Sprite *dst_sprite)
 {
-    Sprite *sprite = malloc(sizeof(Sprite));
-    sprite->width = width;
-    sprite->height = height;
-    sprite->bitmap = malloc(width * height * sizeof(rgb_t));
-
-    return sprite;
+    dst_sprite->width = width;
+    dst_sprite->height = height;
+    dst_sprite->bitmap = malloc(width * height * sizeof(rgb_t));
 }
 
 void sprite_draw(int x, int y, const Sprite *sprite)
