@@ -4,6 +4,15 @@
 
 void draw_vertical_line(int x, int y0, int yf, rgb_t color);
 
+void draw_point(const Vec2 *point, rgb_t color)
+{
+    if (point->x >= 0 && point->x < SCREEN_WIDTH && point->y >= 0 && point->y < SCREEN_HEIGHT)
+    {
+        size_t idx = SCREEN_BUFFER_INDEX((int)point->x, (int)point->y);
+        draw_buffer[idx] = color;
+    }
+}
+
 void draw_line(const Vec2 *p, const Vec2 *q, rgb_t color)
 {
     if (p->x > q->x)

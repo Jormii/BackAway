@@ -13,7 +13,7 @@ int main()
 {
     setup_callbacks();
     screen_buffer_init();
-    game_state_initialize();
+    game_state_init();
 
     clock_t frame_start = clock();
     clock_t frame_end = clock();

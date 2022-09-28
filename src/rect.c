@@ -16,3 +16,16 @@ bool_t rect_within_rect(const Rect *r1, const Rect *r2)
            r1->origin.y + r1->height >= r2->origin.y && // r1 top edge past r2 bottom
            r1->origin.y <= r2->origin.y + r2->height;   // r1 bottom edge past r2 top
 }
+
+void rect_collider_init(RectCollider *collider, const Rect *rect)
+{
+    for (size_t i = 0; i < 4; ++i)
+    {
+        collider->vertices[i] = rect->origin;
+    }
+
+    collider->vertices[1].x += rect->width;
+    collider->vertices[2].x += rect->width;
+    collider->vertices[2].y += rect->height;
+    collider->vertices[3].y += rect->height;
+}
