@@ -10,6 +10,6 @@ typedef struct Level_st
     size_t n_colliders;
 } Level;
 
-void level_resolve_collisions(const Level *level, Entity *entity, const Rect *entity_rect, float delta);
+void level_resolve_collisions(const Level *level, Entity *entity, const Rect *entity_boundary);
 
 #endif

@@ -7,7 +7,7 @@
 void game_state_init()
 {
     // Init player
-    entity_init(&(player.entity), SCREEN_WIDTH / 2, 50, 1.05f);
+    entity_init(&(player.entity), 1.0f, SCREEN_WIDTH / 2.0f, 100.0f);
     sprite_init(&(player.sprite), 30, 30);
     player.collider.origin.x = player.entity.position.x;
     player.collider.origin.y = player.entity.position.y;
@@ -22,17 +22,24 @@ void game_state_init()
 
     // Init level
     // TODO: Do it properly
-    level.n_colliders = 1;
+    level.n_colliders = 2;
     level.colliders = malloc(level.n_colliders * sizeof(Rect));
-    level.colliders->origin.x = 30;
-    level.colliders->origin.y = 200;
-    level.colliders->width = SCREEN_WIDTH - 60;
-    level.colliders->height = 50;
+
+    Rect *horizontal_coll = level.colliders;
+    horizontal_coll->origin.x = 100;
+    horizontal_coll->origin.y = 200;
+    horizontal_coll->width = SCREEN_WIDTH - 200;
+    horizontal_coll->height = 50;
+
+    Rect *vertical_coll = level.colliders + 1;
+    vertical_coll->origin.x = SCREEN_WIDTH - 100;
+    vertical_coll->origin.y = 10;
+    vertical_coll->width = 50;
+    vertical_coll->height = SCREEN_HEIGHT - 20;
 }
 
 void game_state_update(float delta)
 {
-    entity_preupdate(&(player.entity));
     player_update(&player, delta);
 
     for (size_t i = 0; i < level.n_colliders; ++i)

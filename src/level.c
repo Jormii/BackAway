@@ -1,68 +1,70 @@
 #include "line.h"
 #include "level.h"
 #include "entity.h"
-#include "draw_geometries.h"
 
-#define COLLISION_MARGIN 1
+void resolve_collision(Entity *entity, const Vec2 *point, const RectCollider *collider);
 
-void resolve_collision(const Vec2 *point, Vec2 *direction, const RectCollider *collider);
-
-void level_resolve_collisions(const Level *level, Entity *entity, const Rect *entity_rect, float delta)
+void level_resolve_collisions(const Level *level, Entity *entity, const Rect *entity_boundary)
 {
-    Vec2 new_direction = entity_movement_vector(entity);
-    float magnitude = vec2_magnitude(&new_direction);
-    if (magnitude == 0.0f)
-    {
-        return;
-    }
-
-    vec2_normalize(&new_direction);
-    new_direction = vec2_mult_scalar(magnitude + COLLISION_MARGIN, &new_direction);
-
+    // Entity's collider stores positions from last frame. Entity IS updated =>
+    //  Objective: Consider this updated motion to handle collisions
     RectCollider entity_collider;
-    rect_collider_init(&entity_collider, entity_rect);
+    rect_collider_init(&entity_collider, entity_boundary);
+
     for (size_t collider_idx = 0; collider_idx < level->n_colliders; ++collider_idx)
     {
         RectCollider collider;
         rect_collider_init(&collider, level->colliders + collider_idx);
 
-        // Only top left and bottom right corners need to be checked
-        resolve_collision(entity_collider.vertices, &new_direction, &collider);
-        resolve_collision(entity_collider.vertices + 2, &new_direction, &collider);
+        for (int i = 0; i < 4; ++i)
+        {
+            resolve_collision(entity, entity_collider.vertices + i, &collider);
+        }
     }
-
-    // Update position
-    entity->position = vec2_add(&(entity->position_last_frame), &new_direction);
 }
 
-void resolve_collision(const Vec2 *point, Vec2 *direction, const RectCollider *collider)
+void resolve_collision(Entity *entity, const Vec2 *point, const RectCollider *collider)
 {
-    // Clockwise starting top left corner
+    // Clockwise starting at top left corner
     Vec2 rect_normals[] = {
         {.x = 0, .y = -1},
         {.x = 1, .y = 0},
         {.x = 0, .y = 1},
-        {.x = 1, .y = 0}};
+        {.x = -1, .y = 0}};
 
     for (size_t vertex_idx = 0; vertex_idx < 4; ++vertex_idx)
     {
-        float dot = vec2_dot(direction, rect_normals + vertex_idx);
-        if (dot >= 0)
+        Vec2 movement_vec = entity_movement_vector(entity);
+        Vec2 point_next_frame = vec2_add(point, &movement_vec);
+        const Vec2 *coll_p = collider->vertices + vertex_idx;
+        const Vec2 *coll_q = collider->vertices + ((vertex_idx + 1) % 4);
+        const Vec2 *coll_normal = rect_normals + vertex_idx;
+
+        float movement_dot = vec2_dot(&movement_vec, coll_normal);
+        if (movement_dot >= 0)
         {
             continue;
         }
 
         float t;
-        Vec2 point_f = vec2_add(point, direction);
-        const Vec2 *p = collider->vertices + vertex_idx;
-        const Vec2 *q = collider->vertices + ((vertex_idx + 1) % 4);
-        bool_t intersection = line_segments_intersect(point, &point_f, p, q, &t);
+        bool_t intersection = line_segments_intersect(point, &point_next_frame, coll_p, coll_q, &t);
         if (!intersection)
         {
             continue;
         }
 
-        Vec2 intersection_point = line_segment_interpolate(point, &point_f, t);
-        *direction = vec2_subtract(&intersection_point, point);
+        // TODO: Friction
+
+        // Antipenetration
+        Vec2 anti_force = vec2_project(&(entity->force), coll_normal);
+        Vec2 anti_velocity = vec2_project(&(entity->velocity), coll_normal);
+
+        entity->force = vec2_subtract(&(entity->force), &anti_force);
+        entity->velocity = vec2_subtract(&(entity->velocity), &anti_velocity);
+
+        // Penalty
+        Vec2 surface_vec = vec2_subtract(coll_p, &point_next_frame);
+        Vec2 penalty = vec2_project(&surface_vec, coll_normal);
+        entity->position = vec2_add(&(entity->position), &penalty);
     }
 }

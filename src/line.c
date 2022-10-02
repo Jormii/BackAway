@@ -9,12 +9,21 @@ Vec2 line_segment_interpolate(const Vec2 *p, const Vec2 *q, float t)
 
 bool_t line_segments_intersect(const Vec2 *p0, const Vec2 *pf, const Vec2 *q0, const Vec2 *qf, float *out_t)
 {
-    float num = (p0->x - q0->x) * (q0->y - qf->y) - (p0->y - q0->y) * (q0->x - qf->x);
-    float den = (p0->x - pf->x) * (q0->y - qf->y) - (p0->y - pf->y) * (q0->x - qf->x);
-    float t = num / den;
+    // Cramer's rule
+    Vec2 v = vec2_subtract(pf, p0);
+    Vec2 u = vec2_subtract(qf, q0);
+    Vec2 w = vec2_subtract(q0, p0);
 
-    bool_t intersection = t >= 0 && t <= 1;
-    *out_t = t;
+    // We name 'pt' and 'qt' the scalar parameters in 'p = p0 + pt*(pf - p0)'
+    float det_PT = w.y * u.x - w.x * u.y;
+    float det_QT = v.x * w.y - v.y * w.x;
+    float det_A = v.y * u.x - v.x * u.y;
+
+    float pt = det_PT / det_A;
+    float qt = det_QT / det_A;
+
+    *out_t = pt;
+    bool_t intersection = (pt >= 0 && pt <= 1) && (qt >= 0 && qt <= 1);
 
     return intersection;
 }

@@ -44,6 +44,11 @@ void draw_line(const Vec2 *p, const Vec2 *q, rgb_t color)
 
 void draw_vertical_line(int x, int y0, int yf, rgb_t color)
 {
+    if (x < 0 || x >= SCREEN_WIDTH)
+    {
+        return;
+    }
+
     int _y0 = MIN(y0, yf);
     int _yf = MAX(y0, yf);
 

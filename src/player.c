@@ -1,5 +1,3 @@
-#include <stdlib.h>
-
 #include "line.h"
 #include "player.h"
 #include "game_state.h"
@@ -8,8 +6,11 @@
 void player_update(Player *player, float delta)
 {
     // Update positions
+    player->entity.force.x = 100.0f;
+    player->entity.force.y = 100.0f;
+
     entity_update(&(player->entity), delta);
-    level_resolve_collisions(&level, &(player->entity), &(player->collider), delta);
+    level_resolve_collisions(&level, &(player->entity), &(player->collider));
 
     Vec2 v = entity_movement_vector(&(player->entity));
     player->collider.origin = vec2_add(&(player->collider.origin), &v);
