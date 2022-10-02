@@ -12,6 +12,7 @@ typedef struct Player_st
     Rect collider;
 
     bool_t can_jump;
+    Vec2 facing_direction;
 } Player;
 
 void player_update(Player *player, float delta);
