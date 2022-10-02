@@ -23,19 +23,21 @@ void game_state_init()
     // Init level
     // TODO: Do it properly
     level.n_colliders = 2;
-    level.colliders = malloc(level.n_colliders * sizeof(Rect));
+    level.colliders = malloc(level.n_colliders * sizeof(LevelCollider));
 
-    Rect *horizontal_coll = level.colliders;
-    horizontal_coll->origin.x = 100;
-    horizontal_coll->origin.y = 200;
-    horizontal_coll->width = SCREEN_WIDTH - 200;
-    horizontal_coll->height = 50;
+    LevelCollider *horizontal_coll = level.colliders;
+    horizontal_coll->ephemeral = FALSE;
+    horizontal_coll->boundary.origin.x = 100;
+    horizontal_coll->boundary.origin.y = 200;
+    horizontal_coll->boundary.width = SCREEN_WIDTH - 200;
+    horizontal_coll->boundary.height = 50;
 
-    Rect *vertical_coll = level.colliders + 1;
-    vertical_coll->origin.x = SCREEN_WIDTH - 100;
-    vertical_coll->origin.y = 10;
-    vertical_coll->width = 50;
-    vertical_coll->height = SCREEN_HEIGHT - 20;
+    LevelCollider *vertical_coll = level.colliders + 1;
+    vertical_coll->ephemeral = FALSE;
+    vertical_coll->boundary.origin.x = SCREEN_WIDTH - 100;
+    vertical_coll->boundary.origin.y = 10;
+    vertical_coll->boundary.width = 50;
+    vertical_coll->boundary.height = SCREEN_HEIGHT - 20;
 }
 
 void game_state_update(float delta)
@@ -44,6 +46,9 @@ void game_state_update(float delta)
 
     for (size_t i = 0; i < level.n_colliders; ++i)
     {
-        draw_rect(level.colliders + i, 0x008888FF);
+        const LevelCollider *collider = level.colliders + i;
+
+        rgb_t color = (collider->ephemeral) ? 0x00FF8888 : 0x00222222;
+        draw_rect(&(collider->boundary), color);
     }
 }
