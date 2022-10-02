@@ -20,6 +20,8 @@ void game_state_init()
         player.sprite.bitmap[i] = 0x00AAAAAA;
     }
 
+    player.can_jump = FALSE;
+
     // Init level
     // TODO: Do it properly
     level.n_colliders = 2;

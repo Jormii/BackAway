@@ -24,6 +24,15 @@ void entity_update(Entity *entity, float delta)
     entity->position = vec2_add(&(entity->position), &delta_p);
 }
 
+void entity_apply_impulse(Entity *entity, const Vec2 *impulse, float delta)
+{
+    entity->force = vec2_add(&(entity->force), impulse);
+    Vec2 acceleration = vec2_mult_scalar(1.0f / entity->mass, &(entity->force));
+
+    Vec2 delta_v = vec2_mult_scalar(delta, &acceleration);
+    entity->velocity = vec2_add(&(entity->velocity), &delta_v);
+}
+
 Vec2 entity_movement_vector(const Entity *entity)
 {
     return vec2_subtract(&(entity->position), &(entity->position_last_frame));

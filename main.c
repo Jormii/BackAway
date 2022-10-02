@@ -1,7 +1,9 @@
+#include <time.h>
+
 #include <pspkernel.h>
 #include <pspdisplay.h>
 
-#include "time.h"
+#include "input.h"
 #include "callbacks.h"
 #include "game_state.h"
 #include "screen_buffer.h"
@@ -12,6 +14,7 @@ PSP_MAIN_THREAD_ATTR(THREAD_ATTR_USER);
 int main()
 {
     setup_callbacks();
+    input_init();
     screen_buffer_init();
     game_state_init();
 
@@ -24,6 +27,7 @@ int main()
         frame_start = clock();
 
         screen_buffer_clear(0x00444444);
+        input_update();
         game_state_update(delta);
         screen_buffer_swap();
         sceDisplayWaitVblankStart();

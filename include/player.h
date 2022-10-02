@@ -10,6 +10,8 @@ typedef struct Player_st
     Entity entity;
     Sprite sprite;
     Rect collider;
+
+    bool_t can_jump;
 } Player;
 
 void player_update(Player *player, float delta);

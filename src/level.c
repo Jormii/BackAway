@@ -64,6 +64,7 @@ void check_collision(Entity *entity, const Vec2 *point, const Rect *collider_bou
 
 void level_resolve_collision(Entity *entity, const Vec2 *point, const Vec2 *collision_point, const Vec2 *collision_normal)
 {
+    // TODO: Problem because it lies on the exact edge
     Vec2 v = entity_movement_vector(entity);
     Vec2 point_next_frame = vec2_add(point, &v);
 
