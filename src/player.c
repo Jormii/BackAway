@@ -7,6 +7,7 @@
 
 #define MOVE_LEFT BUTTON_LEFT
 #define MOVE_RIGHT BUTTON_RIGHT
+#define FALL BUTTON_DOWN
 #define JUMP BUTTON_CROSS
 #define ATTACK BUTTON_RIGHT_TRIGGER
 
@@ -60,6 +61,12 @@ void player_handle_input(Player *player, float delta)
         .x = input_button_held(MOVE_RIGHT) - input_button_held(MOVE_LEFT),
         .y = -input_button_pressed(JUMP)};
     input_vector = vec2_mult_scalar(player->can_jump, &input_vector);
+
+    // *Handle special case
+    if (input_button_held(FALL) && input_button_held(JUMP))
+    {
+        input_vector.y = !player->can_jump; // Force fall if mid-air
+    }
 
     // Apply impulses
     Entity *entity = &(player->entity);
