@@ -22,6 +22,8 @@ void game_state_init()
 
     player.attack = FALSE;
     player.can_jump = FALSE;
+    player.velocity_add.x = 0.0f;
+    player.velocity_add.y = 0.0f;
 
     // Init level
     // TODO: Do it properly

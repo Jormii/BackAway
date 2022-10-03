@@ -14,6 +14,7 @@ typedef struct Player_st
     bool_t attack;
     bool_t can_jump;
     bool_t reached_goal;
+    Vec2 velocity_add;
 } Player;
 
 void player_update(Player *player, float delta);

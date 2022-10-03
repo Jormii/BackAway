@@ -10,6 +10,9 @@
 #define JUMP BUTTON_CROSS
 #define ATTACK BUTTON_RIGHT_TRIGGER
 
+#define VELOCITY_LIMIT_X 100.0f
+#define VELOCITY_LIMIT_Y 500.0f
+
 void player_handle_input(Player *player, float delta);
 void player_attack(const Player *player);
 void player_on_collision(Entity *entity, const Vec2 *point,
@@ -55,7 +58,8 @@ void player_handle_input(Player *player, float delta)
 {
     Vec2 input_vector = {
         .x = input_button_held(MOVE_RIGHT) - input_button_held(MOVE_LEFT),
-        .y = player->can_jump * (-input_button_pressed(JUMP))};
+        .y = -input_button_pressed(JUMP)};
+    input_vector = vec2_mult_scalar(player->can_jump, &input_vector);
 
     // Apply impulses
     Entity *entity = &(player->entity);
@@ -63,7 +67,18 @@ void player_handle_input(Player *player, float delta)
     Vec2 impulse = vec2_mult_components(&input_vector, &impulse_strength);
     entity_apply_impulse(entity, &impulse, delta);
 
-    entity->velocity.x = CLAMP(entity->velocity.x, -100.0f, 100.0f);
+    // *Handle velocity limits
+    // TODO: Needs to be tweaked
+    float lim_vx = VELOCITY_LIMIT_X + player->velocity_add.x;
+    float lim_vy = VELOCITY_LIMIT_Y + player->velocity_add.y;
+    entity->velocity.x = CLAMP(entity->velocity.x, -lim_vx, lim_vx);
+    entity->velocity.y = CLAMP(entity->velocity.y, -lim_vy, lim_vy);
+
+    Vec2 impulse_vector = {
+        .x = input_button_pressed(MOVE_RIGHT) - input_button_pressed(MOVE_LEFT),
+        .y = input_vector.y}; // How much to modify the current velocity factor
+    impulse_vector.x = impulse_vector.x != 0.0f;
+    player->velocity_add = vec2_add(&(player->velocity_add), &impulse_vector);
 
     // Attack
     player->attack = input_button_pressed(ATTACK);
