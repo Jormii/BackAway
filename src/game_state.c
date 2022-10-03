@@ -21,8 +21,6 @@ void game_state_init()
     }
 
     player.can_jump = FALSE;
-    player.facing_direction.x = 1.0f;
-    player.facing_direction.y = 0.0f;
 
     // Init level
     // TODO: Do it properly

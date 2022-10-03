@@ -31,14 +31,6 @@ void player_update(Player *player, float delta)
     // Render
     sprite_draw(player->entity.position.x, player->entity.position.y, &(player->sprite));
     draw_rect(&(player->collider), 0x0088FF88);
-
-    const Rect *coll = &(player->collider);
-    Vec2 center = {
-        .x = coll->origin.x + 0.5 * coll->width,
-        .y = coll->origin.y + 0.5 * coll->height};
-    Vec2 facing = vec2_mult_scalar(coll->width, &(player->facing_direction));
-    Vec2 facing_tgt = vec2_add(&center, &facing);
-    draw_line(&center, &facing_tgt, 0x008888FF);
 }
 
 void player_handle_input(Player *player, float delta)
@@ -47,19 +39,12 @@ void player_handle_input(Player *player, float delta)
         .x = input_button_held(BUTTON_RIGHT) - input_button_held(BUTTON_LEFT),
         .y = player->can_jump * (-input_button_pressed(BUTTON_UP))};
 
-    // Apply impulses to entity
     Entity *entity = &(player->entity);
     Vec2 impulse_strength = {.x = 100.0f, .y = 5000.0f};
     Vec2 impulse = vec2_mult_components(&input_vector, &impulse_strength);
     entity_apply_impulse(entity, &impulse, delta);
 
     entity->velocity.x = CLAMP(entity->velocity.x, -100.0f, 100.0f);
-
-    // Facing
-    if (input_vector.x != 0)
-    {
-        player->facing_direction.x = input_vector.x;
-    }
 }
 
 void player_on_collision(Entity *entity, const Vec2 *point,
