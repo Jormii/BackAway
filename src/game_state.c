@@ -25,6 +25,14 @@ void game_state_init()
 
     // Init level
     // TODO: Do it properly
+    // *Goal
+    level.goal.active = FALSE;
+    level.goal.reached = FALSE;
+    level.goal.boundary.origin.x = SCREEN_WIDTH - 200;
+    level.goal.boundary.origin.y = SCREEN_HEIGHT / 2.0f;
+    level.goal.boundary.width = 70;
+    level.goal.boundary.height = 70;
+
     // *Targets
     level.n_targets = 1;
     level.targets = malloc(level.n_targets * sizeof(LevelTarget));
@@ -59,7 +67,35 @@ void game_state_init()
 
 void game_state_update(float delta)
 {
+    // Update instances
+    // *Player
     player_update(&player, delta);
+
+    // *Goal
+    if (!level.goal.active)
+    {
+        level.goal.active = TRUE;
+        for (size_t i = 0; level.goal.active && (i < level.n_targets); ++i)
+        {
+            const LevelTarget *target = level.targets + i;
+            level.goal.active = level.goal.active && target->hit;
+        }
+    }
+    if (level.goal.active && !level.goal.reached)
+    {
+        level.goal.reached = rect_within_rect(&(player.collider), &(level.goal.boundary));
+        player.reached_goal = level.goal.reached;
+    }
+
+    // Render
+    {
+        rgb_t color = (level.goal.active) ? 0x00888888 : 0x00222222;
+        if (level.goal.reached)
+        {
+            color = 0x00FFFFFF;
+        }
+        draw_rect(&(level.goal.boundary), color);
+    }
 
     for (size_t i = 0; i < level.n_targets; ++i)
     {

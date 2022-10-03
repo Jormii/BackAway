@@ -4,6 +4,13 @@
 #include "rect.h"
 #include "entity.h"
 
+typedef struct LevelGoal_st
+{
+    bool_t active; // Whether reaching the goal triggers end of level
+    bool_t reached;
+    Rect boundary;
+} LevelGoal;
+
 typedef struct LevelTarget_st
 {
     bool_t hit;
@@ -18,6 +25,8 @@ typedef struct LevelCollider_st
 
 typedef struct Level_st
 {
+    LevelGoal goal;
+
     size_t n_targets;
     LevelTarget *targets;
     size_t n_colliders;

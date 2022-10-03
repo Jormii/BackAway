@@ -26,7 +26,10 @@ void player_update(Player *player, float delta)
     player->attack = FALSE;
 
     // Update positions
-    player_handle_input(player, delta);
+    if (!player->reached_goal)
+    {
+        player_handle_input(player, delta);
+    }
     entity_update(&(player->entity), delta);
     level_check_collisions(&level, &(player->entity), &(player->collider),
                            player_on_collision, player);
