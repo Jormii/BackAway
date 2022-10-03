@@ -20,10 +20,25 @@ void game_state_init()
         player.sprite.bitmap[i] = 0x00AAAAAA;
     }
 
+    player.attack = FALSE;
     player.can_jump = FALSE;
 
     // Init level
     // TODO: Do it properly
+    // *Targets
+    level.n_targets = 1;
+    level.targets = malloc(level.n_targets * sizeof(LevelTarget));
+    for (size_t i = 0; i < level.n_targets; ++i)
+    {
+        level.targets[i].hit = FALSE;
+        level.targets[i].boundary.width = 15;
+        level.targets[i].boundary.height = 15;
+    }
+
+    level.targets->boundary.origin.x = 50;
+    level.targets->boundary.origin.y = 50;
+
+    // *Colliders
     level.n_colliders = 2;
     level.colliders = malloc(level.n_colliders * sizeof(LevelCollider));
 
@@ -45,6 +60,14 @@ void game_state_init()
 void game_state_update(float delta)
 {
     player_update(&player, delta);
+
+    for (size_t i = 0; i < level.n_targets; ++i)
+    {
+        const LevelTarget *target = level.targets + i;
+
+        rgb_t color = (target->hit) ? 0x00FF0000 : 0x00FF8888;
+        draw_rect(&(target->boundary), color);
+    }
 
     for (size_t i = 0; i < level.n_colliders; ++i)
     {

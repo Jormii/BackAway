@@ -4,6 +4,12 @@
 #include "rect.h"
 #include "entity.h"
 
+typedef struct LevelTarget_st
+{
+    bool_t hit;
+    Rect boundary;
+} LevelTarget;
+
 typedef struct LevelCollider_st
 {
     bool_t ephemeral; // Collisions are ignored if player goes fast enough
@@ -12,6 +18,8 @@ typedef struct LevelCollider_st
 
 typedef struct Level_st
 {
+    size_t n_targets;
+    LevelTarget *targets;
     size_t n_colliders;
     LevelCollider *colliders;
 } Level;

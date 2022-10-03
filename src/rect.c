@@ -2,6 +2,13 @@
 #include "macros.h"
 #include "screen_buffer.h"
 
+Vec2 rect_center(const Rect *rect)
+{
+    return (Vec2){
+        .x = rect->origin.x + 0.5 * rect->width,
+        .y = rect->origin.y + 0.5 * rect->height};
+}
+
 bool_t rect_contains_point(const Rect *rect, const Vec2 *p)
 {
     float dx = p->x - rect->origin.x;

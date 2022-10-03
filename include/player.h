@@ -11,6 +11,7 @@ typedef struct Player_st
     Sprite sprite;
     Rect collider;
 
+    bool_t attack;
     bool_t can_jump;
 } Player;
 
