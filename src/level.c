@@ -2,7 +2,8 @@
 #include "level.h"
 #include "entity.h"
 
-#define PENETRATION_TOLERANCE 1
+#define FRICTION_COEFF 0.4
+#define PENETRATION_TOLERANCE 0.01
 
 void check_collision(Entity *entity, const Vec2 *point, const Rect *collider_boundary, bool_t ephemeral,
                      CollisionCb on_collision, void *on_collision_ptr);
@@ -30,13 +31,20 @@ void level_check_collisions(const Level *level, Entity *entity, const Rect *enti
 void check_collision(Entity *entity, const Vec2 *point, const Rect *collider_boundary, bool_t ephemeral,
                      CollisionCb on_collision, void *on_collision_ptr)
 {
-    RectCollider rect_collider;
-    rect_collider_init(&rect_collider, collider_boundary);
     Vec2 rect_normals[] = {
         {.x = 0, .y = -1},
         {.x = 1, .y = 0},
         {.x = 0, .y = 1},
         {.x = -1, .y = 0}}; // Clockwise starting at top left corner
+
+    Vec2 rect_tangents[] = {
+        {.x = 1, .y = 0},
+        {.x = 0, .y = 1},
+        {.x = 1, .y = 0},
+        {.x = 0, .y = 1}};
+
+    RectCollider rect_collider;
+    rect_collider_init(&rect_collider, collider_boundary);
 
     for (size_t vertex_idx = 0; vertex_idx < 4; ++vertex_idx)
     {
@@ -45,6 +53,7 @@ void check_collision(Entity *entity, const Vec2 *point, const Rect *collider_bou
         const Vec2 *coll_p = rect_collider.vertices + vertex_idx;
         const Vec2 *coll_q = rect_collider.vertices + ((vertex_idx + 1) % 4);
         const Vec2 *coll_normal = rect_normals + vertex_idx;
+        const Vec2 *coll_tangent = rect_tangents + vertex_idx;
 
         float movement_dot = vec2_dot(&movement_vec, coll_normal);
         if (movement_dot >= 0)
@@ -60,11 +69,13 @@ void check_collision(Entity *entity, const Vec2 *point, const Rect *collider_bou
         }
 
         Vec2 collision_point = line_segment_interpolate(point, &point_next_frame, t);
-        on_collision(entity, point, &collision_point, coll_normal, collider_boundary, ephemeral, on_collision_ptr);
+        on_collision(entity, point, &collision_point, coll_normal, coll_tangent,
+                     collider_boundary, ephemeral, on_collision_ptr);
     }
 }
 
-void level_resolve_collision(Entity *entity, const Vec2 *point, const Vec2 *collision_point, const Vec2 *collision_normal)
+void level_resolve_collision(Entity *entity, const Vec2 *point, const Vec2 *collision_point,
+                             const Vec2 *collision_normal, const Vec2 *collision_tangent)
 {
     Vec2 v = entity_movement_vector(entity);
     Vec2 point_next_frame = vec2_add(point, &v);
@@ -72,9 +83,28 @@ void level_resolve_collision(Entity *entity, const Vec2 *point, const Vec2 *coll
     // Antipenetration
     Vec2 anti_force = vec2_project(&(entity->force), collision_normal);
     Vec2 anti_velocity = vec2_project(&(entity->velocity), collision_normal);
+    anti_force = vec2_mult_scalar(-1.0f, &anti_force);
+    anti_velocity = vec2_mult_scalar(-1.0f, &anti_velocity);
 
-    entity->force = vec2_subtract(&(entity->force), &anti_force);
-    entity->velocity = vec2_subtract(&(entity->velocity), &anti_velocity);
+    entity->force = vec2_add(&(entity->force), &anti_force);
+    entity->velocity = vec2_add(&(entity->velocity), &anti_velocity);
+
+    // Friction
+    Vec2 tangent = *collision_tangent;
+    float tangent_dot = vec2_dot(&tangent, &(entity->velocity));
+    if (tangent_dot > 0.0f)
+    {
+        tangent = vec2_mult_scalar(-1.0f, &tangent);
+    }
+
+    float normal_magnitude = vec2_magnitude(&anti_velocity);
+    Vec2 friction = vec2_mult_scalar(FRICTION_COEFF * normal_magnitude, &tangent);
+    if (vec2_magnitude(&friction) >= vec2_magnitude(&(entity->velocity)))
+    {
+        friction = vec2_mult_scalar(-1.0f, &(entity->velocity));
+    }
+
+    entity->velocity = vec2_add(&(entity->velocity), &friction);
 
     // Penalty
     Vec2 surface_vec = vec2_subtract(collision_point, &point_next_frame);
@@ -84,6 +114,4 @@ void level_resolve_collision(Entity *entity, const Vec2 *point, const Vec2 *coll
     vec2_normalize(&penalty);
     penalty = vec2_mult_scalar(penetration_depth + PENETRATION_TOLERANCE, &penalty);
     entity->position = vec2_add(&(entity->position), &penalty);
-
-    // TODO: Friction
 }

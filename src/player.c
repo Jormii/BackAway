@@ -17,7 +17,7 @@
 void player_handle_input(Player *player, float delta);
 void player_attack(const Player *player);
 void player_on_collision(Entity *entity, const Vec2 *point,
-                         const Vec2 *collision_point, const Vec2 *collision_normal,
+                         const Vec2 *collision_point, const Vec2 *collision_normal, const Vec2 *collision_tangent,
                          const Rect *collider_boundary, bool_t ephemeral, void *on_collision_ptr);
 
 void player_update(Player *player, float delta)
@@ -117,7 +117,7 @@ void player_attack(const Player *player)
 }
 
 void player_on_collision(Entity *entity, const Vec2 *point,
-                         const Vec2 *collision_point, const Vec2 *collision_normal,
+                         const Vec2 *collision_point, const Vec2 *collision_normal, const Vec2 *collision_tangent,
                          const Rect *collider_boundary, bool_t ephemeral, void *on_collision_ptr)
 {
     bool_t ignore_collisions = FALSE;
@@ -137,7 +137,8 @@ void player_on_collision(Entity *entity, const Vec2 *point,
     {
         bool_t upwards_before = entity->velocity.y < 0.0f;
 
-        level_resolve_collision(entity, point, collision_point, collision_normal);
+        level_resolve_collision(entity, point, collision_point,
+                                collision_normal, collision_tangent);
 
         bool_t upwards_after = entity->velocity.y <= 0.0f;
         player.can_jump = upwards_after && !upwards_before;

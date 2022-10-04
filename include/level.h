@@ -34,11 +34,11 @@ typedef struct Level_st
 } Level;
 
 typedef void (*CollisionCb)(Entity *entity, const Vec2 *point,
-                            const Vec2 *collision_point, const Vec2 *collision_normal,
+                            const Vec2 *collision_point, const Vec2 *collision_normal, const Vec2 *collision_tangent,
                             const Rect *collider_boundary, bool_t ephemeral, void *on_collision_ptr);
 
 void level_check_collisions(const Level *level, Entity *entity, const Rect *entity_boundary,
                             CollisionCb on_collision, void *on_collision_ptr);
-void level_resolve_collision(Entity *entity, const Vec2 *point, const Vec2 *collision_point, const Vec2 *collision_normal);
-
+void level_resolve_collision(Entity *entity, const Vec2 *point, const Vec2 *collision_point,
+                             const Vec2 *collision_normal, const Vec2 *collision_tangent);
 #endif
