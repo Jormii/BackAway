@@ -47,9 +47,6 @@ void player_update(Player *player, float delta)
         player_attack(player);
     }
 
-    // Other updates
-    player->can_jump = TRUE; // TODO
-
     // Render
     sprite_draw(player->entity.position.x, player->entity.position.y, &(player->sprite));
     draw_rect(&(player->collider), 0x0088FF88);
@@ -87,8 +84,12 @@ void player_handle_input(Player *player, float delta)
     impulse_vector.x = impulse_vector.x != 0.0f;
     player->velocity_add = vec2_add(&(player->velocity_add), &impulse_vector);
 
-    // Attack
+    // Attack and jump
     player->attack = input_button_pressed(ATTACK);
+    if (player->can_jump)
+    {
+        player->can_jump = input_vector.y >= 0.0f;
+    }
 }
 
 void player_attack(const Player *player)
@@ -134,6 +135,11 @@ void player_on_collision(Entity *entity, const Vec2 *point,
 
     if (!ignore_collisions)
     {
+        bool_t upwards_before = entity->velocity.y < 0.0f;
+
         level_resolve_collision(entity, point, collision_point, collision_normal);
+
+        bool_t upwards_after = entity->velocity.y <= 0.0f;
+        player.can_jump = upwards_after && !upwards_before;
     }
 }
