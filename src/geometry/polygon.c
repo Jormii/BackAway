@@ -8,7 +8,6 @@ void polygon_init(Polygon *polygon, const Vec2 *vertices, size_t n_vertices)
 {
     polygon->n_vertices = n_vertices;
     polygon->vertices = malloc(n_vertices * sizeof(Vec2));
-    polygon->tangents = malloc(n_vertices * sizeof(Vec2));
     polygon->normals = malloc(n_vertices * sizeof(Vec2));
 
     Vec2 min_corner = {.x = INFINITY, .y = INFINITY};
@@ -17,18 +16,16 @@ void polygon_init(Polygon *polygon, const Vec2 *vertices, size_t n_vertices)
     {
         const Vec2 *p0 = vertices + i;
         const Vec2 *pf = vertices + ((i + 1) % n_vertices);
+        Vec2 v = vec2_subtract(pf, p0);
 
-        // Vertices and edges
+        // Vertex and normal
         Vec2 *vertex = polygon->vertices + i;
-        Vec2 *tangent = polygon->tangents + i;
         Vec2 *normal = polygon->normals + i;
 
         *vertex = *p0;
-        *tangent = vec2_subtract(pf, p0);
-        vec2_normalize(tangent);
-
-        normal->x = tangent->y;
-        normal->y = -tangent->x;
+        normal->x = v.y;
+        normal->y = -v.x;
+        vec2_normalize(normal);
 
         // BBOX
         min_corner.x = MIN(p0->x, min_corner.x);
@@ -37,11 +34,22 @@ void polygon_init(Polygon *polygon, const Vec2 *vertices, size_t n_vertices)
         max_corner.y = MAX(p0->y, max_corner.y);
     }
 
-    // Update BBOX
+    // BBOX
     Rect *bbox = &(polygon->bbox);
     bbox->origin = min_corner;
     bbox->width = max_corner.x - min_corner.x;
     bbox->height = max_corner.y - min_corner.y;
+}
+
+void polygon_move(Polygon *polygon, const Vec2 *movement)
+{
+    for (size_t i = 0; i < polygon->n_vertices; ++i)
+    {
+        Vec2 *vertex = polygon->vertices + i;
+        *vertex = vec2_add(vertex, movement);
+    }
+
+    polygon->bbox.origin = vec2_add(&(polygon->bbox.origin), movement);
 }
 
 void polygon_from_rect(Polygon *polygon, const Rect *rect)
