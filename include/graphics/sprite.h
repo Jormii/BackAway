@@ -1,17 +1,21 @@
 #ifndef SPRITE_H
 #define SPRITE_H
 
-#include "vec2.h"
-#include "types.h"
+#include "color.h"
 
-typedef struct Sprite_st
+typedef struct SpriteMeta_st
 {
     int width;
     int height;
-    rgb_t *bitmap;
+} SpriteMeta;
+
+typedef struct Sprite_st
+{
+    SpriteMeta meta;
+    Color *bitmap;
 } Sprite;
 
-void sprite_init(Sprite *sprite, int width, int height);
-void sprite_draw(int x, int y, const Sprite *sprite);
+bool_t sprite_load(Sprite *sprite, const char *path);
+void sprite_draw(const Sprite *sprite, int x, int y);
 
 #endif

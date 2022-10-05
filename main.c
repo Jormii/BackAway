@@ -18,14 +18,16 @@ int main()
 
     clock_t frame_start = clock();
     clock_t frame_end = clock();
+    Color clear_color = {.red = 255, .green = 128, .blue = 128, .alpha = 0};
     while (running())
     {
         clock_t ellapsed = frame_end - frame_start;
         float delta = ((float)ellapsed) / CLOCKS_PER_SEC;
         frame_start = clock();
 
-        screen_buffer_clear(0x00444444);
+        screen_buffer_clear(&clear_color);
         input_update();
+
         screen_buffer_swap();
         sceDisplayWaitVblankStart();
 
