@@ -7,7 +7,10 @@
 
 typedef enum InputButton_en
 {
-    BUTTON_START = PSP_CTRL_START
+    INPUT_BUTTON_RIGHT = PSP_CTRL_RIGHT,
+    INPUT_BUTTON_LEFT = PSP_CTRL_LEFT,
+
+    INPUT_BUTTON_CROSS = PSP_CTRL_CROSS
 } InputButton;
 
 void input_init();
