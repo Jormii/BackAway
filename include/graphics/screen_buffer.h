@@ -13,6 +13,7 @@
 Color *draw_buffer;
 
 void screen_buffer_init();
+
 void screen_buffer_clear(const Color *color);
 void screen_buffer_swap();
 

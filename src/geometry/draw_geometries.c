@@ -79,3 +79,24 @@ void draw_rect(const Rect *rect, const Color *color)
     draw_line(&c3, &c4, color);
     draw_line(&c4, &c1, color);
 }
+
+void draw_polygon(const Polygon *polygon, const Color *edge_color, const Color *normal_color)
+{
+    for (size_t i = 0; i < polygon->n_vertices; ++i)
+    {
+        // Edge
+        const Vec2 *p0 = polygon->vertices + i;
+        const Vec2 *pf = polygon->vertices + ((i + 1) % polygon->n_vertices);
+
+        draw_line(p0, pf, edge_color);
+
+        // Normal
+        const Vec2 *normal = polygon->normals + i;
+        Vec2 scaled_normal = vec2_mult_scalar(10.0f, normal);
+
+        Vec2 midpoint = vec2_add(p0, pf);
+        midpoint = vec2_mult_scalar(0.5f, &midpoint);
+        Vec2 midpoint_f = vec2_add(&midpoint, &scaled_normal);
+        draw_line(&midpoint, &midpoint_f, normal_color);
+    }
+}
