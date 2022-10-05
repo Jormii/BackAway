@@ -5,7 +5,6 @@
 
 #include "input.h"
 #include "callbacks.h"
-#include "game_state.h"
 #include "screen_buffer.h"
 
 PSP_MODULE_INFO("BackAway", 0, 1, 0);
@@ -16,7 +15,6 @@ int main()
     setup_callbacks();
     input_init();
     screen_buffer_init();
-    game_state_init();
 
     clock_t frame_start = clock();
     clock_t frame_end = clock();
@@ -28,7 +26,6 @@ int main()
 
         screen_buffer_clear(0x00444444);
         input_update();
-        game_state_update(delta);
         screen_buffer_swap();
         sceDisplayWaitVblankStart();
 

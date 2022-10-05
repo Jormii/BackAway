@@ -135,6 +135,10 @@ def main():
 
     # Objs
     source = [
+        SourceDir("../src/utils/"),
+        SourceDir("../src/geometry/"),
+        SourceDir("../src/graphics/"),
+        SourceDir("../src/math/"),
         SourceDir("../src/"),
         File("../main.o")
     ]
@@ -150,6 +154,10 @@ def main():
 
     # Includes
     includes = [
+        IncludeDir("../include/utils/"),
+        IncludeDir("../include/geometry/"),
+        IncludeDir("../include/graphics/"),
+        IncludeDir("../include/math/"),
         IncludeDir("../include/")
     ]
     for _inc in includes:
