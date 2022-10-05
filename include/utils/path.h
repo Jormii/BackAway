@@ -9,6 +9,6 @@
 #define ROOT "ms0:/PSP/GAME/" TITLE "/"
 #endif
 
-#define SPRITE(PATH) ROOT "resources/sprites/" PATH
+#define SPRITE(PATH) ROOT "resources/sprites/" PATH ".sprite"
 
 #endif
