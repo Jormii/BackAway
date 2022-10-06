@@ -147,7 +147,15 @@ def main():
 
     # Libs
     libs = [
-        File("-lm")
+        File("-lm"),
+        File("-losl"),
+        ## REQUIRED BY OSLIB ##
+        File("-lpspgu"),
+        File("-lpspaudio"),
+        File("-lpspaudiocodec"),
+        File("-lpsphprm"),
+        File("-lpsppower")
+        # -- END --
     ]
     for _lib in libs:
         makefile.libs.append(_lib)

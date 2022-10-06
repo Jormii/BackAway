@@ -10,5 +10,6 @@
 #endif
 
 #define SPRITE(PATH) ROOT "resources/sprites/" PATH ".sprite"
+#define MP3(PATH) ROOT "resources/sounds/" PATH ".mp3"
 
 #endif

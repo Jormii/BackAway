@@ -2,13 +2,14 @@
 
 #include <pspkernel.h>
 #include <pspdisplay.h>
+#include <oslib/oslib.h>
 
 #include "input.h"
 #include "callbacks.h"
 #include "game_state.h"
 #include "screen_buffer.h"
 
-PSP_MODULE_INFO("BackAway", 0, 1, 0);
+PSP_MODULE_INFO("BackAway", 0, 1, 1);
 PSP_MAIN_THREAD_ATTR(THREAD_ATTR_USER);
 
 int main()
@@ -16,6 +17,8 @@ int main()
     setup_callbacks();
     input_init();
     screen_buffer_init();
+    oslInit(0);
+    oslInitAudioME(OSL_FMT_MP3);
 
     GameState game_state;
     game_state_init(&game_state);
@@ -34,6 +37,7 @@ int main()
         game_state_update(&game_state, delta);
         screen_buffer_swap();
         sceDisplayWaitVblankStart();
+        oslAudioVSync();
 
         frame_end = clock();
     }
