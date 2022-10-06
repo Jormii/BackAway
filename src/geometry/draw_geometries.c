@@ -2,18 +2,18 @@
 #include "screen_buffer.h"
 #include "draw_geometries.h"
 
-void draw_vertical_line(int x, int y0, int yf, rgb_t color);
+void draw_vertical_line(int x, int y0, int yf, const Color *color);
 
-void draw_point(const Vec2 *point, rgb_t color)
+void draw_point(const Vec2 *point, const Color *color)
 {
     if (point->x >= 0 && point->x < SCREEN_WIDTH && point->y >= 0 && point->y < SCREEN_HEIGHT)
     {
         size_t idx = SCREEN_BUFFER_INDEX((int)point->x, (int)point->y);
-        draw_buffer[idx] = color;
+        draw_buffer[idx] = *color;
     }
 }
 
-void draw_line(const Vec2 *p, const Vec2 *q, rgb_t color)
+void draw_line(const Vec2 *p, const Vec2 *q, const Color *color)
 {
     if (p->x > q->x)
     {
@@ -36,13 +36,13 @@ void draw_line(const Vec2 *p, const Vec2 *q, rgb_t color)
             if (y >= 0 && y < SCREEN_HEIGHT)
             {
                 size_t idx = SCREEN_BUFFER_INDEX(x, y);
-                draw_buffer[idx] = color;
+                draw_buffer[idx] = *color;
             }
         }
     }
 }
 
-void draw_vertical_line(int x, int y0, int yf, rgb_t color)
+void draw_vertical_line(int x, int y0, int yf, const Color *color)
 {
     if (x < 0 || x >= SCREEN_WIDTH)
     {
@@ -57,11 +57,11 @@ void draw_vertical_line(int x, int y0, int yf, rgb_t color)
     for (int y = _y0; y <= _yf; ++y)
     {
         size_t idx = SCREEN_BUFFER_INDEX(x, y);
-        draw_buffer[idx] = color;
+        draw_buffer[idx] = *color;
     }
 }
 
-void draw_rect(const Rect *rect, rgb_t color)
+void draw_rect(const Rect *rect, const Color *color)
 {
     Vec2 c1 = rect->origin;
     Vec2 c2 = {
@@ -78,4 +78,25 @@ void draw_rect(const Rect *rect, rgb_t color)
     draw_line(&c2, &c3, color);
     draw_line(&c3, &c4, color);
     draw_line(&c4, &c1, color);
+}
+
+void draw_polygon(const Polygon *polygon, const Color *edge_color, const Color *normal_color)
+{
+    for (size_t i = 0; i < polygon->n_vertices; ++i)
+    {
+        // Edge
+        const Vec2 *p0 = polygon->vertices + i;
+        const Vec2 *pf = polygon->vertices + ((i + 1) % polygon->n_vertices);
+
+        draw_line(p0, pf, edge_color);
+
+        // Normal
+        const Vec2 *normal = polygon->normals + i;
+        Vec2 scaled_normal = vec2_mult_scalar(10.0f, normal);
+
+        Vec2 midpoint = vec2_add(p0, pf);
+        midpoint = vec2_mult_scalar(0.5f, &midpoint);
+        Vec2 midpoint_f = vec2_add(&midpoint, &scaled_normal);
+        draw_line(&midpoint, &midpoint_f, normal_color);
+    }
 }

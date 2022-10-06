@@ -135,6 +135,10 @@ def main():
 
     # Objs
     source = [
+        SourceDir("../src/utils/"),
+        SourceDir("../src/geometry/"),
+        SourceDir("../src/graphics/"),
+        SourceDir("../src/math/"),
         SourceDir("../src/"),
         File("../main.o")
     ]
@@ -143,13 +147,25 @@ def main():
 
     # Libs
     libs = [
-        File("-lm")
+        File("-lm"),
+        File("-losl"),
+        ## REQUIRED BY OSLIB ##
+        File("-lpspgu"),
+        File("-lpspaudio"),
+        File("-lpspaudiocodec"),
+        File("-lpsphprm"),
+        File("-lpsppower")
+        # -- END --
     ]
     for _lib in libs:
         makefile.libs.append(_lib)
 
     # Includes
     includes = [
+        IncludeDir("../include/utils/"),
+        IncludeDir("../include/geometry/"),
+        IncludeDir("../include/graphics/"),
+        IncludeDir("../include/math/"),
         IncludeDir("../include/")
     ]
     for _inc in includes:

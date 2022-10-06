@@ -1,13 +1,20 @@
 #ifndef GAME_STATE_H
 #define GAME_STATE_H
 
-#include "level.h"
-#include "player.h"
+#include "rect.h"
+#include "sprite.h"
 
-Level level;
-Player player;
+typedef struct GameState_st
+{
+    float delta;
+    Vec2 camera_focus;
+    Vec2 camera_half_extension;
 
-void game_state_init();
-void game_state_update(float delta);
+    size_t n_sprites;
+    Sprite *loaded_sprites;
+} GameState;
+
+void game_state_init(GameState *game_state);
+void game_state_update(GameState *game_state, float delta);
 
 #endif
