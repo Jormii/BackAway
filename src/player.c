@@ -11,7 +11,7 @@
 void player_handle_input(Player *player, const GameState *game_state);
 void player_check_collisions(Player *player, const GameState *game_state);
 
-void player_on_collision(Entity *entity, const CollisionData *collision, void *player);
+void player_on_collision(Entity *entity, const CollisionData *collision, void *ptr);
 void player_input_timer_trigger(Timer *timer);
 
 void player_init(Player *player)
@@ -27,13 +27,14 @@ void player_init(Player *player)
     polygon_from_rect(&(player->collider), &sprite_rect);
 
     // Input related
+    player->can_jump = FALSE;
+    player->button_press_count.x = 0;
+    player->button_press_count.y = 0;
+
     player->input_timer.cycle = FALSE;
     player->input_timer.countdown = 5.0f;
     player->input_timer.trigger_cb = player_input_timer_trigger;
     player->input_timer.trigger_cb_ptr = player;
-
-    player->button_press_count.x = 0;
-    player->button_press_count.y = 0;
 
     // Inertia related
     player->max_velocity.x = 100.0f;
@@ -44,11 +45,12 @@ void player_init(Player *player)
 
 void player_update(Player *player, GameState *game_state)
 {
-    // Set gravity
+    // Defaults
+    // *Gravity
     player->entity.force.x = 0.0f;
     player->entity.force.y = 100.0f;
 
-    // Timer
+    // *Inputs
     timer_update(&(player->input_timer), game_state->delta);
 
     // Update positions
@@ -59,6 +61,12 @@ void player_update(Player *player, GameState *game_state)
     Vec2 v = entity_movement_vector(&(player->entity));
     polygon_move(&(player->collider), &v);
     game_state->camera_focus = rect_center(&(player->collider.bbox));
+
+    // Final jump update to make sure jumping is disabled when falling from a platform
+    if (player->can_jump && player->entity.velocity.y > 0.0f)
+    {
+        player->can_jump = FALSE;
+    }
 }
 
 void player_draw(const Player *player, const GameState *game_state)
@@ -73,7 +81,13 @@ void player_handle_input(Player *player, const GameState *game_state)
 {
     Vec2 input_vector = {
         .x = input_button_held(INPUT_BUTTON_RIGHT) - input_button_held(INPUT_BUTTON_LEFT),
-        .y = -input_button_pressed(INPUT_BUTTON_CROSS)};
+        .y = -player->can_jump * input_button_pressed(INPUT_BUTTON_CROSS)};
+
+    // Handle fast descend
+    if (input_button_held(INPUT_BUTTON_DOWN) && input_button_held(INPUT_BUTTON_CROSS))
+    {
+        input_vector.y = !player->can_jump;
+    }
 
     // Apply impulses
     Vec2 multiplier = {
@@ -89,6 +103,12 @@ void player_handle_input(Player *player, const GameState *game_state)
     Vec2 max_velocity = vec2_mult_components(&multiplier, &(player->max_velocity));
     velocity->x = CLAMP(velocity->x, -max_velocity.x, max_velocity.x);
     velocity->y = CLAMP(velocity->y, -max_velocity.y, max_velocity.y);
+
+    // Update jumping
+    if (player->can_jump)
+    {
+        player->can_jump = input_vector.y >= 0.0f;
+    }
 
     // Handle buttons pressed for next frame
     Vec2 input_press_vector = {
@@ -119,10 +139,13 @@ void player_check_collisions(Player *player, const GameState *game_state)
     }
 }
 
-void player_on_collision(Entity *entity, const CollisionData *collision, void *player)
+void player_on_collision(Entity *entity, const CollisionData *collision, void *ptr)
 {
     // TODO: "Phasing"
     resolve_collision(entity, collision);
+
+    Player *player = (Player *)ptr;
+    player->can_jump = entity->velocity.y >= 0.0f; // Collided with a surface below it
 }
 
 void player_input_timer_trigger(Timer *timer)

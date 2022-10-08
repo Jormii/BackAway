@@ -13,6 +13,7 @@ typedef struct Player_st
     Sprite sprite;
     Polygon collider;
 
+    bool_t can_jump;
     Timer input_timer;
     Vec2 button_press_count;
     Vec2 max_velocity;  // Default maximum velocity
