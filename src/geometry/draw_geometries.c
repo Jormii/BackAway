@@ -19,7 +19,7 @@ void draw_line(const Vec2 *p, const Vec2 *q, const Color *color)
     {
         draw_line(q, p, color);
     }
-    else if (p->x == q->x)
+    else if (EQUAL_EPSILON(p->x, q->x, 1.0f))
     {
         draw_vertical_line(p->x, p->y, q->y, color);
     }

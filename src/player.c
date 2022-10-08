@@ -9,6 +9,9 @@
 #include "player_aoe.h"
 #include "draw_geometries.h"
 
+float player_attack_radius(const Player *player);
+
+void player_attack(const Player *player, GameState *game_state);
 void player_handle_input(Player *player, const GameState *game_state);
 void player_check_collisions(Player *player, const GameState *game_state);
 
@@ -74,7 +77,10 @@ void player_update(Player *player, GameState *game_state)
     polygon_move(&(player->collider), &v);
     game_state->camera_focus = rect_center(&(player->collider.bbox));
 
-    // TODO: Attacking
+    if (player->attack)
+    {
+        player_attack(player, game_state);
+    }
 
     // Check if goal has been reached
     LevelGoal *goal = &(game_state->level->goal);
@@ -104,8 +110,67 @@ void player_draw(const Player *player, const GameState *game_state)
 
     Vec2 center = rect_center(&(player->collider.bbox));
     //center = game_state_camera_transform(game_state, &center);
+    player_aoe_draw(&center, player_attack_radius(player));
+
+    // TODO: Remove
+    Color red = {255, 0, 0, 0};
+    Color green = {0, 255, 0, 0};
+    Color blue = {0, 0, 255, 0};
+
+    float attack_radius = player_attack_radius(player);
+    float sqr_radius = attack_radius * attack_radius;
+    const Level *level = game_state->level;
+    for (size_t i = 0; i < level->n_objectives; ++i)
+    {
+        const LevelObjective *objective = level->objectives + i;
+        Vec2 v = vec2_subtract(&(objective->position), &center);
+        float sqr_magnitude = vec2_dot(&v, &v);
+
+        const Color *objective_color = &red;
+        if (objective->hit)
+        {
+            objective_color = &green;
+        }
+        else if (sqr_magnitude <= sqr_radius)
+        {
+            objective_color = &blue;
+        }
+
+        draw_line(&center, &(objective->position), objective_color);
+    }
+    // END TODO
+}
+
+float player_attack_radius(const Player *player)
+{
     float max_multiplier = MAX(player->multiplier.x, player->multiplier.y);
-    player_aoe_draw(&center, max_multiplier * player->attack_radius);
+    return max_multiplier * player->attack_radius;
+}
+
+void player_attack(const Player *player, GameState *game_state)
+{
+    // TODO: Some cooldown
+
+    Level *level = game_state->level;
+    Vec2 player_pos = rect_center(&(player->collider.bbox));
+    float attack_radius = player_attack_radius(player);
+    float sqr_radius = attack_radius * attack_radius;
+
+    for (size_t i = 0; i < level->n_colliders; ++i)
+    {
+        LevelObjective *objective = level->objectives + i;
+        if (objective->hit)
+        {
+            continue;
+        }
+
+        Vec2 v = vec2_subtract(&(objective->position), &player_pos);
+        float sqr_magnitude = vec2_dot(&v, &v);
+        if (sqr_magnitude <= sqr_radius)
+        {
+            objective->hit = TRUE;
+        }
+    }
 }
 
 void player_handle_input(Player *player, const GameState *game_state)

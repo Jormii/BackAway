@@ -23,3 +23,11 @@ bool_t rect_within_rect(const Rect *r1, const Rect *r2)
            r1->origin.y + r1->height >= r2->origin.y && // r1 top edge past r2 bottom
            r1->origin.y <= r2->origin.y + r2->height;   // r1 bottom edge past r2 top
 }
+
+void rect_given_center(Rect *rect, const Vec2 *center, int width, int height)
+{
+    rect->origin.x = center->x - 0.5 * width;
+    rect->origin.y = center->y - 0.5 * height;
+    rect->width = width;
+    rect->height = height;
+}

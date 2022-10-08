@@ -7,15 +7,23 @@
 
 typedef struct LevelGoal_st
 {
-    Rect boundary;
     bool_t active;
+    Rect boundary;
 } LevelGoal;
+
+typedef struct LevelObjective_st
+{
+    bool_t hit;
+    Vec2 position;
+} LevelObjective;
 
 typedef struct Level_st
 {
     Vec2 spawn_position;
     LevelGoal goal;
 
+    size_t n_objectives;
+    LevelObjective *objectives;
     size_t n_colliders;
     Polygon *colliders;
 } Level;

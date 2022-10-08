@@ -14,5 +14,6 @@ typedef struct Rect_st
 Vec2 rect_center(const Rect *rect);
 bool_t rect_contains_point(const Rect *rect, const Vec2 *p);
 bool_t rect_within_rect(const Rect *r1, const Rect *r2);
+void rect_given_center(Rect *rect, const Vec2 *center, int width, int height);
 
 #endif

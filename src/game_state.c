@@ -23,11 +23,18 @@ void game_state_init(GameState *game_state)
     level->spawn_position.x = 0;
     level->spawn_position.y = 0;
 
+    level->goal.active = FALSE;
     level->goal.boundary.origin.x = SCREEN_WIDTH - 100.0f;
     level->goal.boundary.origin.y = 0.0f;
     level->goal.boundary.width = 30.0f;
     level->goal.boundary.height = SCREEN_HEIGHT;
-    level->goal.active = FALSE;
+
+    level->n_objectives = 1;
+    level->objectives = malloc(level->n_objectives * sizeof(LevelObjective));
+
+    level->objectives->hit = FALSE;
+    level->objectives->position.x = 100.0f;
+    level->objectives->position.y = 100.0f;
 
     level->n_colliders = 1;
     level->colliders = malloc(level->n_colliders * sizeof(Polygon));
