@@ -7,6 +7,7 @@
 #include "player.h"
 #include "physics.h"
 #include "player_aoe.h"
+#include "state_level.h"
 #include "draw_geometries.h"
 
 float player_attack_radius(const Player *player);
@@ -90,7 +91,7 @@ void player_update(Player *player, GameState *game_state)
         if (reached_goal)
         {
             player->goal_reached = TRUE;
-            game_state_end_of_level(game_state);
+            level_state_end_level(game_state);
         }
     }
 
