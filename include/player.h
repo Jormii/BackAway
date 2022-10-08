@@ -1,6 +1,7 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
+#include "timer.h"
 #include "entity.h"
 #include "sprite.h"
 #include "polygon.h"
@@ -11,6 +12,11 @@ typedef struct Player_st
     Entity entity;
     Sprite sprite;
     Polygon collider;
+
+    Timer input_timer;
+    Vec2 button_press_count;
+    Vec2 max_velocity;  // Default maximum velocity
+    Vec2 input_impulse; // Impulse applied when pushing buttons
 } Player;
 
 void player_init(Player *player);

@@ -1,14 +1,22 @@
+#include <math.h>
+
 #include "path.h"
+#include "input.h"
 #include "level.h"
+#include "macros.h"
 #include "player.h"
 #include "physics.h"
 #include "draw_geometries.h"
 
+void player_handle_input(Player *player, const GameState *game_state);
 void player_check_collisions(Player *player, const GameState *game_state);
+
 void player_on_collision(Entity *entity, const CollisionData *collision, void *player);
+void player_input_timer_trigger(Timer *timer);
 
 void player_init(Player *player)
 {
+    // Entity, sprite and collider
     entity_init(&(player->entity), 1.0f, 0.0f, 0.0f);
     sprite_load(&(player->sprite), SPRITE("t_sprite_1"));
 
@@ -17,6 +25,21 @@ void player_init(Player *player)
         .width = player->sprite.meta.width,
         .height = player->sprite.meta.height};
     polygon_from_rect(&(player->collider), &sprite_rect);
+
+    // Input related
+    player->input_timer.cycle = FALSE;
+    player->input_timer.countdown = 5.0f;
+    player->input_timer.trigger_cb = player_input_timer_trigger;
+    player->input_timer.trigger_cb_ptr = player;
+
+    player->button_press_count.x = 0;
+    player->button_press_count.y = 0;
+
+    // Inertia related
+    player->max_velocity.x = 100.0f;
+    player->max_velocity.y = 500.0f;
+    player->input_impulse.x = 100.0f;
+    player->input_impulse.y = 5000.0f;
 }
 
 void player_update(Player *player, GameState *game_state)
@@ -25,7 +48,11 @@ void player_update(Player *player, GameState *game_state)
     player->entity.force.x = 0.0f;
     player->entity.force.y = 100.0f;
 
+    // Timer
+    timer_update(&(player->input_timer), game_state->delta);
+
     // Update positions
+    player_handle_input(player, game_state);
     entity_update(&(player->entity), game_state->delta);
     player_check_collisions(player, game_state);
 
@@ -42,6 +69,46 @@ void player_draw(const Player *player, const GameState *game_state)
     sprite_draw(&(player->sprite), camera.x, camera.y);
 }
 
+void player_handle_input(Player *player, const GameState *game_state)
+{
+    Vec2 input_vector = {
+        .x = input_button_held(INPUT_BUTTON_RIGHT) - input_button_held(INPUT_BUTTON_LEFT),
+        .y = -input_button_pressed(INPUT_BUTTON_CROSS)};
+
+    // Apply impulses
+    Vec2 multiplier = {
+        .x = 1.0f + log10f(2 * player->button_press_count.x + 1),
+        .y = 1.0f + log10f(2 * player->button_press_count.y + 1)}; // TODO: Will need tweaking
+
+    Vec2 impulse = vec2_mult_components(&multiplier, &(player->input_impulse));
+    impulse = vec2_mult_components(&input_vector, &impulse);
+    entity_apply_impulse(&(player->entity), &impulse, game_state->delta);
+
+    // Limit velocity
+    Vec2 *velocity = &(player->entity.velocity);
+    Vec2 max_velocity = vec2_mult_components(&multiplier, &(player->max_velocity));
+    velocity->x = CLAMP(velocity->x, -max_velocity.x, max_velocity.x);
+    velocity->y = CLAMP(velocity->y, -max_velocity.y, max_velocity.y);
+
+    // Handle buttons pressed for next frame
+    Vec2 input_press_vector = {
+        .x = input_button_pressed(INPUT_BUTTON_RIGHT) - input_button_pressed(INPUT_BUTTON_LEFT),
+        .y = input_vector.y};
+
+    if (vec2_magnitude(&input_press_vector) != 0.0f)
+    {
+        Timer *timer = &(player->input_timer);
+        timer_reset(timer);
+        if (!(timer->running))
+        {
+            timer_start(&(player->input_timer));
+        }
+
+        player->button_press_count.x += fabsf(input_press_vector.x);
+        player->button_press_count.y += fabsf(input_press_vector.y);
+    }
+}
+
 void player_check_collisions(Player *player, const GameState *game_state)
 {
     const Level *level = game_state->level;
@@ -54,5 +121,13 @@ void player_check_collisions(Player *player, const GameState *game_state)
 
 void player_on_collision(Entity *entity, const CollisionData *collision, void *player)
 {
+    // TODO: "Phasing"
     resolve_collision(entity, collision);
+}
+
+void player_input_timer_trigger(Timer *timer)
+{
+    Player *player = (Player *)(timer->trigger_cb_ptr);
+    player->button_press_count.x = 0;
+    player->button_press_count.y = 0;
 }
