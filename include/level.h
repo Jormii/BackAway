@@ -5,10 +5,16 @@
 #include "polygon.h"
 #include "game_state.h"
 
+typedef struct LevelGoal_st
+{
+    Rect boundary;
+    bool_t active;
+} LevelGoal;
+
 typedef struct Level_st
 {
-    Rect goal; // TODO
     Vec2 spawn_position;
+    LevelGoal goal;
 
     size_t n_colliders;
     Polygon *colliders;

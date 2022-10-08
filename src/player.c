@@ -29,6 +29,7 @@ void player_init(Player *player)
 
     // Input related
     player->can_jump = FALSE;
+    player->goal_reached = FALSE;
     player->button_press_count.x = 0;
     player->button_press_count.y = 0;
 
@@ -62,7 +63,10 @@ void player_update(Player *player, GameState *game_state)
     timer_update(&(player->input_timer), game_state->delta);
 
     // Update positions
-    player_handle_input(player, game_state);
+    if (!player->goal_reached)
+    {
+        player_handle_input(player, game_state);
+    }
     entity_update(&(player->entity), game_state->delta);
     player_check_collisions(player, game_state);
 
@@ -71,6 +75,18 @@ void player_update(Player *player, GameState *game_state)
     game_state->camera_focus = rect_center(&(player->collider.bbox));
 
     // TODO: Attacking
+
+    // Check if goal has been reached
+    LevelGoal *goal = &(game_state->level->goal);
+    if (!player->goal_reached && goal->active)
+    {
+        bool_t reached_goal = rect_within_rect(&(player->collider.bbox), &(goal->boundary));
+        if (reached_goal)
+        {
+            player->goal_reached = TRUE;
+            game_state_end_of_level(game_state);
+        }
+    }
 
     // Final jump update to make sure jumping is disabled when falling from a platform
     if (player->can_jump && player->entity.velocity.y > 0.0f)

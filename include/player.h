@@ -14,6 +14,7 @@ typedef struct Player_st
     Polygon collider;
 
     bool_t can_jump;
+    bool_t goal_reached;
     Timer input_timer;
     Vec2 button_press_count;
     Vec2 multiplier;

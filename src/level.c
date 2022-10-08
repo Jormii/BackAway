@@ -3,6 +3,11 @@
 
 void level_update(Level *level, GameState *game_state)
 {
+    // TODO
+    if (!level->goal.active)
+    {
+        level->goal.active = TRUE;
+    }
 }
 
 void level_draw(const Level *level, const GameState *game_state)
@@ -13,4 +18,7 @@ void level_draw(const Level *level, const GameState *game_state)
     {
         draw_polygon(level->colliders + i, &green, &black);
     }
+
+    const Color *goal_color = (level->goal.active) ? &green : &black;
+    draw_rect(&(level->goal.boundary), goal_color);
 }

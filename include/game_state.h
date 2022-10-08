@@ -21,6 +21,8 @@ void game_state_init(GameState *game_state);
 void game_state_update(GameState *game_state, float delta);
 
 void game_state_load_level(GameState *game_state, struct Level_st *level);
+void game_state_end_of_level(GameState *game_state);
+
 Vec2 game_state_camera_transform(const GameState *game_state, const Vec2 *position);
 
 #endif

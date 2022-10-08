@@ -22,6 +22,13 @@ void game_state_init(GameState *game_state)
     Level *level = game_state->level;
     level->spawn_position.x = 0;
     level->spawn_position.y = 0;
+
+    level->goal.boundary.origin.x = SCREEN_WIDTH - 100.0f;
+    level->goal.boundary.origin.y = 0.0f;
+    level->goal.boundary.width = 30.0f;
+    level->goal.boundary.height = SCREEN_HEIGHT;
+    level->goal.active = FALSE;
+
     level->n_colliders = 1;
     level->colliders = malloc(level->n_colliders * sizeof(Polygon));
 
@@ -52,6 +59,11 @@ void game_state_load_level(GameState *game_state, struct Level_st *level)
 {
     game_state->level = level;
     game_state->player->entity.position = level->spawn_position;
+}
+
+void game_state_end_of_level(GameState *game_state)
+{
+    // TODO
 }
 
 Vec2 game_state_camera_transform(const GameState *game_state, const Vec2 *position)

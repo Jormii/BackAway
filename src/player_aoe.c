@@ -6,10 +6,6 @@ void player_aoe_draw_circunference(int xc, int yc, int x, int y);
 
 void player_aoe_draw(const Vec2 *center, int radius)
 {
-    if (radius > 0) {
-        player_aoe_draw(center, radius - 1);
-    }
-
     int x = 0;
     int y = radius;
     int d = 3 - 2 * radius;
