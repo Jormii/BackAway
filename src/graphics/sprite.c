@@ -12,6 +12,8 @@ bool_t sprite_load(Sprite *sprite, const char *path)
     int fd = sceIoOpen(path, PSP_O_RDONLY, 0777);
     if (fd < 0)
     {
+        sprite->meta.width = 0;
+        sprite->meta.height = 0;
         return FALSE;
     }
 
