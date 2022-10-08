@@ -16,8 +16,12 @@ typedef struct Player_st
     bool_t can_jump;
     Timer input_timer;
     Vec2 button_press_count;
+    Vec2 multiplier;
     Vec2 max_velocity;  // Default maximum velocity
     Vec2 input_impulse; // Impulse applied when pushing buttons
+
+    bool_t attack;
+    float attack_radius;
 } Player;
 
 void player_init(Player *player);

@@ -26,8 +26,8 @@ void game_state_init(GameState *game_state)
     level->colliders = malloc(level->n_colliders * sizeof(Polygon));
 
     Rect bbox = {
-        .origin = {.x = SCREEN_WIDTH / 2 - 100, .y = 2.0f / 3.0f * SCREEN_HEIGHT},
-        .width = 200.0f,
+        .origin = {.x = SCREEN_WIDTH / 2 - 200, .y = 2.0f / 3.0f * SCREEN_HEIGHT},
+        .width = 400.0f,
         .height = 30.0f};
     polygon_from_rect(level->colliders, &bbox);
 

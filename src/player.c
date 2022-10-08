@@ -6,6 +6,7 @@
 #include "macros.h"
 #include "player.h"
 #include "physics.h"
+#include "player_aoe.h"
 #include "draw_geometries.h"
 
 void player_handle_input(Player *player, const GameState *game_state);
@@ -37,10 +38,16 @@ void player_init(Player *player)
     player->input_timer.trigger_cb_ptr = player;
 
     // Inertia related
+    player->multiplier.x = 1.0f;
+    player->multiplier.y = 1.0f;
     player->max_velocity.x = 100.0f;
     player->max_velocity.y = 500.0f;
     player->input_impulse.x = 100.0f;
     player->input_impulse.y = 5000.0f;
+
+    // Attack related
+    player->attack = FALSE;
+    player->attack_radius = 50.0f;
 }
 
 void player_update(Player *player, GameState *game_state)
@@ -51,6 +58,7 @@ void player_update(Player *player, GameState *game_state)
     player->entity.force.y = 100.0f;
 
     // *Inputs
+    player->attack = FALSE;
     timer_update(&(player->input_timer), game_state->delta);
 
     // Update positions
@@ -62,6 +70,8 @@ void player_update(Player *player, GameState *game_state)
     polygon_move(&(player->collider), &v);
     game_state->camera_focus = rect_center(&(player->collider.bbox));
 
+    // TODO: Attacking
+
     // Final jump update to make sure jumping is disabled when falling from a platform
     if (player->can_jump && player->entity.velocity.y > 0.0f)
     {
@@ -71,10 +81,15 @@ void player_update(Player *player, GameState *game_state)
 
 void player_draw(const Player *player, const GameState *game_state)
 {
-    // TODO: Camera
-    // Vec2 camera = game_state_camera_coordinates(game_state, &(player->entity.position));
-    Vec2 camera = player->entity.position;
-    sprite_draw(&(player->sprite), camera.x, camera.y);
+    // TODO: Camera coordinates
+    //Vec2 origin = game_state_camera_transform(game_state, &(player->entity.position));
+    Vec2 origin = player->entity.position;
+    sprite_draw(&(player->sprite), origin.x, origin.y);
+
+    Vec2 center = rect_center(&(player->collider.bbox));
+    //center = game_state_camera_transform(game_state, &center);
+    float max_multiplier = MAX(player->multiplier.x, player->multiplier.y);
+    player_aoe_draw(&center, max_multiplier * player->attack_radius);
 }
 
 void player_handle_input(Player *player, const GameState *game_state)
@@ -83,31 +98,35 @@ void player_handle_input(Player *player, const GameState *game_state)
         .x = input_button_held(INPUT_BUTTON_RIGHT) - input_button_held(INPUT_BUTTON_LEFT),
         .y = -player->can_jump * input_button_pressed(INPUT_BUTTON_CROSS)};
 
-    // Handle fast descend
+    // Handle free fall
     if (input_button_held(INPUT_BUTTON_DOWN) && input_button_held(INPUT_BUTTON_CROSS))
     {
         input_vector.y = !player->can_jump;
     }
 
     // Apply impulses
-    Vec2 multiplier = {
-        .x = 1.0f + log10f(2 * player->button_press_count.x + 1),
-        .y = 1.0f + log10f(2 * player->button_press_count.y + 1)}; // TODO: Will need tweaking
+    // TODO: Will need tweaking
+    player->multiplier.x = 1.0f + log10f(2 * player->button_press_count.x + 1);
+    player->multiplier.y = 1.0f + log10f(2 * player->button_press_count.y + 1);
 
-    Vec2 impulse = vec2_mult_components(&multiplier, &(player->input_impulse));
+    Vec2 impulse = vec2_mult_components(&(player->multiplier), &(player->input_impulse));
     impulse = vec2_mult_components(&input_vector, &impulse);
     entity_apply_impulse(&(player->entity), &impulse, game_state->delta);
 
     // Limit velocity
     Vec2 *velocity = &(player->entity.velocity);
-    Vec2 max_velocity = vec2_mult_components(&multiplier, &(player->max_velocity));
+    Vec2 max_velocity = vec2_mult_components(&(player->multiplier), &(player->max_velocity));
     velocity->x = CLAMP(velocity->x, -max_velocity.x, max_velocity.x);
     velocity->y = CLAMP(velocity->y, -max_velocity.y, max_velocity.y);
 
-    // Update jumping
+    // Update jumping and attack
     if (player->can_jump)
     {
         player->can_jump = input_vector.y >= 0.0f;
+    }
+    if (input_button_pressed(INPUT_BUTTON_RIGHT_TRIGGER))
+    {
+        player->attack = TRUE;
     }
 
     // Handle buttons pressed for next frame
@@ -153,4 +172,6 @@ void player_input_timer_trigger(Timer *timer)
     Player *player = (Player *)(timer->trigger_cb_ptr);
     player->button_press_count.x = 0;
     player->button_press_count.y = 0;
+    player->multiplier.x = 1;
+    player->multiplier.y = 1;
 }

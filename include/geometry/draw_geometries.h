@@ -4,6 +4,7 @@
 #include "vec2.h"
 #include "rect.h"
 #include "types.h"
+#include "color.h"
 #include "polygon.h"
 
 void draw_point(const Vec2 *point, const Color *color);

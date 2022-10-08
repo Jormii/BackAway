@@ -19,6 +19,7 @@ typedef struct CollisionData_st
     Vec2 normal;
 } CollisionData;
 
+// TODO: Fix: https://cdn.discordapp.com/attachments/841749195471716383/1028279616504340540/unknown.png
 void check_collision(Entity *entity, const Polygon *entitys_collider, const Polygon *other_collider,
                      OnCollision_fp collision_cb, void *collision_cb_ptr);
 void resolve_collision(Entity *entity, const CollisionData *collision);
