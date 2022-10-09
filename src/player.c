@@ -73,8 +73,10 @@ Vec2 player_inertia_impulse(const PlayerInertia *inertia)
 void player_init(Player *player)
 {
     // Entity, sprite and collider
-    entity_init(&(player->entity), 1.0f, 0.0f, 0.0f);
+    Vec2 gravity = {.x = 0.0f, .y = 100.0f};
+    entity_init(&(player->entity), 1.0f, 0.0f, 0.0f, &gravity);
     sprite_load(&(player->sprite), SPRITE("t_sprite_1"));
+    hook_init(&(player->hook), &(player->entity), 100.0f, 0.1f);
 
     Rect sprite_rect = {
         .origin = {.x = player->entity.position.x, .x = player->entity.position.y},
@@ -97,10 +99,10 @@ void player_init(Player *player)
     player->inertia.factor.x = 1.0f;
     player->inertia.factor.y = 1.0f;
     player->inertia.factor_target = player->inertia.factor;
-    player->inertia.factor_limit.x = 50.0f;
-    player->inertia.factor_limit.y = 10.0f;
+    player->inertia.factor_limit.x = 1.0f;
+    player->inertia.factor_limit.y = 1.0f;
     player->inertia.factor_speed = 0.5f;
-    player->inertia.input_impulse.x = 1000.0f;
+    player->inertia.input_impulse.x = 100.0f;
     player->inertia.input_impulse.y = 10000.0f;
     player->inertia.max_velocity.x = 300.0f;
     player->inertia.max_velocity.y = 500.0f;
@@ -124,6 +126,7 @@ void player_update(Player *player, GameState *game_state)
     {
         player_handle_input(player, game_state);
     }
+    hook_update(&(player->hook), game_state);
     entity_update(&(player->entity), game_state->delta);
     player_check_collisions(player, game_state);
 
@@ -165,6 +168,19 @@ void player_draw(const Player *player, const GameState *game_state)
     Vec2 center = rect_center(&(player->collider.bbox));
     //center = game_state_camera_transform(game_state, &center);
     player_aoe_draw(&center, player_attack_radius(player));
+
+    hook_draw(&(player->hook));
+    if (game_state->slow_motion && !player->hook.fixed)
+    {
+        // Draw crosshair
+        Vec2 crosshair = hook_crosshair(&(player->hook));
+
+        Rect rect;
+        Color red = {255, 0, 0, 0};
+        rect_given_center(&rect, &crosshair, 5, 5);
+        draw_rect(&rect, &red);
+        draw_line(&(player->entity.position), &crosshair, &red);
+    }
 
     // TODO: Remove
     Color red = {255, 0, 0, 0};
@@ -233,14 +249,30 @@ void player_handle_input(Player *player, const GameState *game_state)
         input_vector.y = !player->can_jump;
     }
 
-    // Apply impulses
-    if (input_vector.y == 0.0f)
+    // Handle hook
+    // TODO: Probably need to do something about free falling
+    Hook *hook = &(player->hook);
+
+    if (hook->fixed && input_button_pressed(INPUT_BUTTON_CIRCLE))
     {
-        // If no jumping or free fall, introduce gravity
-        Vec2 gravity = {.x = 0.0f, .y = 100.0f};
-        entity_apply_impulse(&(player->entity), &gravity, game_state->delta);
+        // TODO: Think about how to flow between these
+        //hook_release(hook);
     }
 
+    if (game_state->slow_motion && !hook->fixed)
+    {
+        hook_move_crosshair(hook, input_vector.x);
+        if (input_button_pressed(INPUT_BUTTON_CIRCLE))
+        {
+            hook_shoot(hook, game_state);
+        }
+
+        // Nullify input so player doesn't move
+        input_vector.x = 0.0f;
+        input_vector.y = 0.0f;
+    }
+
+    // Apply impulses
     // TODO: Will need tweaking
     PlayerInertia *inertia = &(player->inertia);
     player_inertia_set(inertia, &(player->button_press_count));
@@ -304,7 +336,7 @@ void player_check_collisions(Player *player, const GameState *game_state)
 float player_attack_radius(const Player *player)
 {
     const Vec2 *factor = &(player->inertia.factor);
-    return MIN(factor->x, factor->y) * player->attack_radius;
+    return MAX(factor->x, factor->y) * player->attack_radius;
 }
 
 void player_on_collision(Entity *entity, const CollisionData *collision, void *ptr)
@@ -321,6 +353,4 @@ void player_input_timer_trigger(Timer *timer)
     Player *player = (Player *)(timer->trigger_cb_ptr);
     player->button_press_count.x = 0;
     player->button_press_count.y = 0;
-    player->inertia.factor_target.x = 1;
-    player->inertia.factor_target.y = 1;
 }

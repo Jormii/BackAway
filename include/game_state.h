@@ -39,6 +39,7 @@ typedef struct GameState_st
     UIButtonCollection button_collection;
 
     // -- GAME_STATE_LEVEL --
+    bool_t slow_motion;
     struct Level_st *level;
     struct Player_st *player;
 } GameState;

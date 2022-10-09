@@ -4,11 +4,8 @@
 #include "state_menu.h"
 #include "draw_geometries.h"
 
-#include <stdio.h> // TODO: Remove
-
 void on_button_press()
 {
-    printf("Button pressed\n");
 }
 
 void on_button_highlight(UIButton *button)

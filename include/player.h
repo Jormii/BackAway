@@ -1,6 +1,7 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
+#include "hook.h"
 #include "timer.h"
 #include "entity.h"
 #include "sprite.h"
@@ -30,6 +31,7 @@ typedef struct Player_st
     Sprite sprite;
     Polygon collider;
     PlayerInertia inertia;
+    Hook hook;
 
     bool_t can_jump;
     bool_t goal_reached;

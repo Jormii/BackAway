@@ -1,5 +1,6 @@
 #include <stdlib.h>
 
+#include "input.h"
 #include "level.h"
 #include "player.h"
 #include "state_level.h"
@@ -7,6 +8,8 @@
 
 void level_state_init(GameState *game_state)
 {
+    game_state->slow_motion = FALSE;
+
     game_state->player = malloc(sizeof(Player));
     player_init(game_state->player);
 
@@ -30,19 +33,36 @@ void level_state_init(GameState *game_state)
     level->objectives->position.x = 100.0f;
     level->objectives->position.y = 100.0f;
 
-    level->n_colliders = 1;
+    level->n_colliders = 2;
     level->colliders = malloc(level->n_colliders * sizeof(Polygon));
 
     Rect bbox = {
-        .origin = {.x = SCREEN_WIDTH / 2 - 200, .y = 2.0f / 3.0f * SCREEN_HEIGHT},
+        .origin = {.x = SCREEN_WIDTH / 2 - 200, .y = 1.0f / 2.0f * SCREEN_HEIGHT},
         .width = 400.0f,
         .height = 30.0f};
     polygon_from_rect(level->colliders, &bbox);
+
+    Rect bbox_2 = {
+        .origin = {.x = SCREEN_WIDTH / 2 + 100, .y = 0.0f},
+        .width = 400.0f,
+        .height = 30.0f};
+    polygon_from_rect(level->colliders + 1, &bbox_2);
+
     // END TODO
 }
 
 void level_state_update(GameState *game_state)
 {
+    if (input_button_held(INPUT_BUTTON_LEFT_TRIGGER))
+    {
+        game_state->slow_motion = TRUE;
+        game_state->delta = 0.001f; // Force delta
+    }
+    else
+    {
+        game_state->slow_motion = FALSE;
+    }
+
     level_update(game_state->level, game_state);
     player_update(game_state->player, game_state);
 }
