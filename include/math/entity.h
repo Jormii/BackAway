@@ -6,7 +6,6 @@
 typedef struct Entity_st
 {
     float mass;
-    Vec2 force;
     Vec2 velocity;
     Vec2 position;
     Vec2 position_last_frame;

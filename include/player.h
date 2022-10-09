@@ -11,9 +11,10 @@ typedef struct PlayerInertia_st
 {
     Vec2 factor;
     Vec2 factor_target;
+    Vec2 factor_limit;
     float factor_speed;
-    Vec2 max_velocity;  // Default maximum velocity
     Vec2 input_impulse; // Impulse applied when pushing buttons
+    Vec2 max_velocity;
 } PlayerInertia;
 
 void player_inertia_update(PlayerInertia *inertia, float delta);

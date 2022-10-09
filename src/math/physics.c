@@ -34,12 +34,8 @@ void resolve_collision(Entity *entity, const CollisionData *collision)
     Vec2 vertex_next_frame = vec2_add(collision->vertex, &movement_vec);
 
     // Antipenetration
-    Vec2 anti_force = vec2_project(&(entity->force), &(collision->normal));
     Vec2 anti_velocity = vec2_project(&(entity->velocity), &(collision->normal));
-    anti_force = vec2_mult_scalar(-1.0f, &anti_force);
     anti_velocity = vec2_mult_scalar(-1.0f, &anti_velocity);
-
-    entity->force = vec2_add(&(entity->force), &anti_force);
     entity->velocity = vec2_add(&(entity->velocity), &anti_velocity);
 
     // Friction

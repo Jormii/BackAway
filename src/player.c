@@ -53,13 +53,16 @@ void player_inertia_set(PlayerInertia *inertia, const Vec2 *vector)
 {
     inertia->factor_target.x = player_inertia_function(vector->x);
     inertia->factor_target.y = player_inertia_function(vector->y);
+
+    inertia->factor_target.x = MIN(inertia->factor_target.x, inertia->factor_limit.x);
+    inertia->factor_target.y = MIN(inertia->factor_target.y, inertia->factor_limit.y);
 }
 
 void player_inertia_constrain_velocity(const PlayerInertia *inertia, Vec2 *velocity)
 {
-    Vec2 max_velocity = vec2_mult_components(&(inertia->factor), &(inertia->max_velocity));
-    velocity->x = CLAMP(velocity->x, -max_velocity.x, max_velocity.y);
-    velocity->y = CLAMP(velocity->y, -max_velocity.y, max_velocity.y);
+    const Vec2 *max_velocity = &(inertia->max_velocity);
+    velocity->x = CLAMP(velocity->x, -max_velocity->x, max_velocity->y);
+    velocity->y = CLAMP(velocity->y, -max_velocity->y, max_velocity->y);
 }
 
 Vec2 player_inertia_impulse(const PlayerInertia *inertia)
@@ -94,11 +97,13 @@ void player_init(Player *player)
     player->inertia.factor.x = 1.0f;
     player->inertia.factor.y = 1.0f;
     player->inertia.factor_target = player->inertia.factor;
+    player->inertia.factor_limit.x = 50.0f;
+    player->inertia.factor_limit.y = 10.0f;
     player->inertia.factor_speed = 0.5f;
-    player->inertia.max_velocity.x = 100.0f;
+    player->inertia.input_impulse.x = 1000.0f;
+    player->inertia.input_impulse.y = 10000.0f;
+    player->inertia.max_velocity.x = 300.0f;
     player->inertia.max_velocity.y = 500.0f;
-    player->inertia.input_impulse.x = 100.0f;
-    player->inertia.input_impulse.y = 5000.0f;
 
     // Attack related
     player->attack = FALSE;
@@ -108,14 +113,9 @@ void player_init(Player *player)
 void player_update(Player *player, GameState *game_state)
 {
     // Defaults
-    // *Gravity
-    player->entity.force.x = 0.0f;
-    player->entity.force.y = 100.0f;
-
-    // *Inputs
     player->attack = FALSE;
 
-    // Update movement
+    // Update velocity
     timer_update(&(player->input_timer), game_state->delta);
     player_inertia_update(&(player->inertia), game_state->delta);
 
@@ -234,12 +234,27 @@ void player_handle_input(Player *player, const GameState *game_state)
     }
 
     // Apply impulses
+    if (input_vector.y == 0.0f)
+    {
+        // If no jumping or free fall, introduce gravity
+        Vec2 gravity = {.x = 0.0f, .y = 100.0f};
+        entity_apply_impulse(&(player->entity), &gravity, game_state->delta);
+    }
+
     // TODO: Will need tweaking
     PlayerInertia *inertia = &(player->inertia);
     player_inertia_set(inertia, &(player->button_press_count));
 
+    bool_t inputed_opposite = (input_vector.x * player->entity.velocity.x) < 0.0f;
+    if (inputed_opposite)
+    {
+        // Forcefully 'mirror' X velocity
+        player->entity.velocity.x *= -1.0f;
+    }
+
     Vec2 impulse = player_inertia_impulse(inertia);
     impulse = vec2_mult_components(&input_vector, &impulse);
+
     entity_apply_impulse(&(player->entity), &impulse, game_state->delta);
     player_inertia_constrain_velocity(inertia, &(player->entity.velocity));
 
@@ -289,7 +304,7 @@ void player_check_collisions(Player *player, const GameState *game_state)
 float player_attack_radius(const Player *player)
 {
     const Vec2 *factor = &(player->inertia.factor);
-    return MAX(factor->x, factor->y) * player->attack_radius;
+    return MIN(factor->x, factor->y) * player->attack_radius;
 }
 
 void player_on_collision(Entity *entity, const CollisionData *collision, void *ptr)
