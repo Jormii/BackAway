@@ -22,11 +22,6 @@ void player_input_timer_trigger(Timer *timer);
 void player_inertia_update(PlayerInertia *inertia, float delta)
 {
     Vec2 factor_v = vec2_subtract(&(inertia->factor_target), &(inertia->factor));
-    if (vec2_magnitude(&factor_v) == 0.0f)
-    {
-        return;
-    }
-
     Vec2 factor_vn = factor_v;
     vec2_normalize(&factor_vn);
     Vec2 factor_inc = vec2_mult_scalar(delta * inertia->factor_speed, &factor_vn);

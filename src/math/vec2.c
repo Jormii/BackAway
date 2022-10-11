@@ -10,8 +10,11 @@ float vec2_magnitude(const Vec2 *vector)
 void vec2_normalize(Vec2 *vector)
 {
     float magnitude = vec2_magnitude(vector);
-    vector->x /= magnitude;
-    vector->y /= magnitude;
+    if (magnitude != 0.0f)
+    {
+        vector->x /= magnitude;
+        vector->y /= magnitude;
+    }
 }
 
 float vec2_dot(const Vec2 *a, const Vec2 *b)

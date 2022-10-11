@@ -116,5 +116,27 @@ Vec2 hook_crosshair(const Hook *hook)
 
 void hook_apply_impulse(const Hook *hook, float delta)
 {
-    // TODO
+    Entity *entity = hook->attached_to;
+    Vec2 hook_v = vec2_subtract(&(hook->fixed_to), &(entity->position));
+    float current_length = vec2_magnitude(&hook_v);
+    if (current_length < hook->length)
+    {
+        return;
+    }
+
+    float length_ratio = current_length / hook->length;
+
+    Vec2 neg_gravity = vec2_mult_scalar(-1.0f, &(entity->gravity));
+    Vec2 neg_gravity_u = neg_gravity;
+    vec2_normalize(&neg_gravity_u);
+
+    vec2_normalize(&hook_v);
+    float cos = vec2_dot(&hook_v, &neg_gravity_u);
+    float gravity_mag = vec2_magnitude(&neg_gravity);
+    float tension_magnitude = length_ratio * entity->mass * gravity_mag * cos;
+    Vec2 tension = vec2_mult_scalar(tension_magnitude, &hook_v);
+
+    entity->force = vec2_add(&(entity->force), &tension);
+
+    // TODO: Currently it's bouncy
 }
