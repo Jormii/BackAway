@@ -90,7 +90,7 @@ void draw_polygon(const Polygon *polygon, const Color *edge_color, const Color *
 
         draw_line(p0, pf, edge_color);
 
-        // Normal
+        // Edge normal
         const Vec2 *normal = polygon->normals + i;
         Vec2 scaled_normal = vec2_mult_scalar(10.0f, normal);
 
@@ -98,5 +98,12 @@ void draw_polygon(const Polygon *polygon, const Color *edge_color, const Color *
         midpoint = vec2_mult_scalar(0.5f, &midpoint);
         Vec2 midpoint_f = vec2_add(&midpoint, &scaled_normal);
         draw_line(&midpoint, &midpoint_f, normal_color);
+
+        // Vertex normal
+        const Vec2 *vertex_normal = polygon->vertices_normals + i;
+        Vec2 scaled_vertex_normal = vec2_mult_scalar(10.0f, vertex_normal);
+
+        Vec2 vertex_normal_f = vec2_add(p0, &scaled_vertex_normal);
+        draw_line(p0, &vertex_normal_f, normal_color);
     }
 }

@@ -9,6 +9,7 @@ typedef struct Polygon_st
     size_t n_vertices;
     Vec2 *vertices;
     Vec2 *normals;
+    Vec2 *vertices_normals;
     Rect bbox;
 } Polygon;
 

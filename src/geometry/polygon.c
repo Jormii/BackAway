@@ -9,6 +9,7 @@ void polygon_init(Polygon *polygon, const Vec2 *vertices, size_t n_vertices)
     polygon->n_vertices = n_vertices;
     polygon->vertices = malloc(n_vertices * sizeof(Vec2));
     polygon->normals = malloc(n_vertices * sizeof(Vec2));
+    polygon->vertices_normals = malloc(n_vertices * sizeof(Vec2));
 
     Vec2 min_corner = {.x = INFINITY, .y = INFINITY};
     Vec2 max_corner = {.x = -INFINITY, .y = -INFINITY};
@@ -32,6 +33,17 @@ void polygon_init(Polygon *polygon, const Vec2 *vertices, size_t n_vertices)
         min_corner.y = MIN(p0->y, min_corner.y);
         max_corner.x = MAX(p0->x, max_corner.x);
         max_corner.y = MAX(p0->y, max_corner.y);
+    }
+
+    // Vertices normals
+    for (size_t i = 0; i < n_vertices; ++i)
+    {
+        size_t prev_i = (i == 0) ? (n_vertices - 1) : (i - 1);
+
+        const Vec2 *normal = polygon->normals + i;
+        const Vec2 *prev_normal = polygon->normals + prev_i;
+        polygon->vertices_normals[i] = vec2_add(normal, prev_normal);
+        vec2_normalize(polygon->vertices_normals + i);
     }
 
     // BBOX
