@@ -21,7 +21,7 @@ void on_button_highlight(UIButton *button)
 void menu_state_init(GameState *game_state)
 {
     Sprite *shared_sprite = malloc(sizeof(Sprite)); // TODO: Remove. Memory leak
-    sprite_load(shared_sprite, SPRITE("t_sprite_2"));
+    sprite_load(shared_sprite, SPRITE("s_2"));
 
     int n_buttons = 3; // TODO: Read from somewhere
     ui_button_collection_init(&(game_state->button_collection), n_buttons);

@@ -70,7 +70,7 @@ void player_init(Player *player)
     // Entity, sprite and collider
     Vec2 gravity = {.x = 0.0f, .y = 100.0f};
     entity_init(&(player->entity), 1.0f, 0.0f, 0.0f, &gravity);
-    sprite_load(&(player->sprite), SPRITE("t_sprite_1"));
+    sprite_load(&(player->sprite), SPRITE("s_1"));
     hook_init(&(player->hook), &(player->entity), 100.0f, 0.1f);
 
     Rect sprite_rect = {
@@ -203,6 +203,8 @@ void player_draw(const Player *player, const GameState *game_state)
 
         draw_line(&center, &(objective->position), objective_color);
     }
+
+    draw_polygon(&(player->collider), &green, &red);
     // END TODO
 }
 
