@@ -11,6 +11,7 @@ typedef void (*OnCollision_fp)(
 typedef struct CollisionData_st
 {
     const Vec2 *vertex;
+    const Vec2 *vertex_normal;
     const Polygon *polygon;
     const Polygon *collided_with;
 
@@ -19,7 +20,8 @@ typedef struct CollisionData_st
     Vec2 normal;
 } CollisionData;
 
-// TODO: Fix: https://cdn.discordapp.com/attachments/841749195471716383/1028279616504340540/unknown.png
+// TODO: Clipping when walls are thin: https://cdn.discordapp.com/attachments/841749195471716383/1029464240785985597/unknown.png
+
 void check_collision(Entity *entity, const Polygon *entitys_collider, const Polygon *other_collider,
                      OnCollision_fp collision_cb, void *collision_cb_ptr);
 void resolve_collision(Entity *entity, const CollisionData *collision);

@@ -24,6 +24,7 @@ void check_collision(Entity *entity, const Polygon *entitys_collider, const Poly
     for (size_t vertex_idx = 0; vertex_idx < entitys_collider->n_vertices; ++vertex_idx)
     {
         collision.vertex = entitys_collider->vertices + vertex_idx;
+        collision.vertex_normal = entitys_collider->vertices_normals + vertex_idx;
         check_vertex_collision(entity, &collision, collision_cb, collision_cb_ptr);
     }
 }
@@ -100,6 +101,12 @@ void check_vertex_collision(Entity *entity, CollisionData *collision,
 
         float movement_dot = vec2_dot(&movement_vec, coll_normal);
         if (movement_dot >= 0)
+        {
+            continue;
+        }
+
+        float normal_dot = vec2_dot(collision->vertex_normal, coll_normal);
+        if (normal_dot > 0)
         {
             continue;
         }
