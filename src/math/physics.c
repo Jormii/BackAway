@@ -1,8 +1,7 @@
 #include "line.h"
 #include "physics.h"
 
-#define FRICTION_COEFF 0.4
-#define PENETRATION_TOLERANCE 0.01
+#define FRICTION_COEFF 0.6
 
 bool_t check_boundary(const Entity *entity, const Polygon *collider, const Polygon *other_collider);
 void check_vertex_collision(Entity *entity, CollisionData *collision,
@@ -40,6 +39,7 @@ void resolve_collision(Entity *entity, const CollisionData *collision)
     entity->velocity = vec2_add(&(entity->velocity), &anti_velocity);
 
     // Friction
+    // TODO: Static friction
     Vec2 tangent = collision->tangent;
     float tangent_dot = vec2_dot(&(entity->velocity), &tangent);
     if (tangent_dot > 0.0f)
@@ -59,10 +59,6 @@ void resolve_collision(Entity *entity, const CollisionData *collision)
     // Penalty
     Vec2 surface_vec = vec2_subtract(&(collision->point), &vertex_next_frame);
     Vec2 penalty = vec2_project(&surface_vec, &(collision->normal));
-
-    float penetration_depth = vec2_magnitude(&penalty);
-    vec2_normalize(&penalty);
-    penalty = vec2_mult_scalar(penetration_depth + PENETRATION_TOLERANCE, &penalty);
     entity->position = vec2_add(&(entity->position), &penalty);
 }
 

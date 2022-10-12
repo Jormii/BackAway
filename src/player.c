@@ -10,6 +10,8 @@
 #include "state_level.h"
 #include "draw_geometries.h"
 
+#include <stdio.h>
+
 void player_attack(const Player *player, GameState *game_state);
 void player_handle_input(Player *player, const GameState *game_state);
 void player_check_collisions(Player *player, const GameState *game_state);
@@ -17,53 +19,6 @@ void player_check_collisions(Player *player, const GameState *game_state);
 float player_attack_radius(const Player *player);
 
 void player_on_collision(Entity *entity, const CollisionData *collision, void *ptr);
-void player_input_timer_trigger(Timer *timer);
-
-void player_inertia_update(PlayerInertia *inertia, float delta)
-{
-    Vec2 factor_v = vec2_subtract(&(inertia->factor_target), &(inertia->factor));
-    Vec2 factor_vn = factor_v;
-    vec2_normalize(&factor_vn);
-    Vec2 factor_inc = vec2_mult_scalar(delta * inertia->factor_speed, &factor_vn);
-
-    if (fabsf(factor_inc.x) > fabs(factor_v.x))
-    {
-        factor_inc.x = factor_v.x;
-    }
-    if (fabsf(factor_inc.y) > fabs(factor_v.y))
-    {
-        factor_inc.y = factor_v.y;
-    }
-
-    inertia->factor = vec2_add(&(inertia->factor), &factor_inc);
-}
-
-float player_inertia_function(float x)
-{
-    float base = x / 4.0f - 1.0f;
-    return 2.0f + base * base * base;
-}
-
-void player_inertia_set(PlayerInertia *inertia, const Vec2 *vector)
-{
-    inertia->factor_target.x = player_inertia_function(vector->x);
-    inertia->factor_target.y = player_inertia_function(vector->y);
-
-    inertia->factor_target.x = MIN(inertia->factor_target.x, inertia->factor_limit.x);
-    inertia->factor_target.y = MIN(inertia->factor_target.y, inertia->factor_limit.y);
-}
-
-void player_inertia_constrain_velocity(const PlayerInertia *inertia, Vec2 *velocity)
-{
-    const Vec2 *max_velocity = &(inertia->max_velocity);
-    velocity->x = CLAMP(velocity->x, -max_velocity->x, max_velocity->y);
-    velocity->y = CLAMP(velocity->y, -max_velocity->y, max_velocity->y);
-}
-
-Vec2 player_inertia_impulse(const PlayerInertia *inertia)
-{
-    return vec2_mult_components(&(inertia->factor), &(inertia->input_impulse));
-}
 
 void player_init(Player *player)
 {
@@ -81,26 +36,9 @@ void player_init(Player *player)
 
     // Input related
     player->can_jump = FALSE;
+    player->attack = FALSE;
+    player->attack_radius = 100.0f;
     player->goal_reached = FALSE;
-    player->button_press_count.x = 0;
-    player->button_press_count.y = 0;
-
-    player->input_timer.cycle = FALSE;
-    player->input_timer.countdown = 0.5f;
-    player->input_timer.trigger_cb = player_input_timer_trigger;
-    player->input_timer.trigger_cb_ptr = player;
-
-    // Inertia related
-    player->inertia.factor.x = 1.0f;
-    player->inertia.factor.y = 1.0f;
-    player->inertia.factor_target = player->inertia.factor;
-    player->inertia.factor_limit.x = 1.0f;
-    player->inertia.factor_limit.y = 1.0f;
-    player->inertia.factor_speed = 0.5f;
-    player->inertia.input_impulse.x = 100.0f;
-    player->inertia.input_impulse.y = 10000.0f;
-    player->inertia.max_velocity.x = 300.0f;
-    player->inertia.max_velocity.y = 500.0f;
 
     // Attack related
     player->attack = FALSE;
@@ -111,10 +49,6 @@ void player_update(Player *player, GameState *game_state)
 {
     // Defaults
     player->attack = FALSE;
-
-    // Update velocity
-    timer_update(&(player->input_timer), game_state->delta);
-    player_inertia_update(&(player->inertia), game_state->delta);
 
     // Update position
     if (!player->goal_reached)
@@ -151,6 +85,8 @@ void player_update(Player *player, GameState *game_state)
     {
         player->can_jump = FALSE;
     }
+
+    printf("V: %f %f\n", player->entity.velocity.x, player->entity.velocity.y);
 }
 
 void player_draw(const Player *player, const GameState *game_state)
@@ -253,7 +189,7 @@ void player_handle_input(Player *player, const GameState *game_state)
     if (hook->fixed && input_button_pressed(INPUT_BUTTON_CIRCLE))
     {
         // TODO: Think about how to flow between these
-        //hook_release(hook);
+        hook_release(hook);
     }
 
     if (game_state->slow_motion && !hook->fixed)
@@ -263,29 +199,13 @@ void player_handle_input(Player *player, const GameState *game_state)
         {
             hook_shoot(hook, game_state);
         }
-
-        // Nullify input so player doesn't move
-        input_vector.x = 0.0f;
-        input_vector.y = 0.0f;
     }
 
     // Apply impulses
     // TODO: Will need tweaking
-    PlayerInertia *inertia = &(player->inertia);
-    player_inertia_set(inertia, &(player->button_press_count));
-
-    bool_t inputed_opposite = (input_vector.x * player->entity.velocity.x) < 0.0f;
-    if (inputed_opposite)
-    {
-        // Forcefully 'mirror' X velocity
-        player->entity.velocity.x *= -1.0f;
-    }
-
-    Vec2 impulse = player_inertia_impulse(inertia);
+    Vec2 impulse = {.x = 100.f, .y = 10000.0f};
     impulse = vec2_mult_components(&input_vector, &impulse);
-
     entity_apply_impulse(&(player->entity), &impulse, game_state->delta);
-    player_inertia_constrain_velocity(inertia, &(player->entity.velocity));
 
     // Update jumping and attack
     if (player->can_jump)
@@ -295,28 +215,6 @@ void player_handle_input(Player *player, const GameState *game_state)
     if (input_button_pressed(INPUT_BUTTON_RIGHT_TRIGGER))
     {
         player->attack = TRUE;
-    }
-
-    // Handle buttons pressed for next frame
-    Vec2 input_press_vector = {
-        .x = input_button_pressed(INPUT_BUTTON_RIGHT) - input_button_pressed(INPUT_BUTTON_LEFT),
-        .y = input_vector.y};
-
-    Timer *timer = &(player->input_timer);
-    if (vec2_magnitude(&input_vector) != 0.0f)
-    {
-        timer_reset(timer);
-    }
-
-    if (vec2_magnitude(&input_press_vector) != 0.0f)
-    {
-        if (!(timer->running))
-        {
-            timer_start(&(player->input_timer));
-        }
-
-        player->button_press_count.x += fabsf(input_press_vector.x);
-        player->button_press_count.y += fabsf(input_press_vector.y);
     }
 }
 
@@ -332,8 +230,9 @@ void player_check_collisions(Player *player, const GameState *game_state)
 
 float player_attack_radius(const Player *player)
 {
-    const Vec2 *factor = &(player->inertia.factor);
-    return MAX(factor->x, factor->y) * player->attack_radius;
+    //const Vec2 *factor = &(player->inertia.factor);
+    //return MAX(factor->x, factor->y) * player->attack_radius;
+    return player->attack_radius;
 }
 
 void player_on_collision(Entity *entity, const CollisionData *collision, void *ptr)
@@ -343,11 +242,4 @@ void player_on_collision(Entity *entity, const CollisionData *collision, void *p
 
     Player *player = (Player *)ptr;
     player->can_jump = entity->velocity.y >= 0.0f; // Collided with a surface below it
-}
-
-void player_input_timer_trigger(Timer *timer)
-{
-    Player *player = (Player *)(timer->trigger_cb_ptr);
-    player->button_press_count.x = 0;
-    player->button_press_count.y = 0;
 }
