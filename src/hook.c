@@ -7,9 +7,14 @@
 #include "player.h"
 #include "draw_geometries.h"
 
+#include "player_aoe.h" // TODO: Remove
+
+#define RESTORING_FACTOR 1000
+#define CENTRIPETAL_LOSS 0.95
+
 void hook_apply_impulse(const Hook *hook, float delta);
 
-void hook_init(Hook *hook, Entity *attach_to, float reach, float angular_vel)
+void hook_init(Hook *hook, Entity *attach_to, const Vec2 *position_offset, float reach, float angular_vel)
 {
     hook->reach = reach;
     hook->crosshair_angle = 0.0f;
@@ -19,6 +24,7 @@ void hook_init(Hook *hook, Entity *attach_to, float reach, float angular_vel)
     hook->fixed_to.x = 0.0f;
     hook->fixed_to.y = 0.0f;
     hook->attached_to = attach_to;
+    hook->attachment_position_offset = *position_offset;
 }
 
 void hook_update(Hook *hook, GameState *game_state)
@@ -38,12 +44,15 @@ void hook_draw(const Hook *hook)
     }
 
     Color black = {0, 0, 0, 0};
-    draw_line(&(hook->attached_to->position), &(hook->fixed_to), &black);
+    Vec2 origin = hook_attachment_position(hook);
+    draw_line(&origin, &(hook->fixed_to), &black);
+
+    player_aoe_draw(&(hook->fixed_to), hook->length);
 }
 
 void hook_shoot(Hook *hook, const GameState *game_state)
 {
-    Vec2 shot_from = hook->attached_to->position;
+    Vec2 shot_from = hook_attachment_position(hook);
     Vec2 crosshair = hook_crosshair(hook);
     Vec2 vector = vec2_subtract(&crosshair, &shot_from);
 
@@ -108,35 +117,49 @@ void hook_move_crosshair(Hook *hook, float sign)
 
 Vec2 hook_crosshair(const Hook *hook)
 {
+    Vec2 origin = hook_attachment_position(hook);
     Vec2 vector = {
         .x = hook->reach * cosf(hook->crosshair_angle),
         .y = hook->reach * sinf(hook->crosshair_angle)};
-    return vec2_add(&(hook->attached_to->position), &vector);
+
+    return vec2_add(&origin, &vector);
+}
+
+Vec2 hook_attachment_position(const Hook *hook)
+{
+    return vec2_add(&(hook->attached_to->position), &(hook->attachment_position_offset));
 }
 
 void hook_apply_impulse(const Hook *hook, float delta)
 {
     Entity *entity = hook->attached_to;
-    Vec2 hook_v = vec2_subtract(&(hook->fixed_to), &(entity->position));
-    float current_length = vec2_magnitude(&hook_v);
-    if (current_length < hook->length)
-    {
-        return;
-    }
+    Vec2 origin = hook_attachment_position(hook);
 
-    float length_ratio = current_length / hook->length;
+    Vec2 hook_v = vec2_subtract(&(hook->fixed_to), &origin);
+    Vec2 hook_vu = vec2_normalized(&hook_v);
 
+    // Tension
     Vec2 neg_gravity = vec2_mult_scalar(-1.0f, &(entity->gravity));
-    Vec2 neg_gravity_u = neg_gravity;
-    vec2_normalize(&neg_gravity_u);
+    Vec2 neg_gravity_u = vec2_normalized(&neg_gravity);
 
-    vec2_normalize(&hook_v);
-    float cos = vec2_dot(&hook_v, &neg_gravity_u);
+    float cos = vec2_dot(&hook_vu, &neg_gravity_u);
     float gravity_mag = vec2_magnitude(&neg_gravity);
-    float tension_magnitude = length_ratio * entity->mass * gravity_mag * cos;
-    Vec2 tension = vec2_mult_scalar(tension_magnitude, &hook_v);
+    float tension_mag = gravity_mag * cos;
+    Vec2 tension = vec2_mult_scalar(tension_mag, &hook_vu);
 
     entity->force = vec2_add(&(entity->force), &tension);
 
-    // TODO: Currently it's bouncy
+    // Centripetal
+    float velocity_mag = vec2_magnitude(&(entity->velocity));
+    float centripetal_mag = (velocity_mag * velocity_mag) / hook->length;
+    Vec2 centripetal = vec2_mult_scalar(CENTRIPETAL_LOSS * centripetal_mag, &hook_vu);
+
+    entity->force = vec2_add(&(entity->force), &centripetal);
+
+    // Restoring force
+    float current_length = vec2_magnitude(&hook_v);
+    float length_diff = current_length - hook->length;
+    Vec2 restoring = vec2_mult_scalar(RESTORING_FACTOR * length_diff, &hook_vu);
+
+    entity->force = vec2_add(&(entity->force), &restoring);
 }

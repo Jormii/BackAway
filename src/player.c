@@ -36,13 +36,16 @@ void player_init(Player *player)
     Vec2 gravity = {.x = 0.0f, .y = DEFAULT_GRAVITY_Y};
     entity_init(&(player->entity), 1.0f, 0.0f, 0.0f, &gravity);
     sprite_load(&(player->sprite), SPRITE("s_1"));
-    hook_init(&(player->hook), &(player->entity), 100.0f, 0.1f);
 
     Rect sprite_rect = {
         .origin = {.x = player->entity.position.x, .x = player->entity.position.y},
         .width = player->sprite.meta.width,
         .height = player->sprite.meta.height};
     polygon_from_rect(&(player->collider), &sprite_rect);
+
+    Vec2 center = rect_center(&(player->collider.bbox));
+    Vec2 hook_offset = vec2_subtract(&center, &(player->entity.position));
+    hook_init(&(player->hook), &(player->entity), &hook_offset, 100.0f, 0.1f);
 
     // Jump related
     player->jump_state = JUMP_STATE_AIRBORNE;
@@ -69,14 +72,16 @@ void player_update(Player *player, GameState *game_state)
     {
         player_handle_input(player, game_state);
     }
+
     hook_update(&(player->hook), game_state);
     entity_update(&(player->entity), game_state->delta);
     player_check_collisions(player, game_state);
 
     Vec2 v = entity_movement_vector(&(player->entity));
     polygon_move(&(player->collider), &v);
-    game_state->camera_focus = rect_center(&(player->collider.bbox));
+    game_state->camera_focus = vec2_add(&(game_state->camera_focus), &v);
 
+    // Attack
     if (player->attack)
     {
         player_attack(player, game_state);
@@ -130,7 +135,9 @@ void player_draw(const Player *player, const GameState *game_state)
         Color red = {255, 0, 0, 0};
         rect_given_center(&rect, &crosshair, 5, 5);
         draw_rect(&rect, &red);
-        draw_line(&(player->entity.position), &crosshair, &red);
+
+        Vec2 origin = hook_attachment_position(&(player->hook));
+        draw_line(&origin, &crosshair, &red);
     }
 
     // TODO: Remove

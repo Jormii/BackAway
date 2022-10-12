@@ -4,8 +4,7 @@
 void player_inertia_update(PlayerInertia *inertia, float delta)
 {
     Vec2 factor_v = vec2_subtract(&(inertia->factor_target), &(inertia->factor));
-    Vec2 factor_vn = factor_v;
-    vec2_normalize(&factor_vn);
+    Vec2 factor_vn = vec2_normalized(&factor_v);
     Vec2 factor_inc = vec2_mult_scalar(delta * inertia->factor_speed, &factor_vn);
 
     if (fabsf(factor_inc.x) > fabs(factor_v.x))

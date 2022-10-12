@@ -17,6 +17,13 @@ void vec2_normalize(Vec2 *vector)
     }
 }
 
+Vec2 vec2_normalized(const Vec2 *vector)
+{
+    Vec2 copy = *vector;
+    vec2_normalize(&copy);
+    return copy;
+}
+
 float vec2_dot(const Vec2 *a, const Vec2 *b)
 {
     return (a->x * b->x) + (a->y * b->y);

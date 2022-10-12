@@ -9,6 +9,7 @@ typedef struct Vec2_st
 
 float vec2_magnitude(const Vec2 *vector);
 void vec2_normalize(Vec2 *vector);
+Vec2 vec2_normalized(const Vec2 *vector);
 float vec2_dot(const Vec2 *a, const Vec2 *b);
 Vec2 vec2_project(const Vec2 *vector, const Vec2 *onto);
 
