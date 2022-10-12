@@ -1,7 +1,7 @@
 #include "line.h"
 #include "physics.h"
 
-#define FRICTION_COEFF 0.6
+#define FRICTION_COEFF 0.4
 
 bool_t check_boundary(const Entity *entity, const Polygon *collider, const Polygon *other_collider);
 void check_vertex_collision(Entity *entity, CollisionData *collision,

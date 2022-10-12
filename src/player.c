@@ -189,9 +189,23 @@ void player_handle_input(Player *player, const GameState *game_state)
         .y = -input_button_held(JUMP)};
 
     // Calculate impulse
-    Vec2 impulse = {.x = 100.f, .y = 5000.0f};
+    Vec2 impulse = {.x = 500.f, .y = 8000.0f};
     impulse = vec2_mult_components(&input_held, &impulse);
 
+    // - Press impulse
+    if (input_pressed.x != 0.0f)
+    {
+        bool_t different_direction = (impulse.x * player->entity.velocity.x) < 0.0f;
+        if (different_direction)
+        {
+            float sign = (player->entity.velocity.x >= 0) ? 1.0f : -1.0f;
+            impulse.x += sign * player->entity.velocity.x;
+        }
+        
+        impulse.x *= 1.25f;
+    }
+
+    // - Jump impulse
     if (impulse.y != 0.0f)
     {
         if (!player->can_jump)
