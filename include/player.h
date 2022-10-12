@@ -8,6 +8,14 @@
 #include "polygon.h"
 #include "game_state.h"
 
+typedef enum JumpState_en
+{
+    JUMP_STATE_GROUNDED,
+    JUMP_STATE_GLIDING,
+    JUMP_STATE_AIRBORNE,
+    JUMP_STATE_FREE_FALLING
+} JumpState;
+
 typedef struct Player_st
 {
     Entity entity;
@@ -15,8 +23,7 @@ typedef struct Player_st
     Polygon collider;
     Hook hook;
 
-    bool_t can_jump;
-    bool_t released_jump;
+    JumpState jump_state;
     Timer forgiveness_timer;
     bool_t attack;
     float attack_radius;
