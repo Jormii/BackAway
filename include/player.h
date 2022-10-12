@@ -17,6 +17,7 @@ typedef struct Player_st
 
     bool_t can_jump;
     bool_t released_jump;
+    Timer forgiveness_timer;
     bool_t attack;
     float attack_radius;
     bool_t goal_reached;

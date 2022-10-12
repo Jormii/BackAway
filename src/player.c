@@ -10,8 +10,6 @@
 #include "state_level.h"
 #include "draw_geometries.h"
 
-#include <stdio.h>
-
 #define MOVE_LEFT INPUT_BUTTON_LEFT
 #define MOVE_RIGHT INPUT_BUTTON_RIGHT
 #define JUMP INPUT_BUTTON_CROSS
@@ -27,6 +25,7 @@ void player_check_collisions(Player *player, const GameState *game_state);
 float player_attack_radius(const Player *player);
 
 void player_on_collision(Entity *entity, const CollisionData *collision, void *ptr);
+void player_forgiveness_trigger(Timer *timer);
 
 void player_init(Player *player)
 {
@@ -42,16 +41,21 @@ void player_init(Player *player)
         .height = player->sprite.meta.height};
     polygon_from_rect(&(player->collider), &sprite_rect);
 
-    // Input related
+    // Jump related
     player->can_jump = FALSE;
     player->released_jump = TRUE;
-    player->attack = FALSE;
-    player->attack_radius = 100.0f;
-    player->goal_reached = FALSE;
+
+    player->forgiveness_timer.cycle = FALSE;
+    player->forgiveness_timer.countdown = 1.0f;
+    player->forgiveness_timer.trigger_cb = player_forgiveness_trigger;
+    player->forgiveness_timer.trigger_cb_ptr = player;
 
     // Attack related
     player->attack = FALSE;
     player->attack_radius = 50.0f;
+
+    // Other
+    player->goal_reached = FALSE;
 }
 
 void player_update(Player *player, GameState *game_state)
@@ -89,11 +93,18 @@ void player_update(Player *player, GameState *game_state)
         }
     }
 
-    // Final jump update to make sure jumping is disabled when falling from a platform
+    // Update timer and check if fell from platform
+    Timer *timer = &(player->forgiveness_timer);
+    timer_update(&(player->forgiveness_timer), game_state->delta);
+
     if (player->can_jump && player->entity.velocity.y > 0.0f)
     {
-        player->can_jump = FALSE;
-        player->released_jump = TRUE;
+        // Handle forgiveness
+        if (!timer->running)
+        {
+            timer_reset(timer);
+            timer_start(timer);
+        }
     }
 }
 
@@ -201,7 +212,7 @@ void player_handle_input(Player *player, const GameState *game_state)
             float sign = (player->entity.velocity.x >= 0) ? 1.0f : -1.0f;
             impulse.x += sign * player->entity.velocity.x;
         }
-        
+
         impulse.x *= 1.25f;
     }
 
@@ -216,6 +227,13 @@ void player_handle_input(Player *player, const GameState *game_state)
         {
             player->can_jump = FALSE;
             player->released_jump = FALSE;
+
+            Timer *timer = &(player->forgiveness_timer);
+            if (timer->running)
+            {
+                timer_stop(timer);
+                player->entity.velocity.y = 0.0f; // Force to be 0
+            }
         }
     }
 
@@ -286,5 +304,14 @@ void player_on_collision(Entity *entity, const CollisionData *collision, void *p
     resolve_collision(entity, collision);
 
     Player *player = (Player *)ptr;
-    player->can_jump = entity->velocity.y >= 0.0f; // Collided with a surface below it
+    if (!player->can_jump)
+    {
+        player->can_jump = collision->normal.y < 0.0f; // Collided with a surface below it
+    }
+}
+
+void player_forgiveness_trigger(Timer *timer)
+{
+    Player *player = (Player *)(timer->trigger_cb_ptr);
+    player->can_jump = FALSE;
 }
