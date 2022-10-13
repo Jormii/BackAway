@@ -10,6 +10,7 @@ void polygon_init(Polygon *polygon, const Vec2 *vertices, size_t n_vertices)
     polygon->vertices = malloc(n_vertices * sizeof(Vec2));
     polygon->normals = malloc(n_vertices * sizeof(Vec2));
     polygon->vertices_normals = malloc(n_vertices * sizeof(Vec2));
+    polygon->ephemeral = FALSE;
 
     Vec2 min_corner = {.x = INFINITY, .y = INFINITY};
     Vec2 max_corner = {.x = -INFINITY, .y = -INFINITY};

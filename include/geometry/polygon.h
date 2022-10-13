@@ -11,6 +11,8 @@ typedef struct Polygon_st
     Vec2 *normals;
     Vec2 *vertices_normals;
     Rect bbox;
+
+    bool_t ephemeral; // Indicates if can be phased
 } Polygon;
 
 void polygon_init(Polygon *polygon, const Vec2 *vertices, size_t n_vertices);

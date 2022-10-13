@@ -10,6 +10,7 @@ void entity_init(Entity *entity, float mass, float x, float y, const Vec2 *gravi
     entity->velocity.y = 0.0f;
     entity->position.x = x;
     entity->position.y = y;
+    entity->position_last_frame = entity->position;
 }
 
 void entity_preupdate(Entity *entity, float delta)

@@ -20,7 +20,11 @@ void level_draw(const Level *level, const GameState *game_state)
     Color green = {128, 255, 128, 0};
     for (size_t i = 0; i < level->n_colliders; ++i)
     {
-        draw_polygon(level->colliders + i, &green, &black);
+        const Polygon *collider = level->colliders + i;
+        const Color *edge_color = (!collider->ephemeral) ? &black : &green;
+        const Color *normal_color = (!collider->ephemeral) ? &green : &black;
+
+        draw_polygon(collider, edge_color, normal_color);
     }
 
     const Color *goal_color = (level->goal.active) ? &green : &black;

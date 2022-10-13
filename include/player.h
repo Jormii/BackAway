@@ -30,6 +30,8 @@ typedef struct Player_st
     bool_t attack;
     float attack_radius;
     bool_t goal_reached;
+
+    float delta; // In order to deal with "phasing"
 } Player;
 
 void player_init(Player *player);

@@ -25,8 +25,7 @@
 void player_attack(const Player *player, GameState *game_state);
 void player_handle_input(Player *player, const GameState *game_state);
 void player_check_collisions(Player *player, const GameState *game_state);
-
-float player_attack_radius(const Player *player);
+Vec2 player_phasing_position(const Player *player);
 
 void player_on_collision(Entity *entity, const CollisionData *collision, void *ptr);
 void player_forgiveness_trigger(Timer *timer);
@@ -35,11 +34,11 @@ void player_init(Player *player)
 {
     // Entity, sprite and collider
     Vec2 gravity = {.x = 0.0f, .y = DEFAULT_GRAVITY_Y};
-    entity_init(&(player->entity), 1.0f, 0.0f, 0.0f, &gravity);
+    entity_init(&(player->entity), 1.0f, 50.0f, 0.0f, &gravity);
     sprite_load(&(player->sprite), SPRITE("s_1"));
 
     Rect sprite_rect = {
-        .origin = {.x = player->entity.position.x, .x = player->entity.position.y},
+        .origin = {.x = player->entity.position.x, .y = player->entity.position.y},
         .width = player->sprite.meta.width,
         .height = player->sprite.meta.height};
     polygon_from_rect(&(player->collider), &sprite_rect);
@@ -71,8 +70,9 @@ void player_init(Player *player)
 
 void player_update(Player *player, GameState *game_state)
 {
-    // Defaults
+    // Defaults and derived
     player->attack = FALSE;
+    player->delta = game_state->delta;
 
     float reach = MIN(0.45f * SCREEN_HEIGHT, 0.5 * player->inertia.current_velocity.x);
     player->hook.reach = reach;
@@ -130,6 +130,10 @@ void player_update(Player *player, GameState *game_state)
             timer_start(timer);
         }
     }
+
+    // TODO: Remove
+    // To draw player next frame if no collisions had happened
+    player->collider.bbox.origin = player_phasing_position(player);
 }
 
 void player_draw(const Player *player, const GameState *game_state)
@@ -141,7 +145,7 @@ void player_draw(const Player *player, const GameState *game_state)
 
     Vec2 center = rect_center(&(player->collider.bbox));
     //center = game_state_camera_transform(game_state, &center);
-    player_aoe_draw(&center, player_attack_radius(player));
+    player_aoe_draw(&center, player->attack_radius);
 
     hook_draw(&(player->hook));
     if (game_state->slow_motion && !player->hook.fixed)
@@ -163,9 +167,8 @@ void player_draw(const Player *player, const GameState *game_state)
     Color green = {0, 255, 0, 0};
     Color blue = {0, 0, 255, 0};
 
-    float attack_radius = player_attack_radius(player);
-    float sqr_radius = attack_radius * attack_radius;
     const Level *level = game_state->level;
+    float sqr_radius = player->attack_radius * player->attack_radius;
     for (size_t i = 0; i < level->n_objectives; ++i)
     {
         const LevelObjective *objective = level->objectives + i;
@@ -185,7 +188,10 @@ void player_draw(const Player *player, const GameState *game_state)
         draw_line(&center, &(objective->position), objective_color);
     }
 
+    // Current and future colliders
     draw_polygon(&(player->collider), &green, &red);
+    draw_rect(&(player->collider.bbox), &red);
+
     // END TODO
 }
 
@@ -195,9 +201,7 @@ void player_attack(const Player *player, GameState *game_state)
 
     Level *level = game_state->level;
     Vec2 player_pos = rect_center(&(player->collider.bbox));
-    float attack_radius = player_attack_radius(player);
-    float sqr_radius = attack_radius * attack_radius;
-
+    float sqr_radius = player->attack_radius * player->attack_radius;
     for (size_t i = 0; i < level->n_colliders; ++i)
     {
         LevelObjective *objective = level->objectives + i;
@@ -357,23 +361,52 @@ void player_check_collisions(Player *player, const GameState *game_state)
     }
 }
 
-float player_attack_radius(const Player *player)
+Vec2 player_phasing_position(const Player *player)
 {
-    //const Vec2 *factor = &(player->inertia.factor);
-    //return MAX(factor->x, factor->y) * player->attack_radius;
-    return player->attack_radius;
+    float scalar = 0.75f * (float)(player->inertia.button_press_count);
+    Vec2 delta_p = vec2_mult_scalar(scalar * player->delta, &(player->entity.velocity));
+    return vec2_add(&(player->entity.position), &delta_p);
 }
 
 void player_on_collision(Entity *entity, const CollisionData *collision, void *ptr)
 {
-    // TODO: "Phasing"
-    resolve_collision(entity, collision);
-
     Player *player = (Player *)ptr;
-    if (player->jump_state != JUMP_STATE_GROUNDED && collision->normal.y < 0.0f)
+
+    bool_t ignore = FALSE;
+    if (collision->collided_with->ephemeral)
     {
-        // Fell on a surface below player
-        player->jump_state = JUMP_STATE_GROUNDED;
+        // If player is moving fast enough, check if collider should be skipped
+        Rect bbox = collision->polygon->bbox;
+        Vec2 expected_origin = player_phasing_position(player);
+        Vec2 bbox_vertices[] = {
+            expected_origin,
+            expected_origin,
+            expected_origin,
+            expected_origin};
+
+        bbox_vertices[1].x += bbox.width;
+        bbox_vertices[2].x += bbox.width;
+        bbox_vertices[2].y += bbox.height;
+        bbox_vertices[3].y += bbox.height;
+
+        bool_t all_outside = TRUE;
+        for (size_t i = 0; i < 4 && all_outside; ++i)
+        {
+            const Vec2 *vertex = bbox_vertices + i;
+            all_outside = all_outside && !rect_contains_point(&(collision->collided_with->bbox), vertex);
+        }
+        ignore = all_outside;
+    }
+
+    if (!ignore)
+    {
+        resolve_collision(entity, collision);
+
+        if (player->jump_state != JUMP_STATE_GROUNDED && collision->normal.y < 0.0f)
+        {
+            // Fell on a surface below player
+            player->jump_state = JUMP_STATE_GROUNDED;
+        }
     }
 }
 
