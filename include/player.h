@@ -7,6 +7,7 @@
 #include "sprite.h"
 #include "polygon.h"
 #include "game_state.h"
+#include "player_inertia.h"
 
 typedef enum JumpState_en
 {
@@ -21,6 +22,7 @@ typedef struct Player_st
     Entity entity;
     Sprite sprite;
     Polygon collider;
+    PlayerInertia inertia;
     Hook hook;
 
     JumpState jump_state;

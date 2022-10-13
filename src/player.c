@@ -8,6 +8,7 @@
 #include "physics.h"
 #include "player_aoe.h"
 #include "state_level.h"
+#include "screen_buffer.h"
 #include "draw_geometries.h"
 
 #define MOVE_LEFT INPUT_BUTTON_LEFT
@@ -17,9 +18,9 @@
 #define USE_HOOK INPUT_BUTTON_CIRCLE
 #define ATTACK INPUT_BUTTON_RIGHT_TRIGGER
 
-#define GLIDING_GRAVITY_Y 100.0f
+#define GLIDING_GRAVITY_Y 200.0f
 #define FREE_FALL_GRAVITY_Y 1500.0f
-#define DEFAULT_GRAVITY_Y 500.0f
+#define DEFAULT_GRAVITY_Y 700.0f
 
 void player_attack(const Player *player, GameState *game_state);
 void player_handle_input(Player *player, const GameState *game_state);
@@ -43,9 +44,15 @@ void player_init(Player *player)
         .height = player->sprite.meta.height};
     polygon_from_rect(&(player->collider), &sprite_rect);
 
+    // Inertia
+    Vec2 inertia_base_velocity = {.x = 100.0f, .y = 150.0f};
+    player_inertia_init(&(player->inertia), &(inertia_base_velocity), 1.0f);
+
+    // Hook
     Vec2 center = rect_center(&(player->collider.bbox));
     Vec2 hook_offset = vec2_subtract(&center, &(player->entity.position));
-    hook_init(&(player->hook), &(player->entity), &hook_offset, 100.0f, 0.1f);
+    hook_init(&(player->hook), &(player->entity), &hook_offset,
+              player->inertia.current_velocity.x, 0.1f);
 
     // Jump related
     player->jump_state = JUMP_STATE_AIRBORNE;
@@ -56,7 +63,7 @@ void player_init(Player *player)
 
     // Attack related
     player->attack = FALSE;
-    player->attack_radius = 50.0f;
+    player->attack_radius = player->inertia.current_velocity.x;
 
     // Other
     player->goal_reached = FALSE;
@@ -67,6 +74,10 @@ void player_update(Player *player, GameState *game_state)
     // Defaults
     player->attack = FALSE;
 
+    float reach = MIN(0.45f * SCREEN_HEIGHT, 0.5 * player->inertia.current_velocity.x);
+    player->hook.reach = reach;
+    player->attack_radius = reach;
+
     // Update position
     if (!player->goal_reached)
     {
@@ -74,6 +85,13 @@ void player_update(Player *player, GameState *game_state)
     }
 
     hook_update(&(player->hook), game_state);
+    player_inertia_update(&(player->inertia), game_state->delta);
+
+    entity_preupdate(&(player->entity), game_state->delta);
+    if (!player->hook.fixed)
+    {
+        player_inertia_constrain_velocity(&(player->inertia), &(player->entity.velocity));
+    }
     entity_update(&(player->entity), game_state->delta);
     player_check_collisions(player, game_state);
 
@@ -222,6 +240,8 @@ void player_handle_input(Player *player, const GameState *game_state)
 
             player->jump_state = JUMP_STATE_GLIDING;
             timer_stop(&(player->forgiveness_timer));
+
+            player_inertia_button_pressed(&(player->inertia));
         }
     }
 
@@ -261,7 +281,7 @@ void player_handle_input(Player *player, const GameState *game_state)
     }
 
     // Calculate impulse
-    Vec2 impulse = {.x = 500.f, .y = 8000.0f};
+    Vec2 impulse = {.x = 500.f, .y = 15000.0f};
     impulse = vec2_mult_components(&input_held, &impulse);
 
     // - Press impulse
@@ -275,6 +295,7 @@ void player_handle_input(Player *player, const GameState *game_state)
         }
 
         impulse.x *= 1.25f;
+        player_inertia_button_pressed(&(player->inertia));
     }
 
     // - Jump impulse
@@ -293,6 +314,12 @@ void player_handle_input(Player *player, const GameState *game_state)
 
     // Apply impulse
     entity_apply_impulse(&(player->entity), &impulse, game_state->delta);
+
+    // Inertia timer
+    if (input_held.x != 0.0f || player->jump_state == JUMP_STATE_FREE_FALLING)
+    {
+        timer_reset(&(player->inertia.button_press_timer));
+    }
 
     // Attack
     if (input_button_pressed(ATTACK))

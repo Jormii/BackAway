@@ -12,13 +12,15 @@ void entity_init(Entity *entity, float mass, float x, float y, const Vec2 *gravi
     entity->position.y = y;
 }
 
+void entity_preupdate(Entity *entity, float delta)
+{
+    entity->force = vec2_add(&(entity->force), &(entity->gravity));
+    entity_apply_impulse(entity, &(entity->force), delta);
+}
+
 void entity_update(Entity *entity, float delta)
 {
     entity->position_last_frame = entity->position;
-
-    // Apply gravity beforehand
-    entity->force = vec2_add(&(entity->force), &(entity->gravity));
-    entity_apply_impulse(entity, &(entity->force), delta);
 
     Vec2 delta_p = vec2_mult_scalar(delta, &(entity->velocity));
     entity->position = vec2_add(&(entity->position), &delta_p);

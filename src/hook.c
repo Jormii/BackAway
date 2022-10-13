@@ -10,7 +10,6 @@
 #include "player_aoe.h" // TODO: Remove
 
 #define RESTORING_FACTOR 1000
-#define CENTRIPETAL_LOSS 0.95
 
 void hook_apply_impulse(const Hook *hook, float delta);
 
@@ -152,7 +151,7 @@ void hook_apply_impulse(const Hook *hook, float delta)
     // Centripetal
     float velocity_mag = vec2_magnitude(&(entity->velocity));
     float centripetal_mag = (velocity_mag * velocity_mag) / hook->length;
-    Vec2 centripetal = vec2_mult_scalar(CENTRIPETAL_LOSS * centripetal_mag, &hook_vu);
+    Vec2 centripetal = vec2_mult_scalar(centripetal_mag, &hook_vu);
 
     entity->force = vec2_add(&(entity->force), &centripetal);
 
