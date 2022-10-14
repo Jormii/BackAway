@@ -30,7 +30,7 @@ bool_t sprite_load(Sprite *sprite, const char *path)
     return TRUE;
 }
 
-void sprite_draw(const Sprite *sprite, int x, int y)
+void sprite_draw(const Sprite *sprite, int x, int y, bool_t flip_x, bool_t flip_y)
 {
     const SpriteMeta *meta = &(sprite->meta);
     int x0 = MAX(0, x);
@@ -38,8 +38,10 @@ void sprite_draw(const Sprite *sprite, int x, int y)
     int y0 = MAX(0, y);
     int yf = MIN(y + meta->height, SCREEN_HEIGHT);
 
-    size_t bitmap_x_offset = x0 - x;
-    size_t bitmap_y_offset = y0 - y;
+    int x_inc = (!flip_x) ? 1 : -1;
+    int y_inc = (!flip_y) ? 1 : -1;
+    size_t bitmap_x_offset = (!flip_x) ? (x0 - x) : (meta->width - 1);
+    size_t bitmap_y_offset = (!flip_y) ? (y0 - y) : (meta->height - 1);
     for (int py = y0; py < yf; ++py)
     {
         size_t bitmap_idx = bitmap_x_offset + bitmap_y_offset * meta->width;
@@ -56,10 +58,10 @@ void sprite_draw(const Sprite *sprite, int x, int y)
             screen_pixel->blue = blend.blue;
             screen_pixel->alpha = bitmap_pixel->alpha;
 
-            bitmap_idx += 1;
+            bitmap_idx += x_inc;
             drawbuffer_idx += 1;
         }
 
-        bitmap_y_offset += 1;
+        bitmap_y_offset += y_inc;
     }
 }

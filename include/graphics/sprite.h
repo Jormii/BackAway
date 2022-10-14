@@ -16,6 +16,6 @@ typedef struct Sprite_st
 } Sprite;
 
 bool_t sprite_load(Sprite *sprite, const char *path);
-void sprite_draw(const Sprite *sprite, int x, int y);
+void sprite_draw(const Sprite *sprite, int x, int y, bool_t flip_x, bool_t flip_y);
 
 #endif

@@ -46,6 +46,6 @@ void menu_state_draw(const GameState *game_state)
     for (size_t i = 0; i < game_state->button_collection.n_buttons; ++i)
     {
         const UIButton *button = game_state->button_collection.buttons + i;
-        sprite_draw(button->sprite, button->position.x, button->position.y);
+        sprite_draw(button->sprite, button->position.x, button->position.y, FALSE, FALSE);
     }
 }

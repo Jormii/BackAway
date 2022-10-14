@@ -37,6 +37,7 @@ void player_forgiveness_trigger(Timer *timer);
 void player_init(Player *player)
 {
     // Initialize sprite's first. Other components require the size of the sprites
+    player->flip_x = FALSE;
     animated_sprite_init(&(player->idle_anim_sprite), 2, 6);
     animated_sprite_init(&(player->run_anim_sprite), 2, 6);
 
@@ -160,7 +161,7 @@ void player_draw(const Player *player, const GameState *game_state)
 
     Vec2 origin = player->entity.position;
     const Sprite *sprite = player_get_sprite(player);
-    sprite_draw(sprite, origin.x, origin.y); // TODO: Flip
+    sprite_draw(sprite, origin.x, origin.y, player->flip_x, FALSE);
 
     Vec2 center = rect_center(&(player->collider.bbox));
     //center = game_state_camera_transform(game_state, &center);
@@ -321,6 +322,18 @@ void player_handle_input(Player *player, const GameState *game_state)
         {
             hook_shoot(hook, game_state);
         }
+    }
+
+    // Handle sprite flipping
+    if (player->hook.fixed && !(EQUAL_EPSILON(player->entity.velocity.x, 0.0f, 0.1f)))
+    {
+        // TODO: Improve
+        bool_t heading_left = player->entity.velocity.x < 0.0f;
+        player->flip_x = heading_left;
+    }
+    else if (input_pressed.x != 0.0f)
+    {
+        player->flip_x = input_pressed.x < 0.0f;
     }
 }
 

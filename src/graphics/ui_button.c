@@ -21,7 +21,7 @@ void ui_button_collection_update(UIButtonCollection *button_coll)
             button->on_highlighted_cb(button);
         }
 
-        sprite_draw(button->sprite, button->position.x, button->position.y);
+        sprite_draw(button->sprite, button->position.x, button->position.y, FALSE, FALSE);
     }
 
     // Handle input

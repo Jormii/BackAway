@@ -49,6 +49,6 @@ void level_goal_draw(const LevelGoal *goal, const GameState *game_state)
     }
 
     // TODO: Procedural in-between
-    sprite_draw(top_sprite, goal->x, goal->top_y);
-    sprite_draw(bottom_sprite, goal->x, goal->bottom_y);
+    sprite_draw(top_sprite, goal->x, goal->top_y, FALSE, FALSE);
+    sprite_draw(bottom_sprite, goal->x, goal->bottom_y, FALSE, FALSE);
 }

@@ -36,22 +36,21 @@ void level_objective_draw(const LevelObjective *objective, const GameState *game
 {
     int x = objective->position.x;
     int y = objective->position.y;
+    const Sprite *sprite = objective->default_sprite;
     switch (objective->state)
     {
-    case LEVEL_OBJECTIVE_STATE_DEFAULT:
-        sprite_draw(objective->default_sprite, x, y);
-        break;
     case LEVEL_OBJECTIVE_STATE_IN_RANGE:
-        sprite_draw(objective->in_range_sprite, x, y);
+        sprite = objective->in_range_sprite;
         break;
     case LEVEL_OBJECTIVE_STATE_ACTIVE:
-    {
-        const Sprite *sprite = animated_sprite_get(&(objective->active_anim_sprite));
-        sprite_draw(sprite, x, y);
-    }
+        sprite = animated_sprite_get(&(objective->active_anim_sprite));
+        break;
+    case LEVEL_OBJECTIVE_STATE_DEFAULT:
     default:
         break;
     }
+
+    sprite_draw(sprite, x, y, FALSE, FALSE);
 }
 
 void level_objective_set_active(LevelObjective *objective)
