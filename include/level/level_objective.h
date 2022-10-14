@@ -19,8 +19,8 @@ typedef struct LevelObjective_st
     Vec2 position;
 
     LevelObjectiveState state;
-    Sprite *default_sprite;
-    Sprite *in_range_sprite;
+    const Sprite *default_sprite;
+    const Sprite *in_range_sprite;
     AnimatedSprite active_anim_sprite;
 } LevelObjective;
 

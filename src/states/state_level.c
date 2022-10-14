@@ -20,18 +20,20 @@ void level_state_init(GameState *game_state)
     level->spawn_position.x = 0;
     level->spawn_position.y = 0;
 
-    level->goal.active = FALSE;
-    level->goal.boundary.origin.x = SCREEN_WIDTH - 100.0f;
-    level->goal.boundary.origin.y = 0.0f;
-    level->goal.boundary.width = 30.0f;
-    level->goal.boundary.height = SCREEN_HEIGHT;
+    // Initialize goal
+    float goal_x = SCREEN_WIDTH - 100.0f;
+    float goal_top_y = 10.0f;
+    float goal_bottom_y = SCREEN_HEIGHT - 10.0f;
+    level_goal_init(&(level->goal), goal_x, goal_top_y, goal_bottom_y);
 
+    // Initialize objectives
     level->n_objectives = 1;
     level->objectives = malloc(level->n_objectives * sizeof(LevelObjective));
 
     Vec2 position = {.x = 100.0f, .y = 100.0f};
     level_objective_init(level->objectives, &position);
 
+    // Initialize colliders
     level->n_colliders = 2;
     level->colliders = malloc(level->n_colliders * sizeof(Polygon));
 

@@ -8,7 +8,7 @@
 typedef struct AnimatedSprite_st
 {
     size_t n_frames;
-    Sprite **frames;
+    const Sprite **frames;
     size_t rendered_frame_idx;
     Timer frame_tick;
 } AnimatedSprite;

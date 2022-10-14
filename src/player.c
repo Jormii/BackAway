@@ -106,7 +106,7 @@ void player_update(Player *player, GameState *game_state)
     LevelGoal *goal = &(game_state->level->goal);
     if (!player->goal_reached && goal->active)
     {
-        bool_t reached_goal = rect_within_rect(&(player->collider.bbox), &(goal->boundary));
+        bool_t reached_goal = rect_within_rect(&(player->collider.bbox), &(goal->bbox));
         if (reached_goal)
         {
             player->goal_reached = TRUE;
