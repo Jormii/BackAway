@@ -5,4 +5,5 @@
 *.prx
 *.PBP
 *.SFO
+/tmp_assets
 /compilation/Makefile

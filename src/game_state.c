@@ -5,10 +5,12 @@
 #include "game_state.h"
 #include "screen_buffer.h"
 
+#include "state_load.h"
 #include "state_menu.h"
 #include "state_level.h"
 
 GameStateCallbacks state_cbs[_GAME_STATE_N_STATES_] = {
+    {.init_cb = load_state_init, .update_cb = load_state_update, .draw_cb = load_state_draw},
     {.init_cb = menu_state_init, .update_cb = menu_state_update, .draw_cb = menu_state_draw},
     {.init_cb = level_state_init, .update_cb = level_state_update, .draw_cb = level_state_draw},
 };

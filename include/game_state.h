@@ -8,6 +8,7 @@
 
 typedef enum GameStateID_en
 {
+    GAME_STATE_LOAD,
     GAME_STATE_MAIN_MENU,
     GAME_STATE_LEVEL,
     _GAME_STATE_N_STATES_

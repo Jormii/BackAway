@@ -21,7 +21,7 @@ int main()
     oslInitAudioME(OSL_FMT_MP3);
 
     GameState game_state;
-    game_state_init(&game_state, GAME_STATE_LEVEL);
+    game_state_init(&game_state, GAME_STATE_LOAD);
 
     clock_t frame_start = clock();
     clock_t frame_end = clock();
