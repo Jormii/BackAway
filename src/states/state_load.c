@@ -7,7 +7,8 @@ AssetLoadData sprite_load_data[_SPRITE_ID_COUNT_] = {
     {SPRITE_ID_OBJECTIVE_IN_RANGE, SPRITE("Objective_InRange")},
     {SPRITE_ID_OBJECTIVE_ACTIVE_1, SPRITE("Objective_Active1")},
     {SPRITE_ID_OBJECTIVE_ACTIVE_2, SPRITE("Objective_Active2")},
-    {SPRITE_ID_OBJECTIVE_ACTIVE_3, SPRITE("Objective_Active3")}};
+    {SPRITE_ID_OBJECTIVE_ACTIVE_3, SPRITE("Objective_Active3")},
+    {SPRITE_ID_OBJECTIVE_ACTIVE_4, SPRITE("Objective_Active4")}};
 
 void load_state_init(GameState *game_state)
 {

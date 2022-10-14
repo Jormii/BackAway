@@ -29,9 +29,8 @@ void level_state_init(GameState *game_state)
     level->n_objectives = 1;
     level->objectives = malloc(level->n_objectives * sizeof(LevelObjective));
 
-    level->objectives->hit = FALSE;
-    level->objectives->position.x = 100.0f;
-    level->objectives->position.y = 100.0f;
+    Vec2 position = {.x = 100.0f, .y = 100.0f};
+    level_objective_init(level->objectives, &position);
 
     level->n_colliders = 2;
     level->colliders = malloc(level->n_colliders * sizeof(Polygon));

@@ -22,8 +22,8 @@
 #define FREE_FALL_GRAVITY_Y 1500.0f
 #define DEFAULT_GRAVITY_Y 700.0f
 
-void player_attack(const Player *player, GameState *game_state);
 void player_handle_input(Player *player, const GameState *game_state);
+void player_handle_attack(const Player *player, GameState *game_state);
 void player_check_collisions(Player *player, const GameState *game_state);
 Vec2 player_phasing_position(const Player *player);
 
@@ -35,7 +35,7 @@ void player_init(Player *player)
     // Entity, sprite and collider
     Vec2 gravity = {.x = 0.0f, .y = DEFAULT_GRAVITY_Y};
     entity_init(&(player->entity), 1.0f, 50.0f, 0.0f, &gravity);
-    sprite_load(&(player->sprite), SPRITE("s_1"));
+    sprite_load(&(player->sprite), SPRITE("8"));
 
     Rect sprite_rect = {
         .origin = {.x = player->entity.position.x, .y = player->entity.position.y},
@@ -100,10 +100,7 @@ void player_update(Player *player, GameState *game_state)
     game_state->camera_focus = vec2_add(&(game_state->camera_focus), &v);
 
     // Attack
-    if (player->attack)
-    {
-        player_attack(player, game_state);
-    }
+    player_handle_attack(player, game_state);
 
     // Check if goal has been reached
     LevelGoal *goal = &(game_state->level->goal);
@@ -165,58 +162,12 @@ void player_draw(const Player *player, const GameState *game_state)
     // TODO: Remove
     Color red = {255, 0, 0, 0};
     Color green = {0, 255, 0, 0};
-    Color blue = {0, 0, 255, 0};
-
-    const Level *level = game_state->level;
-    float sqr_radius = player->attack_radius * player->attack_radius;
-    for (size_t i = 0; i < level->n_objectives; ++i)
-    {
-        const LevelObjective *objective = level->objectives + i;
-        Vec2 v = vec2_subtract(&(objective->position), &center);
-        float sqr_magnitude = vec2_dot(&v, &v);
-
-        const Color *objective_color = &red;
-        if (objective->hit)
-        {
-            objective_color = &green;
-        }
-        else if (sqr_magnitude <= sqr_radius)
-        {
-            objective_color = &blue;
-        }
-
-        draw_line(&center, &(objective->position), objective_color);
-    }
 
     // Current and future colliders
     draw_polygon(&(player->collider), &green, &red);
     draw_rect(&(player->collider.bbox), &red);
 
     // END TODO
-}
-
-void player_attack(const Player *player, GameState *game_state)
-{
-    // TODO: Some cooldown
-
-    Level *level = game_state->level;
-    Vec2 player_pos = rect_center(&(player->collider.bbox));
-    float sqr_radius = player->attack_radius * player->attack_radius;
-    for (size_t i = 0; i < level->n_colliders; ++i)
-    {
-        LevelObjective *objective = level->objectives + i;
-        if (objective->hit)
-        {
-            continue;
-        }
-
-        Vec2 v = vec2_subtract(&(objective->position), &player_pos);
-        float sqr_magnitude = vec2_dot(&v, &v);
-        if (sqr_magnitude <= sqr_radius)
-        {
-            objective->hit = TRUE;
-        }
-    }
 }
 
 void player_handle_input(Player *player, const GameState *game_state)
@@ -347,6 +298,36 @@ void player_handle_input(Player *player, const GameState *game_state)
         if (input_button_pressed(INPUT_BUTTON_CIRCLE))
         {
             hook_shoot(hook, game_state);
+        }
+    }
+}
+
+void player_handle_attack(const Player *player, GameState *game_state)
+{
+    // TODO: Some cooldown?
+    Vec2 player_pos = rect_center(&(player->collider.bbox));
+    float radius_sqr = player->attack_radius * player->attack_radius;
+
+    Level *level = game_state->level;
+    for (size_t i = 0; i < level->n_objectives; ++i)
+    {
+        LevelObjective *objective = level->objectives + i;
+        if (objective->active)
+        {
+            continue;
+        }
+
+        Vec2 objective_pos = level_objective_center(objective);
+        Vec2 v = vec2_subtract(&objective_pos, &player_pos);
+        float sqr_mag = vec2_dot(&v, &v);
+        if (sqr_mag <= radius_sqr)
+        {
+            level_objective_trigger_in_range(objective);
+
+            if (player->attack)
+            {
+                level_objective_set_active(objective);
+            }
         }
     }
 }

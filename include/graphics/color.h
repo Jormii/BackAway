@@ -11,4 +11,6 @@ typedef struct Color_st
     u8_t alpha;
 } Color;
 
+Color color_interpolate(const Color *c1, const Color *c2, float t);
+
 #endif

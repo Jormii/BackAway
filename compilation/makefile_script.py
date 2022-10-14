@@ -139,6 +139,7 @@ def main():
         SourceDir("../src/geometry/"),
         SourceDir("../src/graphics/"),
         SourceDir("../src/math/"),
+        SourceDir("../src/level/"),
         SourceDir("../src/states/"),
         SourceDir("../src/"),
         File("../main.o")
@@ -167,6 +168,7 @@ def main():
         IncludeDir("../include/geometry/"),
         IncludeDir("../include/graphics/"),
         IncludeDir("../include/math/"),
+        IncludeDir("../include/level/"),
         IncludeDir("../include/states/"),
         IncludeDir("../include/")
     ]

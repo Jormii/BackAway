@@ -25,7 +25,7 @@ int main()
 
     clock_t frame_start = clock();
     clock_t frame_end = clock();
-    Color clear_color = {.red = 255, .green = 128, .blue = 128, .alpha = 0};
+    Color clear_color = {.red = 255, .green = 255, .blue = 255, .alpha = 255};
     while (running())
     {
         clock_t ellapsed = frame_end - frame_start;

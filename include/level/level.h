@@ -4,18 +4,8 @@
 #include "vec2.h"
 #include "polygon.h"
 #include "game_state.h"
-
-typedef struct LevelGoal_st
-{
-    bool_t active;
-    Rect boundary;
-} LevelGoal;
-
-typedef struct LevelObjective_st
-{
-    bool_t hit;
-    Vec2 position;
-} LevelObjective;
+#include "level_goal.h"
+#include "level_objective.h"
 
 typedef struct Level_st
 {
