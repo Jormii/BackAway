@@ -19,10 +19,8 @@ AssetLoadData sprite_load_data[_SPRITE_ID_COUNT_] = {
     {SPRITE_ID_OBJECTIVE_ACTIVE_2, SPRITE("Objective_Active2")},
     {SPRITE_ID_OBJECTIVE_ACTIVE_3, SPRITE("Objective_Active3")},
     {SPRITE_ID_OBJECTIVE_ACTIVE_4, SPRITE("Objective_Active4")},
-    {SPRITE_ID_GOAL_INACTIVE_BOTTOM, SPRITE("Goal_InactiveBottom")},
-    {SPRITE_ID_GOAL_INACTIVE_TOP, SPRITE("Goal_InactiveTop")},
-    {SPRITE_ID_GOAL_ACTIVE_BOTTOM, SPRITE("Goal_ActiveBottom")},
-    {SPRITE_ID_GOAL_ACTIVE_TOP, SPRITE("Goal_ActiveTop")},
+    {SPRITE_ID_GOAL_INACTIVE, SPRITE("Goal_Inactive")},
+    {SPRITE_ID_GOAL_ACTIVE, SPRITE("Goal_Active")},
 };
 
 void load_state_init(GameState *game_state)

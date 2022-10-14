@@ -12,10 +12,8 @@ typedef struct LevelGoal_st
     bool_t active;
 
     Rect bbox;
-    const Sprite *inactive_top_sprite;
-    const Sprite *inactive_bottom_sprite;
-    const Sprite *active_top_sprite;
-    const Sprite *active_bottom_sprite;
+    const Sprite *inactive_sprite;
+    const Sprite *active_sprite;
 } LevelGoal;
 
 void level_goal_init(LevelGoal *goal, float x, float top_y, float bottom_y);

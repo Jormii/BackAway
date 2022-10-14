@@ -9,13 +9,11 @@ void level_goal_init(LevelGoal *goal, float x, float top_y, float bottom_y)
     goal->bottom_y = bottom_y;
     goal->active = FALSE;
 
-    goal->inactive_top_sprite = all_sprites + SPRITE_ID_GOAL_INACTIVE_TOP;
-    goal->inactive_bottom_sprite = all_sprites + SPRITE_ID_GOAL_INACTIVE_BOTTOM;
-    goal->active_top_sprite = all_sprites + SPRITE_ID_GOAL_ACTIVE_TOP;
-    goal->active_bottom_sprite = all_sprites + SPRITE_ID_GOAL_ACTIVE_BOTTOM;
+    goal->inactive_sprite = all_sprites + SPRITE_ID_GOAL_INACTIVE;
+    goal->active_sprite = all_sprites + SPRITE_ID_GOAL_ACTIVE;
 
     // BBOX's initialization depends on sprites
-    const Sprite *sprite = goal->inactive_top_sprite; // All sprites have the same size
+    const Sprite *sprite = goal->inactive_sprite; // All sprites have the same size
     goal->bbox.origin.x = x;
     goal->bbox.origin.y = top_y;
     goal->bbox.width = sprite->meta.width;
@@ -40,15 +38,8 @@ void level_goal_update(LevelGoal *goal, GameState *game_state)
 
 void level_goal_draw(const LevelGoal *goal, const GameState *game_state)
 {
-    const Sprite *top_sprite = goal->inactive_top_sprite;
-    const Sprite *bottom_sprite = goal->inactive_bottom_sprite;
-    if (goal->active)
-    {
-        top_sprite = goal->active_top_sprite;
-        bottom_sprite = goal->active_bottom_sprite;
-    }
-
     // TODO: Procedural in-between
-    sprite_draw(top_sprite, goal->x, goal->top_y, FALSE, FALSE);
-    sprite_draw(bottom_sprite, goal->x, goal->bottom_y, FALSE, FALSE);
+    const Sprite *sprite = (goal->active) ? goal->active_sprite : goal->inactive_sprite;
+    sprite_draw(sprite, goal->x, goal->top_y, FALSE, TRUE);
+    sprite_draw(sprite, goal->x, goal->bottom_y, FALSE, FALSE);
 }
