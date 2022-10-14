@@ -13,6 +13,13 @@ typedef struct AssetLoadData_st
 typedef enum SpriteID_en
 {
     // Player
+    SPRITE_ID_PLAYER_IDLE_1,
+    SPRITE_ID_PLAYER_IDLE_2,
+    SPRITE_ID_PLAYER_RUN_1,
+    SPRITE_ID_PLAYER_RUN_2,
+    SPRITE_ID_PLAYER_JUMP,
+    SPRITE_ID_PLAYER_FALL,
+    SPRITE_ID_PLAYER_SWING,
 
     // Objective
     SPRITE_ID_OBJECTIVE_DEFAULT,

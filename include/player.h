@@ -8,6 +8,7 @@
 #include "polygon.h"
 #include "game_state.h"
 #include "player_inertia.h"
+#include "animated_sprite.h"
 
 typedef enum JumpState_en
 {
@@ -20,7 +21,6 @@ typedef enum JumpState_en
 typedef struct Player_st
 {
     Entity entity;
-    Sprite sprite;
     Polygon collider;
     PlayerInertia inertia;
     Hook hook;
@@ -32,6 +32,13 @@ typedef struct Player_st
     bool_t goal_reached;
 
     float delta; // In order to deal with "phasing"
+
+    // TODO: Tweak animated sprite's speed as player goes faster
+    AnimatedSprite idle_anim_sprite;
+    AnimatedSprite run_anim_sprite;
+    const Sprite *jump_sprite;
+    const Sprite *fall_sprite;
+    const Sprite *swing_sprite;
 } Player;
 
 void player_init(Player *player);

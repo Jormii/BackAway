@@ -3,6 +3,7 @@
 #include "path.h"
 #include "input.h"
 #include "level.h"
+#include "assets.h"
 #include "macros.h"
 #include "player.h"
 #include "physics.h"
@@ -25,6 +26,9 @@
 void player_handle_input(Player *player, const GameState *game_state);
 void player_handle_attack(const Player *player, GameState *game_state);
 void player_check_collisions(Player *player, const GameState *game_state);
+void player_handle_sprites(Player *player, float delta);
+const Sprite *player_get_sprite(const Player *player);
+bool_t player_is_idle(const Player *player);
 Vec2 player_phasing_position(const Player *player);
 
 void player_on_collision(Entity *entity, const CollisionData *collision, void *ptr);
@@ -32,15 +36,27 @@ void player_forgiveness_trigger(Timer *timer);
 
 void player_init(Player *player)
 {
-    // Entity, sprite and collider
+    // Initialize sprite's first. Other components require the size of the sprites
+    animated_sprite_init(&(player->idle_anim_sprite), 2, 6);
+    animated_sprite_init(&(player->run_anim_sprite), 2, 6);
+
+    player->idle_anim_sprite.frames[0] = all_sprites + SPRITE_ID_PLAYER_IDLE_1;
+    player->idle_anim_sprite.frames[1] = all_sprites + SPRITE_ID_PLAYER_IDLE_2;
+    player->run_anim_sprite.frames[0] = all_sprites + SPRITE_ID_PLAYER_RUN_1;
+    player->run_anim_sprite.frames[1] = all_sprites + SPRITE_ID_PLAYER_RUN_2;
+    player->jump_sprite = all_sprites + SPRITE_ID_PLAYER_JUMP;
+    player->fall_sprite = all_sprites + SPRITE_ID_PLAYER_FALL;
+    player->swing_sprite = all_sprites + SPRITE_ID_PLAYER_SWING;
+
+    // Entity and collider
     Vec2 gravity = {.x = 0.0f, .y = DEFAULT_GRAVITY_Y};
     entity_init(&(player->entity), 1.0f, 50.0f, 0.0f, &gravity);
-    sprite_load(&(player->sprite), SPRITE("8"));
 
+    const Sprite *sprite = player->jump_sprite;
     Rect sprite_rect = {
         .origin = {.x = player->entity.position.x, .y = player->entity.position.y},
-        .width = player->sprite.meta.width,
-        .height = player->sprite.meta.height};
+        .width = sprite->meta.width,
+        .height = sprite->meta.height};
     polygon_from_rect(&(player->collider), &sprite_rect);
 
     // Inertia
@@ -48,10 +64,11 @@ void player_init(Player *player)
     player_inertia_init(&(player->inertia), &(inertia_base_velocity), 1.0f);
 
     // Hook
+    // TODO: Tweak offset so hook is drawn starting at player's hands
     Vec2 center = rect_center(&(player->collider.bbox));
     Vec2 hook_offset = vec2_subtract(&center, &(player->entity.position));
     hook_init(&(player->hook), &(player->entity), &hook_offset,
-              player->inertia.current_velocity.x, 0.1f);
+              player->inertia.current_velocity.x, 0.05f);
 
     // Jump related
     player->jump_state = JUMP_STATE_AIRBORNE;
@@ -128,6 +145,9 @@ void player_update(Player *player, GameState *game_state)
         }
     }
 
+    // Deal with animated sprites
+    player_handle_sprites(player, game_state->delta);
+
     // TODO: Remove
     // To draw player next frame if no collisions had happened
     player->collider.bbox.origin = player_phasing_position(player);
@@ -137,8 +157,10 @@ void player_draw(const Player *player, const GameState *game_state)
 {
     // TODO: Camera coordinates
     //Vec2 origin = game_state_camera_transform(game_state, &(player->entity.position));
+
     Vec2 origin = player->entity.position;
-    sprite_draw(&(player->sprite), origin.x, origin.y);
+    const Sprite *sprite = player_get_sprite(player);
+    sprite_draw(sprite, origin.x, origin.y); // TODO: Flip
 
     Vec2 center = rect_center(&(player->collider.bbox));
     //center = game_state_camera_transform(game_state, &center);
@@ -340,6 +362,65 @@ void player_check_collisions(Player *player, const GameState *game_state)
         const Polygon *other_collider = level->colliders + i;
         check_collision(&(player->entity), &(player->collider), other_collider, player_on_collision, player);
     }
+}
+
+void player_handle_sprites(Player *player, float delta)
+{
+    if (player->jump_state == JUMP_STATE_GROUNDED)
+    {
+        bool_t is_idle = player_is_idle(player);
+        AnimatedSprite *idle_anim_sprite = &(player->idle_anim_sprite);
+        AnimatedSprite *run_anim_sprite = &(player->run_anim_sprite);
+
+        AnimatedSprite *to_update = (is_idle) ? idle_anim_sprite : run_anim_sprite;
+        if (!to_update->frame_tick.running)
+        {
+            timer_reset(&(to_update->frame_tick));
+            timer_start(&(to_update->frame_tick));
+            to_update->rendered_frame_idx = 0;
+        }
+        animated_sprite_update(to_update, delta);
+    }
+}
+
+const Sprite *player_get_sprite(const Player *player)
+{
+    if (player->hook.fixed)
+    {
+        return player->swing_sprite;
+    }
+
+    const Vec2 *velocity = &(player->entity.velocity);
+    const Sprite *sprite = player->idle_anim_sprite.frames[0];
+    switch (player->jump_state)
+    {
+    case JUMP_STATE_GROUNDED:
+    {
+        const Sprite *idle_sprite = animated_sprite_get(&(player->idle_anim_sprite));
+        const Sprite *run_sprite = animated_sprite_get(&(player->run_anim_sprite));
+        bool_t idle = player_is_idle(player);
+        sprite = (idle) ? idle_sprite : run_sprite;
+    }
+    break;
+    case JUMP_STATE_GLIDING:
+        sprite = player->jump_sprite;
+        break;
+    case JUMP_STATE_AIRBORNE:
+        sprite = (velocity->y <= 0) ? player->jump_sprite : player->fall_sprite;
+        break;
+    case JUMP_STATE_FREE_FALLING:
+        sprite = player->fall_sprite;
+        break;
+    default:
+        break;
+    }
+
+    return sprite;
+}
+
+bool_t player_is_idle(const Player *player)
+{
+    return EQUAL_EPSILON(0.0f, vec2_magnitude(&(player->entity.velocity)), 0.5f);
 }
 
 Vec2 player_phasing_position(const Player *player)

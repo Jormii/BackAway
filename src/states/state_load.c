@@ -5,6 +5,14 @@
 #include <stdio.h> // TODO: Remove
 
 AssetLoadData sprite_load_data[_SPRITE_ID_COUNT_] = {
+    {SPRITE_ID_PLAYER_IDLE_1, SPRITE("Character_Idle1")},
+    {SPRITE_ID_PLAYER_IDLE_2, SPRITE("Character_Idle2")},
+    {SPRITE_ID_PLAYER_RUN_1, SPRITE("Character_Run1")},
+    {SPRITE_ID_PLAYER_RUN_2, SPRITE("Character_Run2")},
+    {SPRITE_ID_PLAYER_JUMP, SPRITE("Character_Jump")},
+    {SPRITE_ID_PLAYER_FALL, SPRITE("Character_Fall")},
+    {SPRITE_ID_PLAYER_SWING, SPRITE("Character_Swing")},
+
     {SPRITE_ID_OBJECTIVE_DEFAULT, SPRITE("Objective_Default")},
     {SPRITE_ID_OBJECTIVE_IN_RANGE, SPRITE("Objective_InRange")},
     {SPRITE_ID_OBJECTIVE_ACTIVE_1, SPRITE("Objective_Active1")},
