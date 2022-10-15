@@ -27,13 +27,9 @@ void screen_buffer_init()
 
 void screen_buffer_paint(size_t buffer_idx, const Color *color)
 {
+    float t = (float)color->alpha / 255.0f;
     Color *in_buffer = draw_buffer + buffer_idx;
-    Color blend = color_interpolate(in_buffer, color, color->alpha);
-
-    in_buffer->red = blend.red;
-    in_buffer->green = blend.green;
-    in_buffer->blue = blend.blue;
-    in_buffer->alpha = color->alpha;
+    *in_buffer = color_interpolate(in_buffer, color, t);
 }
 
 void screen_buffer_clear(const Color *color)
