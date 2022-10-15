@@ -33,9 +33,6 @@ void level_collider_draw_ephemeral(const Polygon *collider)
     // TODO: Slow
     const Rect *bbox = &(collider->bbox);
 
-    Color black = {0, 0, 0, 255};
-    draw_rect(bbox, &black);
-
     int x0 = MAX(0, bbox->origin.x);
     int y0 = MAX(0, bbox->origin.y);
     int xf = MIN(bbox->origin.x + bbox->width, SCREEN_WIDTH);
@@ -62,10 +59,37 @@ void level_collider_draw_ephemeral(const Polygon *collider)
             draw_buffer_index += 1;
         }
     }
+
+    Color black = {0, 0, 0, 255};
+    draw_rect(bbox, &black);
 }
 
 void level_collider_draw_non_ephemeral(const Polygon *collider)
 {
+    int x_prime = 17;
+    int y_prime = 13;
+    Color base = {0, 0, 0, 255};
+    Color highlight = {255, 255, 255, 255};
+    const Rect *bbox = &(collider->bbox);
+
+    int x0 = MAX(0, bbox->origin.x);
+    int y0 = MAX(0, bbox->origin.y);
+    int xf = MIN(bbox->origin.x + bbox->width, SCREEN_WIDTH);
+    int yf = MIN(bbox->origin.y + bbox->height, SCREEN_HEIGHT);
+    for (int py = y0; py < yf; ++py)
+    {
+        bool_t row_draw = (py % y_prime) == 0;
+        size_t draw_buffer_index = SCREEN_BUFFER_INDEX(x0, py);
+        for (int px = x0; px < xf; ++px)
+        {
+            bool_t pixel_draw = row_draw && (px % x_prime) == 0;
+            const Color *color = (pixel_draw) ? &highlight : &base;
+            screen_buffer_paint(draw_buffer_index, color);
+
+            draw_buffer_index += 1;
+        }
+    }
+
     Color black = {0, 0, 0, 255};
     draw_rect(&(collider->bbox), &black);
 }
