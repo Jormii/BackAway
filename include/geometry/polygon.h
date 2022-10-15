@@ -12,6 +12,7 @@ typedef struct Polygon_st
     Vec2 *vertices_normals;
     Rect bbox;
 
+    // TODO: It's ugly that "Polygon" has to store level information
     bool_t ephemeral; // Indicates if can be phased
 } Polygon;
 

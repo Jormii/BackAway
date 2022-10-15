@@ -25,6 +25,17 @@ void screen_buffer_init()
                           PSP_DISPLAY_SETBUF_IMMEDIATE);
 }
 
+void screen_buffer_paint(size_t buffer_idx, const Color *color)
+{
+    Color *in_buffer = draw_buffer + buffer_idx;
+    Color blend = color_interpolate(in_buffer, color, color->alpha);
+
+    in_buffer->red = blend.red;
+    in_buffer->green = blend.green;
+    in_buffer->blue = blend.blue;
+    in_buffer->alpha = color->alpha;
+}
+
 void screen_buffer_clear(const Color *color)
 {
     for (size_t i = 0; i < SCREEN_BUFFER_SIZE; ++i)

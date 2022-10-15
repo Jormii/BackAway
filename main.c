@@ -1,4 +1,5 @@
 #include <time.h>
+#include <stdlib.h>
 
 #include <pspkernel.h>
 #include <pspdisplay.h>
@@ -14,6 +15,7 @@ PSP_MAIN_THREAD_ATTR(THREAD_ATTR_USER);
 
 int main()
 {
+    srand(time(NULL));
     setup_callbacks();
     input_init();
     screen_buffer_init();

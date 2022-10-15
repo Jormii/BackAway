@@ -50,13 +50,7 @@ void sprite_draw(const Sprite *sprite, int x, int y, bool_t flip_x, bool_t flip_
         for (int px = x0; px < xf; ++px)
         {
             const Color *bitmap_pixel = sprite->bitmap + bitmap_idx;
-            Color *screen_pixel = draw_buffer + drawbuffer_idx;
-            Color blend = color_interpolate(screen_pixel, bitmap_pixel, bitmap_pixel->alpha);
-
-            screen_pixel->red = blend.red;
-            screen_pixel->green = blend.green;
-            screen_pixel->blue = blend.blue;
-            screen_pixel->alpha = bitmap_pixel->alpha;
+            screen_buffer_paint(drawbuffer_idx, bitmap_pixel);
 
             bitmap_idx += x_inc;
             drawbuffer_idx += 1;
