@@ -27,5 +27,6 @@ void hook_move_crosshair(Hook *hook, float sign);
 
 Vec2 hook_crosshair(const Hook *hook);
 Vec2 hook_attachment_position(const Hook *hook);
+void hook_draw_hook_preview(const Hook *hook, const GameState *game_state);
 
 #endif

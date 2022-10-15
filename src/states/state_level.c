@@ -73,8 +73,8 @@ void level_state_update(GameState *game_state)
 
 void level_state_draw(const GameState *game_state)
 {
-    level_draw(game_state->level, game_state);
     player_draw(game_state->player, game_state);
+    level_draw(game_state->level, game_state);
 }
 
 void level_state_end_level(GameState *game_state)

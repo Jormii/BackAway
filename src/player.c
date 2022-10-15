@@ -159,32 +159,28 @@ void player_draw(const Player *player, const GameState *game_state)
     // TODO: Camera coordinates
     //Vec2 origin = game_state_camera_transform(game_state, &(player->entity.position));
 
+    // Draw hook first
+    if (player->hook.fixed)
+    {
+        hook_draw(&(player->hook));
+    }
+    else if (game_state->slow_motion)
+    {
+        hook_draw_hook_preview(&(player->hook), game_state);
+    }
+
+    // Player's sprite
     Vec2 origin = player->entity.position;
     const Sprite *sprite = player_get_sprite(player);
     sprite_draw(sprite, origin.x, origin.y, player->flip_x, FALSE);
 
     player_draw_attack_radius(player);
 
-    hook_draw(&(player->hook));
-    if (game_state->slow_motion && !player->hook.fixed)
-    {
-        // Draw crosshair
-        Vec2 crosshair = hook_crosshair(&(player->hook));
-
-        Rect rect;
-        Color red = {255, 0, 0, 0};
-        rect_given_center(&rect, &crosshair, 5, 5);
-        draw_rect(&rect, &red);
-
-        Vec2 origin = hook_attachment_position(&(player->hook));
-        draw_line(&origin, &crosshair, &red);
-    }
-
     // TODO: Remove
+    // Current and future colliders
     Color red = {255, 0, 0, 0};
     Color green = {0, 255, 0, 0};
 
-    // Current and future colliders
     draw_polygon(&(player->collider), &green, &red);
     draw_rect(&(player->collider.bbox), &red);
 
