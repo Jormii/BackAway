@@ -7,8 +7,6 @@
 #include "player.h"
 #include "draw_geometries.h"
 
-#include "player_aoe.h" // TODO: Remove
-
 #define RESTORING_FACTOR 1000
 
 void hook_apply_impulse(const Hook *hook, float delta);
@@ -45,8 +43,6 @@ void hook_draw(const Hook *hook)
     Color black = {0, 0, 0, 0};
     Vec2 origin = hook_attachment_position(hook);
     draw_line(&origin, &(hook->fixed_to), &black);
-
-    player_aoe_draw(&(hook->fixed_to), hook->length);
 }
 
 void hook_shoot(Hook *hook, const GameState *game_state)

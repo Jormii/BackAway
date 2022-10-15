@@ -43,14 +43,14 @@ void level_state_init(GameState *game_state)
         .width = 400.0f,
         .height = 30.0f};
     polygon_from_rect(level->colliders, &bbox);
-    level->colliders[0].ephemeral = TRUE;
+    level->colliders[0].ephemeral = FALSE;
 
     Rect bbox_2 = {
         .origin = {.x = SCREEN_WIDTH / 2 + 100, .y = 0.0f},
         .width = 400.0f,
         .height = 30.0f};
     polygon_from_rect(level->colliders + 1, &bbox_2);
-    level->colliders[1].ephemeral = FALSE;
+    level->colliders[1].ephemeral = TRUE;
 
     // END TODO
 }

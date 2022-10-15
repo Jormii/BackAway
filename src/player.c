@@ -7,7 +7,6 @@
 #include "macros.h"
 #include "player.h"
 #include "physics.h"
-#include "player_aoe.h"
 #include "state_level.h"
 #include "screen_buffer.h"
 #include "draw_geometries.h"
@@ -28,6 +27,7 @@ void player_handle_attack(const Player *player, GameState *game_state);
 void player_check_collisions(Player *player, const GameState *game_state);
 void player_handle_sprites(Player *player, float delta);
 const Sprite *player_get_sprite(const Player *player);
+void player_draw_attack_radius(const Player *player);
 bool_t player_is_idle(const Player *player);
 Vec2 player_phasing_position(const Player *player);
 
@@ -163,9 +163,7 @@ void player_draw(const Player *player, const GameState *game_state)
     const Sprite *sprite = player_get_sprite(player);
     sprite_draw(sprite, origin.x, origin.y, player->flip_x, FALSE);
 
-    Vec2 center = rect_center(&(player->collider.bbox));
-    //center = game_state_camera_transform(game_state, &center);
-    player_aoe_draw(&center, player->attack_radius);
+    player_draw_attack_radius(player);
 
     hook_draw(&(player->hook));
     if (game_state->slow_motion && !player->hook.fixed)
@@ -429,6 +427,35 @@ const Sprite *player_get_sprite(const Player *player)
     }
 
     return sprite;
+}
+
+void player_draw_attack_radius(const Player *player)
+{
+    // TODO: Stylish
+    Color c = {255, 255, 0, 64};
+    float radius = player->attack_radius;
+    float radius_sqr = radius * radius;
+    Vec2 center = rect_center(&(player->collider.bbox));
+
+    int y0 = MAX(0, center.y - radius);
+    int yf = MIN(center.y + radius, SCREEN_HEIGHT);
+    int y = y0 - center.y;
+
+    for (int py = y0; py < yf; ++py)
+    {
+        float fx = MAX(0.0f, radius_sqr - y * y);
+        int xf = sqrtf(fx) + center.x;
+        int x0 = center.x - (xf - center.x);
+
+        x0 = MAX(0, x0);
+        xf = MIN(xf, SCREEN_WIDTH);
+        for (int px = x0; px < xf; ++px)
+        {
+            screen_buffer_paint(SCREEN_BUFFER_INDEX(px, py), &c);
+        }
+
+        ++y;
+    }
 }
 
 bool_t player_is_idle(const Player *player)
