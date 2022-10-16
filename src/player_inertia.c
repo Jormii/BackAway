@@ -83,6 +83,6 @@ void player_inertia_trigger(Timer *timer)
     PlayerInertia *inertia = (PlayerInertia *)(timer->trigger_cb_ptr);
 
     inertia->velocity_target = inertia->base_velocity;
-    inertia->increment_speed = 15.0f * inertia->button_press_count;
+    inertia->increment_speed = INCREMENT_SPEED * inertia->button_press_count;
     inertia->button_press_count = 0;
 }
