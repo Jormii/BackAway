@@ -21,4 +21,6 @@ typedef struct Level_st
 void level_update(Level *level, GameState *game_state);
 void level_draw(const Level *level, const GameState *game_state);
 
+void level_reset(Level *level);
+
 #endif

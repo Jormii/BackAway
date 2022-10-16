@@ -7,9 +7,12 @@
 #include "screen_buffer.h"
 #include "level_collider.h"
 
+void level_state_reset(GameState *game_state);
+
 void level_state_init(GameState *game_state)
 {
     game_state->slow_motion = FALSE;
+    game_state->restart_level = FALSE;
 
     game_state->player = malloc(sizeof(Player));
     player_init(game_state->player);
@@ -81,10 +84,18 @@ void level_state_init(GameState *game_state)
         .height = 3 * grid_size};
     polygon_from_rect(level->colliders + 3, &coll_rect_4);
     level->colliders[3].ephemeral = TRUE;
+
+    game_state->restart_level = TRUE; // Force in order to place everything correctly
 }
 
 void level_state_update(GameState *game_state)
 {
+    if (game_state->restart_level)
+    {
+        level_state_reset(game_state);
+        return;
+    }
+
     if (input_button_held(INPUT_BUTTON_LEFT_TRIGGER))
     {
         game_state->slow_motion = TRUE;
@@ -107,4 +118,11 @@ void level_state_draw(const GameState *game_state)
 
 void level_state_end_level(GameState *game_state)
 {
+}
+
+void level_state_reset(GameState *game_state)
+{
+    game_state->restart_level = FALSE;
+    player_reset(game_state->player, game_state);
+    level_reset(game_state->level);
 }

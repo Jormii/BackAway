@@ -34,6 +34,8 @@ Vec2 player_phasing_position(const Player *player);
 void player_on_collision(Entity *entity, const CollisionData *collision, void *ptr);
 void player_forgiveness_trigger(Timer *timer);
 
+// TODO: Mess around to find bugs
+
 void player_init(Player *player)
 {
     // Initialize sprite's first. Other components require the size of the sprites
@@ -50,14 +52,8 @@ void player_init(Player *player)
     player->swing_sprite = all_sprites + SPRITE_ID_PLAYER_SWING;
 
     // Entity and collider
-    // TODO: This shouldn't be here
-    int grid_size = 30;
-    float position_x = 2.5f * grid_size;
-    float position_y = 2.5f * grid_size;
-    // END TODO
-
     Vec2 gravity = {.x = 0.0f, .y = DEFAULT_GRAVITY_Y};
-    entity_init(&(player->entity), 1.0f, position_x, position_y, &gravity);
+    entity_init(&(player->entity), 1.0f, 0.0f, 0.0f, &gravity);
 
     const Sprite *sprite = player->jump_sprite;
     Rect sprite_rect = {
@@ -173,6 +169,31 @@ void player_draw(const Player *player, const GameState *game_state)
     sprite_draw(sprite, origin.x, origin.y, player->flip_x, FALSE);
 
     player_draw_attack_radius(player, game_state);
+}
+
+void player_reset(Player *player, const GameState *game_state)
+{
+    Vec2 gravity = {.x = 0, .y = 0};
+    const Vec2 *spawn = &(game_state->level->spawn_position);
+    Vec2 base_velocity = {.x = 100.0f, .y = 150.0f};
+    float inertia_countdown = 0.2f;
+
+    entity_init(&(player->entity), player->entity.mass, spawn->x, spawn->y, &gravity);
+    polygon_place_at(&(player->collider), spawn);
+    player_inertia_init(&(player->inertia), &base_velocity, inertia_countdown);
+
+    Vec2 center = rect_center(&(player->collider.bbox));
+    Vec2 hook_offset = vec2_subtract(&center, &(player->entity.position));
+    float angular_velocity = 0.075f;
+    hook_init(&(player->hook), &(player->entity), &hook_offset,
+              player->inertia.current_velocity.x, angular_velocity);
+
+    player->jump_state = JUMP_STATE_AIRBORNE;
+    timer_stop(&(player->forgiveness_timer));
+    player->attack = FALSE;
+    player->attack_radius = player->inertia.current_velocity.x;
+    player->goal_reached = FALSE;
+    player->flip_x = FALSE;
 }
 
 void player_handle_input(Player *player, const GameState *game_state)

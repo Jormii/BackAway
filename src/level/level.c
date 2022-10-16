@@ -33,3 +33,13 @@ void level_draw(const Level *level, const GameState *game_state)
     // Draw goal
     level_goal_draw(&(level->goal), game_state);
 }
+
+void level_reset(Level *level)
+{
+    level->goal.active = FALSE;
+    for (size_t i = 0; i < level->n_objectives; ++i)
+    {
+        LevelObjective *objective = level->objectives + i;
+        objective->state = LEVEL_OBJECTIVE_STATE_DEFAULT;
+    }
+}

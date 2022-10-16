@@ -41,6 +41,7 @@ typedef struct GameState_st
 
     // -- GAME_STATE_LEVEL --
     bool_t slow_motion;
+    bool_t restart_level;
     struct Level_st *level;
     struct Player_st *player;
 } GameState;
