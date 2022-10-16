@@ -6,7 +6,7 @@
 
 struct UIButton_st;
 
-typedef void (*UIButtonOnPress_fp)();
+typedef void (*UIButtonOnPress_fp)(struct UIButton_st *button);
 typedef void (*UIButtonOnHighlighted_fp)(struct UIButton_st *button);
 
 typedef struct UIButton_st
@@ -15,6 +15,7 @@ typedef struct UIButton_st
     Sprite *sprite;
     UIButtonOnPress_fp on_press_cb;
     UIButtonOnHighlighted_fp on_highlighted_cb;
+    void *cb_ptr;
 } UIButton;
 
 typedef struct UIButtonCollection_st

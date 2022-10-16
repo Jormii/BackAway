@@ -28,9 +28,9 @@ void ui_button_collection_update(UIButtonCollection *button_coll)
     if (input_button_pressed(INPUT_BUTTON_CROSS))
     {
         UIButton *button = button_coll->buttons + button_coll->highlighted_idx;
-        button->on_press_cb();
+        button->on_press_cb(button);
     }
-    else if (input_button_pressed(INPUT_BUTTON_LEFT))
+    else if (input_button_pressed(INPUT_BUTTON_LEFT) || input_button_pressed(INPUT_BUTTON_UP))
     {
         if (button_coll->highlighted_idx != 0)
         {
@@ -41,7 +41,7 @@ void ui_button_collection_update(UIButtonCollection *button_coll)
             button_coll->highlighted_idx = button_coll->n_buttons - 1;
         }
     }
-    else if (input_button_pressed(INPUT_BUTTON_RIGHT))
+    else if (input_button_pressed(INPUT_BUTTON_RIGHT) || input_button_pressed(INPUT_BUTTON_DOWN))
     {
         button_coll->highlighted_idx = (button_coll->highlighted_idx + 1) % button_coll->n_buttons;
     }

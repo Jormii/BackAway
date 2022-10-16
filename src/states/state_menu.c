@@ -4,28 +4,21 @@
 #include "state_menu.h"
 #include "draw_geometries.h"
 
-void on_button_press()
+typedef struct ButtonData_st
 {
-}
+    GameState *game_state;
+    LevelID level_id;
+} ButtonData;
 
-void on_button_highlight(UIButton *button)
-{
-    Rect rect;
-    const Sprite *sprite = button->sprite;
-    rect_given_center(&rect, &(button->position), sprite->meta.width + 10, sprite->meta.height + 10);
+ButtonData buttons_data[_LEVEL_ID_COUNT_];
 
-    Color color = {255, 255, 255, 255};
-    draw_rect(&rect, &color);
-}
+void on_button_press(UIButton *button);
+void on_button_highlight(UIButton *button);
 
 void menu_state_init(GameState *game_state)
 {
-#if 0
-    Sprite *shared_sprite = malloc(sizeof(Sprite));
-    sprite_load(shared_sprite, SPRITE("s_2"));
-
-    int n_buttons = 3;
-    ui_button_collection_init(&(game_state->button_collection), n_buttons);
+    Sprite *shared_sprite = all_sprites + SPRITE_ID_OBJECTIVE_ACTIVE_1;
+    ui_button_collection_init(&(game_state->button_collection), _LEVEL_ID_COUNT_);
     for (size_t i = 0; i < game_state->button_collection.n_buttons; ++i)
     {
         UIButton *button = game_state->button_collection.buttons + i;
@@ -34,8 +27,12 @@ void menu_state_init(GameState *game_state)
         button->sprite = shared_sprite;
         button->on_press_cb = on_button_press;
         button->on_highlighted_cb = on_button_highlight;
+
+        ButtonData *button_data = buttons_data + i;
+        button_data->game_state = game_state;
+        button_data->level_id = i;
+        button->cb_ptr = button_data;
     }
-#endif
 }
 
 void menu_state_update(GameState *game_state)
@@ -50,4 +47,24 @@ void menu_state_draw(const GameState *game_state)
         const UIButton *button = game_state->button_collection.buttons + i;
         sprite_draw(button->sprite, button->position.x, button->position.y, FALSE, FALSE);
     }
+}
+
+void on_button_press(UIButton *button)
+{
+    ButtonData *button_data = (ButtonData *)(button->cb_ptr);
+
+    button_data->game_state->state_id = GAME_STATE_LEVEL;
+    button_data->game_state->level_id = button_data->level_id;
+    button_data->game_state->level = all_levels[button_data->level_id];
+    button_data->game_state->restart_level = TRUE;
+}
+
+void on_button_highlight(UIButton *button)
+{
+    Rect rect;
+    const Sprite *sprite = button->sprite;
+    rect_given_center(&rect, &(button->position), sprite->meta.width + 10, sprite->meta.height + 10);
+
+    Color color = {0, 0, 0, 255};
+    draw_rect(&rect, &color);
 }

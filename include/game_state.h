@@ -2,6 +2,7 @@
 #define GAME_STATE_H
 
 #include "rect.h"
+#include "assets.h"
 #include "sprite.h"
 #include "physics.h"
 #include "ui_button.h"
@@ -42,6 +43,7 @@ typedef struct GameState_st
     // -- GAME_STATE_LEVEL --
     bool_t slow_motion;
     bool_t restart_level;
+    LevelID level_id;
     struct Level_st *level;
     struct Player_st *player;
 } GameState;

@@ -140,6 +140,7 @@ def main():
         SourceDir("../src/graphics/"),
         SourceDir("../src/math/"),
         SourceDir("../src/level/"),
+        SourceDir("../src/levels/"),
         SourceDir("../src/states/"),
         SourceDir("../src/"),
         File("../main.o")
