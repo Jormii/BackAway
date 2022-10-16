@@ -68,6 +68,6 @@ Vec2 level_objective_center(const LevelObjective *objective)
 {
     // Width is shared across sprites. It dosn't matter which we pick
     return (Vec2){
-        .x = objective->position.x + objective->default_sprite->meta.width,
-        .y = objective->position.y + objective->default_sprite->meta.height};
+        .x = objective->position.x + objective->default_sprite->meta.width / 2,
+        .y = objective->position.y + objective->default_sprite->meta.height / 2};
 }
