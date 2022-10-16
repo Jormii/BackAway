@@ -15,7 +15,7 @@
 #define MOVE_RIGHT INPUT_BUTTON_RIGHT
 #define DOWN INPUT_BUTTON_DOWN
 #define JUMP INPUT_BUTTON_CROSS
-#define USE_HOOK INPUT_BUTTON_CIRCLE
+#define USE_HOOK INPUT_BUTTON_SQUARE
 #define ATTACK INPUT_BUTTON_RIGHT_TRIGGER
 
 #define GLIDING_GRAVITY_Y 200.0f
@@ -74,7 +74,7 @@ void player_init(Player *player)
     Vec2 center = rect_center(&(player->collider.bbox));
     Vec2 hook_offset = vec2_subtract(&center, &(player->entity.position));
     hook_init(&(player->hook), &(player->entity), &hook_offset,
-              player->inertia.current_velocity.x, 0.05f);
+              player->inertia.current_velocity.x, 0.1f);
 
     // Jump related
     player->jump_state = JUMP_STATE_AIRBORNE;
@@ -291,7 +291,7 @@ void player_handle_input(Player *player, const GameState *game_state)
     Hook *hook = &(player->hook);
     if (hook->fixed)
     {
-        if (player->jump_state == JUMP_STATE_FREE_FALLING || input_button_pressed(USE_HOOK))
+        if (player->jump_state == JUMP_STATE_FREE_FALLING || input_button_pressed(USE_HOOK) || input_button_pressed(JUMP))
         {
             hook_release(hook);
         }
@@ -306,7 +306,7 @@ void player_handle_input(Player *player, const GameState *game_state)
     if (game_state->slow_motion && !hook->fixed)
     {
         hook_move_crosshair(hook, input_held.x);
-        if (input_button_pressed(INPUT_BUTTON_CIRCLE))
+        if (input_button_pressed(USE_HOOK))
         {
             hook_shoot(hook, game_state);
         }
@@ -438,8 +438,8 @@ void player_draw_attack_radius(const Player *player, const GameState *game_state
         x0 = MAX(0, x0);
         xf = MIN(xf, SCREEN_WIDTH);
 
-        int xs[4] = {x0 - 1, x0, xf, xf + 1};
-        for (int i = 0; i < 4; ++i)
+        int xs[6] = {x0 - 2, x0 - 1, x0, xf, xf + 1, xf + 2};
+        for (int i = 0; i < 6; ++i)
         {
             int x = xs[i];
             screen_buffer_paint(SCREEN_BUFFER_INDEX(x, py), &c);
