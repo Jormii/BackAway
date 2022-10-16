@@ -51,7 +51,6 @@ void level_state_init(GameState *game_state)
         .height = 30.0f};
     polygon_from_rect(level->colliders + 1, &bbox_2);
     level->colliders[1].ephemeral = TRUE;
-
     // END TODO
 }
 
@@ -79,5 +78,4 @@ void level_state_draw(const GameState *game_state)
 
 void level_state_end_level(GameState *game_state)
 {
-    // TODO
 }

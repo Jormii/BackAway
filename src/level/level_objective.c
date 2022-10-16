@@ -34,8 +34,7 @@ void level_objective_update(LevelObjective *objective, GameState *game_state)
 
 void level_objective_draw(const LevelObjective *objective, const GameState *game_state)
 {
-    int x = objective->position.x;
-    int y = objective->position.y;
+    Vec2 pixel = game_state_camera_transform(game_state, &(objective->position));
     const Sprite *sprite = objective->default_sprite;
     switch (objective->state)
     {
@@ -50,7 +49,7 @@ void level_objective_draw(const LevelObjective *objective, const GameState *game
         break;
     }
 
-    sprite_draw(sprite, x, y, FALSE, FALSE);
+    sprite_draw(sprite, pixel.x, pixel.y, FALSE, FALSE);
 }
 
 void level_objective_set_active(LevelObjective *objective)

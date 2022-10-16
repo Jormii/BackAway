@@ -11,7 +11,7 @@ typedef struct Timer_st
     bool_t cycle;
     float countdown;
     TimerTrigger_fp trigger_cb;
-    void *trigger_cb_ptr; // TODO: Ugly
+    void *trigger_cb_ptr;
 
     float left;
     bool_t running;

@@ -19,7 +19,7 @@
 #define ATTACK INPUT_BUTTON_RIGHT_TRIGGER
 
 #define GLIDING_GRAVITY_Y 200.0f
-#define FREE_FALL_GRAVITY_Y 1500.0f
+#define FREE_FALL_GRAVITY_Y 4000.0f
 #define DEFAULT_GRAVITY_Y 700.0f
 
 void player_handle_input(Player *player, const GameState *game_state);
@@ -27,7 +27,7 @@ void player_handle_attack(const Player *player, GameState *game_state);
 void player_check_collisions(Player *player, const GameState *game_state);
 void player_handle_sprites(Player *player, float delta);
 const Sprite *player_get_sprite(const Player *player);
-void player_draw_attack_radius(const Player *player);
+void player_draw_attack_radius(const Player *player, const GameState *game_state);
 bool_t player_is_idle(const Player *player);
 Vec2 player_phasing_position(const Player *player);
 
@@ -65,7 +65,6 @@ void player_init(Player *player)
     player_inertia_init(&(player->inertia), &(inertia_base_velocity), 1.0f);
 
     // Hook
-    // TODO: Tweak offset so hook is drawn starting at player's hands
     Vec2 center = rect_center(&(player->collider.bbox));
     Vec2 hook_offset = vec2_subtract(&center, &(player->entity.position));
     hook_init(&(player->hook), &(player->entity), &hook_offset,
@@ -115,7 +114,7 @@ void player_update(Player *player, GameState *game_state)
 
     Vec2 v = entity_movement_vector(&(player->entity));
     polygon_move(&(player->collider), &v);
-    game_state->camera_focus = vec2_add(&(game_state->camera_focus), &v);
+    game_state->camera_focus = rect_center(&(player->collider.bbox));
 
     // Attack
     player_handle_attack(player, game_state);
@@ -148,21 +147,14 @@ void player_update(Player *player, GameState *game_state)
 
     // Deal with animated sprites
     player_handle_sprites(player, game_state->delta);
-
-    // TODO: Remove
-    // To draw player next frame if no collisions had happened
-    player->collider.bbox.origin = player_phasing_position(player);
 }
 
 void player_draw(const Player *player, const GameState *game_state)
 {
-    // TODO: Camera coordinates
-    //Vec2 origin = game_state_camera_transform(game_state, &(player->entity.position));
-
     // Draw hook first
     if (player->hook.fixed)
     {
-        hook_draw(&(player->hook));
+        hook_draw(&(player->hook), game_state);
     }
     else if (game_state->slow_motion)
     {
@@ -170,21 +162,11 @@ void player_draw(const Player *player, const GameState *game_state)
     }
 
     // Player's sprite
-    Vec2 origin = player->entity.position;
+    Vec2 origin = game_state_camera_transform(game_state, &(player->entity.position));
     const Sprite *sprite = player_get_sprite(player);
     sprite_draw(sprite, origin.x, origin.y, player->flip_x, FALSE);
 
-    player_draw_attack_radius(player);
-
-    // TODO: Remove
-    // Current and future colliders
-    Color red = {255, 0, 0, 0};
-    Color green = {0, 255, 0, 0};
-
-    draw_polygon(&(player->collider), &green, &red);
-    draw_rect(&(player->collider.bbox), &red);
-
-    // END TODO
+    player_draw_attack_radius(player, game_state);
 }
 
 void player_handle_input(Player *player, const GameState *game_state)
@@ -321,7 +303,6 @@ void player_handle_input(Player *player, const GameState *game_state)
     // Handle sprite flipping
     if (player->hook.fixed && !(EQUAL_EPSILON(player->entity.velocity.x, 0.0f, 0.1f)))
     {
-        // TODO: Improve
         bool_t heading_left = player->entity.velocity.x < 0.0f;
         player->flip_x = heading_left;
     }
@@ -333,7 +314,6 @@ void player_handle_input(Player *player, const GameState *game_state)
 
 void player_handle_attack(const Player *player, GameState *game_state)
 {
-    // TODO: Some cooldown?
     Vec2 player_pos = rect_center(&(player->collider.bbox));
     float radius_sqr = player->attack_radius * player->attack_radius;
 
@@ -425,13 +405,13 @@ const Sprite *player_get_sprite(const Player *player)
     return sprite;
 }
 
-void player_draw_attack_radius(const Player *player)
+void player_draw_attack_radius(const Player *player, const GameState *game_state)
 {
-    // TODO: Stylish
     Color c = {255, 255, 0, 64};
     float radius = player->attack_radius;
     float radius_sqr = radius * radius;
     Vec2 center = rect_center(&(player->collider.bbox));
+    center = game_state_camera_transform(game_state, &center);
 
     int y0 = MAX(0, center.y - radius);
     int yf = MIN(center.y + radius, SCREEN_HEIGHT);
@@ -445,9 +425,12 @@ void player_draw_attack_radius(const Player *player)
 
         x0 = MAX(0, x0);
         xf = MIN(xf, SCREEN_WIDTH);
-        for (int px = x0; px < xf; ++px)
+
+        int xs[4] = {x0 - 1, x0, xf, xf + 1};
+        for (int i = 0; i < 4; ++i)
         {
-            screen_buffer_paint(SCREEN_BUFFER_INDEX(px, py), &c);
+            int x = xs[i];
+            screen_buffer_paint(SCREEN_BUFFER_INDEX(x, py), &c);
         }
 
         ++y;

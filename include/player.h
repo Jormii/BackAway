@@ -33,7 +33,6 @@ typedef struct Player_st
 
     float delta; // In order to deal with "phasing"
 
-    // TODO: Tweak animated sprite's speed as player goes faster
     bool_t flip_x;
     AnimatedSprite idle_anim_sprite;
     AnimatedSprite run_anim_sprite;

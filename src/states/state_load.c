@@ -2,7 +2,7 @@
 #include "assets.h"
 #include "state_load.h"
 
-#include <stdio.h> // TODO: Remove
+#include <stdio.h>
 
 AssetLoadData sprite_load_data[_SPRITE_ID_COUNT_] = {
     {SPRITE_ID_PLAYER_IDLE_1, SPRITE("Character_Idle1")},
@@ -38,8 +38,6 @@ void load_state_init(GameState *game_state)
 
 void load_state_update(GameState *game_state)
 {
-    // TODO
-    //game_state->state_id = GAME_STATE_MAIN_MENU;
     game_state->state_id = GAME_STATE_LEVEL;
 }
 

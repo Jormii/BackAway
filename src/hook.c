@@ -29,14 +29,13 @@ void hook_init(Hook *hook, Entity *attach_to, const Vec2 *position_offset, float
 
 void hook_update(Hook *hook, GameState *game_state)
 {
-    // TODO: Speed
     if (hook->fixed)
     {
         hook_apply_impulse(hook, game_state->delta);
     }
 }
 
-void hook_draw(const Hook *hook)
+void hook_draw(const Hook *hook, const GameState *game_state)
 {
     if (!hook->fixed)
     {
@@ -44,8 +43,10 @@ void hook_draw(const Hook *hook)
     }
 
     Color color = {0, 0, 0, 255};
+    Vec2 fixed_to = game_state_camera_transform(game_state, &(hook->fixed_to));
     Vec2 position = hook_attachment_position(hook);
-    draw_procedural_hook(&(hook->fixed_to), &position, &color);
+    position = game_state_camera_transform(game_state, &position);
+    draw_procedural_hook(&fixed_to, &position, &color);
 }
 
 void hook_shoot(Hook *hook, const GameState *game_state)
@@ -98,15 +99,18 @@ void hook_draw_hook_preview(const Hook *hook, const GameState *game_state)
 {
     Vec2 collision;
     Vec2 position = hook_attachment_position(hook);
+    position = game_state_camera_transform(game_state, &position);
     if (hook_check_colliders(hook, game_state, &collision))
     {
         Color hit_color = {0, 255, 0, 255};
+        collision = game_state_camera_transform(game_state, &collision);
         draw_procedural_hook(&collision, &position, &hit_color);
     }
     else
     {
-        Vec2 crosshair = hook_crosshair(hook);
         Color miss_color = {255, 0, 0, 255};
+        Vec2 crosshair = hook_crosshair(hook);
+        crosshair = game_state_camera_transform(game_state, &crosshair);
         draw_procedural_hook(&position, &crosshair, &miss_color);
     }
 }

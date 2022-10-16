@@ -21,8 +21,6 @@ void timer_update(Timer *timer, float delta)
 
         timer->trigger_cb(timer);
     }
-
-    // TODO: What if delta > 2*Timer::countdown
 }
 
 void timer_start(Timer *timer)

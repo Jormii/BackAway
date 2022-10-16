@@ -19,7 +19,7 @@ typedef struct Hook_st
 
 void hook_init(Hook *hook, Entity *attach_to, const Vec2 *position_offset, float reach, float angular_vel);
 void hook_update(Hook *hook, GameState *game_state);
-void hook_draw(const Hook *hook);
+void hook_draw(const Hook *hook, const GameState *game_state);
 
 void hook_shoot(Hook *hook, const GameState *game_state);
 void hook_release(Hook *hook);

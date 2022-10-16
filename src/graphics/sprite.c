@@ -21,7 +21,6 @@ bool_t sprite_load(Sprite *sprite, const char *path)
     sceIoRead(fd, &(sprite->meta), 2 * sizeof(u32));
 
     // Allocate and read
-    // TODO: Consecutive in memory
     size_t bitmap_size = (sprite->meta.width * sprite->meta.height) * sizeof(Color);
     sprite->bitmap = malloc(bitmap_size);
     sceIoRead(fd, sprite->bitmap, bitmap_size);

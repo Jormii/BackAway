@@ -4,7 +4,7 @@
 #include "level_goal.h"
 #include "screen_buffer.h"
 
-void level_goal_draw_checkered_flag(const LevelGoal *goal);
+void level_goal_draw_checkered_flag(const LevelGoal *goal, const GameState *game_state);
 
 void level_goal_init(LevelGoal *goal, float x, float top_y, float bottom_y)
 {
@@ -44,23 +44,31 @@ void level_goal_draw(const LevelGoal *goal, const GameState *game_state)
 {
     if (goal->active)
     {
-        level_goal_draw_checkered_flag(goal);
+        level_goal_draw_checkered_flag(goal, game_state);
     }
 
     const Sprite *sprite = (goal->active) ? goal->active_sprite : goal->inactive_sprite;
-    sprite_draw(sprite, goal->x, goal->top_y, FALSE, TRUE);
-    sprite_draw(sprite, goal->x, goal->bottom_y, FALSE, FALSE);
+
+    Vec2 pixel = {.x = goal->x, goal->top_y};
+    pixel = game_state_camera_transform(game_state, &pixel);
+    sprite_draw(sprite, pixel.x, pixel.y, FALSE, TRUE);
+
+    pixel.x = goal->x;
+    pixel.y = goal->bottom_y;
+    pixel = game_state_camera_transform(game_state, &pixel);
+    sprite_draw(sprite, pixel.x, pixel.y, FALSE, FALSE);
 }
 
-void level_goal_draw_checkered_flag(const LevelGoal *goal)
+void level_goal_draw_checkered_flag(const LevelGoal *goal, const GameState *game_state)
 {
     int x_offset = 3;
     int y_offset = 3;
     const Rect *bbox = &(goal->bbox);
-    int x0 = MAX(0, bbox->origin.x + x_offset);
-    int y0 = MAX(0, bbox->origin.y + y_offset);
-    int xf = MIN(bbox->origin.x + bbox->width - x_offset, SCREEN_WIDTH);
-    int yf = MIN(bbox->origin.y + bbox->height - y_offset, SCREEN_HEIGHT);
+    Vec2 origin = game_state_camera_transform(game_state, &(bbox->origin));
+    int x0 = MAX(0, origin.x + x_offset);
+    int y0 = MAX(0, origin.y + y_offset);
+    int xf = MIN(origin.x + bbox->width - x_offset, SCREEN_WIDTH);
+    int yf = MIN(origin.y + bbox->height - y_offset, SCREEN_HEIGHT);
 
     Color color = {255, 0, 0, 255};
     Vec2 checker_size = {.x = 5.0f, .y = 10.0f}; // A field or something

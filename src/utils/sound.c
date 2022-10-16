@@ -9,7 +9,7 @@ bool_t sound_load(Sound *sound, int channel, bool_t looping, const char *mp3_pat
     sound->channel = channel;
     sound->looping = looping;
     sound->playing = FALSE;
-    sound->osl_data = oslLoadSoundFileMP3(mp3_path, OSL_FMT_STREAM); // TODO: Stream?
+    sound->osl_data = oslLoadSoundFileMP3(mp3_path, OSL_FMT_STREAM);
     if (sound->osl_data == NULL)
     {
         return FALSE;

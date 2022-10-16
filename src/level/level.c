@@ -20,7 +20,7 @@ void level_draw(const Level *level, const GameState *game_state)
     // Draw colliders
     for (size_t i = 0; i < level->n_colliders; ++i)
     {
-        level_collider_draw(level->colliders + i);
+        level_collider_draw(level->colliders + i, game_state);
     }
 
     // Draw objectives

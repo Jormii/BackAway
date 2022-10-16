@@ -3,23 +3,15 @@
 
 #define FRICTION_COEFF 0.4
 
-bool_t check_boundary(const Entity *entity, const Polygon *collider, const Polygon *other_collider);
 void check_vertex_collision(Entity *entity, CollisionData *collision,
                             OnCollision_fp collision_cb, void *collision_cb_ptr);
 
 void check_collision(Entity *entity, const Polygon *entitys_collider, const Polygon *other_collider,
                      OnCollision_fp collision_cb, void *collision_cb_ptr)
 {
-#if 0 // TODO
-    if (!check_boundary(entity, entitys_collider, other_collider))
-    {
-        return;
-    }
-#endif
-
     CollisionData collision = {
         .polygon = entitys_collider,
-        .collided_with = other_collider}; // TODO: Sort of ugly
+        .collided_with = other_collider};
     for (size_t vertex_idx = 0; vertex_idx < entitys_collider->n_vertices; ++vertex_idx)
     {
         collision.vertex = entitys_collider->vertices + vertex_idx;
@@ -39,7 +31,6 @@ void resolve_collision(Entity *entity, const CollisionData *collision)
     entity->velocity = vec2_add(&(entity->velocity), &anti_velocity);
 
     // Friction
-    // TODO: Static friction
     Vec2 tangent = collision->tangent;
     float tangent_dot = vec2_dot(&(entity->velocity), &tangent);
     if (tangent_dot > 0.0f)
@@ -60,26 +51,6 @@ void resolve_collision(Entity *entity, const CollisionData *collision)
     Vec2 surface_vec = vec2_subtract(&(collision->point), &vertex_next_frame);
     Vec2 penalty = vec2_project(&surface_vec, &(collision->normal));
     entity->position = vec2_add(&(entity->position), &penalty);
-}
-
-bool_t check_boundary(const Entity *entity, const Polygon *collider, const Polygon *other_collider)
-{
-    // Move collider's bbox along entity's movement to see if they may collide
-    Vec2 movement = entity_movement_vector(entity);
-    Rect extended_bbox = collider->bbox;
-    extended_bbox.width += movement.x;
-    extended_bbox.height += movement.y;
-
-    if (movement.x < 0)
-    {
-        extended_bbox.origin.x += movement.x;
-    }
-    if (movement.y < 0)
-    {
-        extended_bbox.origin.y += movement.y;
-    }
-
-    return rect_within_rect(&extended_bbox, &(other_collider->bbox));
 }
 
 void check_vertex_collision(Entity *entity, CollisionData *collision,

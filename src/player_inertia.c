@@ -2,7 +2,6 @@
 #include "player_inertia.h"
 
 #define INCREMENT_SPEED 50.0f
-#define DECREMENT_SPEED 25.0f
 
 void player_inertia_trigger(Timer *timer);
 
@@ -44,7 +43,6 @@ void player_inertia_update(PlayerInertia *inertia, float delta)
 
 void player_inertia_constrain_velocity(const PlayerInertia *inertia, Vec2 *velocity)
 {
-    // TODO: Does weird things when swinging
     const Vec2 *max_velocity = &(inertia->current_velocity);
 
     velocity->x = CLAMP(velocity->x, -max_velocity->x, max_velocity->x);
@@ -69,7 +67,7 @@ void player_inertia_button_pressed(PlayerInertia *inertia)
 
         new_velocity = vec2_add(&(inertia->base_velocity), &base_increment);
         new_speed = vec2_magnitude(&new_velocity);
-    } while (new_speed <= speed); // TODO: This loop is ugly
+    } while (new_speed <= speed);
 
     inertia->velocity_target = new_velocity;
     inertia->increment_speed = INCREMENT_SPEED;
@@ -84,7 +82,7 @@ void player_inertia_trigger(Timer *timer)
 {
     PlayerInertia *inertia = (PlayerInertia *)(timer->trigger_cb_ptr);
 
-    inertia->button_press_count = 0;
     inertia->velocity_target = inertia->base_velocity;
-    inertia->increment_speed = DECREMENT_SPEED;
+    inertia->increment_speed = 15.0f * inertia->button_press_count;
+    inertia->button_press_count = 0;
 }
