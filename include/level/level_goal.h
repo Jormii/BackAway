@@ -1,6 +1,7 @@
 #ifndef LEVEL_GOAL_H
 #define LEVEL_GOAL_H
 
+#include "sound.h"
 #include "sprite.h"
 #include "game_state.h"
 
@@ -14,6 +15,8 @@ typedef struct LevelGoal_st
     Rect bbox;
     const Sprite *inactive_sprite;
     const Sprite *active_sprite;
+    Sound *hit_sfx;
+    Sound *active_sfx;
 } LevelGoal;
 
 void level_goal_init(LevelGoal *goal, float x, float top_y, float bottom_y);

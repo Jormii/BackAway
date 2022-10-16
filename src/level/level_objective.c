@@ -3,8 +3,7 @@
 
 void level_objective_init(LevelObjective *objective, const Vec2 *position)
 {
-    objective->active = FALSE;
-    objective->state = LEVEL_OBJECTIVE_STATE_DEFAULT;
+    // Load sprites
     objective->default_sprite = all_sprites + SPRITE_ID_OBJECTIVE_DEFAULT;
     objective->in_range_sprite = all_sprites + SPRITE_ID_OBJECTIVE_IN_RANGE;
 
@@ -15,18 +14,18 @@ void level_objective_init(LevelObjective *objective, const Vec2 *position)
     anim_sprite->frames[2] = all_sprites + SPRITE_ID_OBJECTIVE_ACTIVE_3;
     anim_sprite->frames[3] = all_sprites + SPRITE_ID_OBJECTIVE_ACTIVE_4;
 
+    // Position requires sprite's data
+    objective->state = LEVEL_OBJECTIVE_STATE_DEFAULT;
     objective->position.x = position->x;
     objective->position.y = position->y - objective->default_sprite->meta.height;
+
+    // Load sounds
+    objective->in_range_sfx = all_sounds + SOUND_ID_CHIME_IN_RANGE;
+    objective->hit_sfx = all_sounds + SOUND_ID_CHIME_HIT;
 }
 
 void level_objective_update(LevelObjective *objective, GameState *game_state)
 {
-    if (objective->state == LEVEL_OBJECTIVE_STATE_IN_RANGE)
-    {
-        // Default to FALSE every frame
-        objective->state = LEVEL_OBJECTIVE_STATE_DEFAULT;
-    }
-
     if (objective->state == LEVEL_OBJECTIVE_STATE_ACTIVE)
     {
         animated_sprite_update(&(objective->active_anim_sprite), game_state->delta);
@@ -55,13 +54,25 @@ void level_objective_draw(const LevelObjective *objective, const GameState *game
 
 void level_objective_set_active(LevelObjective *objective)
 {
-    objective->active = TRUE;
     objective->state = LEVEL_OBJECTIVE_STATE_ACTIVE;
+    sound_play(objective->hit_sfx);
 }
 
-void level_objective_trigger_in_range(LevelObjective *objective)
+void level_objective_trigger_in_range(LevelObjective *objective, bool_t in_range)
 {
-    objective->state = LEVEL_OBJECTIVE_STATE_IN_RANGE;
+    if (in_range)
+    {
+        if (objective->state != LEVEL_OBJECTIVE_STATE_IN_RANGE)
+        {
+            // Play sound to indicate player got in range
+            sound_play(objective->in_range_sfx);
+        }
+        objective->state = LEVEL_OBJECTIVE_STATE_IN_RANGE;
+    }
+    else
+    {
+        objective->state = LEVEL_OBJECTIVE_STATE_DEFAULT;
+    }
 }
 
 Vec2 level_objective_center(const LevelObjective *objective)

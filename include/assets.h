@@ -2,13 +2,8 @@
 #define ASSETS_H
 
 #include "types.h"
+#include "sound.h"
 #include "sprite.h"
-
-typedef struct AssetLoadData_st
-{
-    size_t index;
-    const char *path;
-} AssetLoadData;
 
 typedef enum SpriteID_en
 {
@@ -37,6 +32,28 @@ typedef enum SpriteID_en
     _SPRITE_ID_COUNT_
 } SpriteID;
 
+typedef struct SpriteLoadData_st
+{
+    SpriteID sprite_id;
+    const char *path;
+} SpriteLoadData;
+
+typedef enum SoundID_en
+{
+    SOUND_ID_CHIME_IN_RANGE,
+    SOUND_ID_CHIME_HIT,
+    SOUND_ID_CHIME_ALL,
+    _SOUND_ID_COUNT_
+} SoundID;
+
+typedef struct SoundLoadData_st
+{
+    int channel;
+    SoundID sound_id;
+    const char *path;
+} SoundLoadData;
+
 Sprite all_sprites[_SPRITE_ID_COUNT_];
+Sound all_sounds[_SOUND_ID_COUNT_];
 
 #endif

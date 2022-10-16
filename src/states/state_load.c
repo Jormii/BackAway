@@ -4,7 +4,7 @@
 
 #include <stdio.h>
 
-AssetLoadData sprite_load_data[_SPRITE_ID_COUNT_] = {
+SpriteLoadData sprite_load_data[_SPRITE_ID_COUNT_] = {
     {SPRITE_ID_PLAYER_IDLE_1, SPRITE("Character_Idle1")},
     {SPRITE_ID_PLAYER_IDLE_2, SPRITE("Character_Idle2")},
     {SPRITE_ID_PLAYER_RUN_1, SPRITE("Character_Run1")},
@@ -23,15 +23,30 @@ AssetLoadData sprite_load_data[_SPRITE_ID_COUNT_] = {
     {SPRITE_ID_GOAL_ACTIVE, SPRITE("Goal_Active")},
 };
 
+SoundLoadData sound_load_data[_SOUND_ID_COUNT_] = {
+    {0, SOUND_ID_CHIME_IN_RANGE, MP3("Chime_InRange")},
+    {1, SOUND_ID_CHIME_HIT, MP3("Chime_Hit")},
+    {2, SOUND_ID_CHIME_ALL, MP3("Chime_All")}};
+
 void load_state_init(GameState *game_state)
 {
     // Load sprites
     for (size_t i = 0; i < _SPRITE_ID_COUNT_; ++i)
     {
-        const AssetLoadData *data = sprite_load_data + i;
-        if (!sprite_load(all_sprites + data->index, data->path))
+        const SpriteLoadData *data = sprite_load_data + i;
+        if (!sprite_load(all_sprites + data->sprite_id, data->path))
         {
             printf("Sprite %s couldn't be loaded\n", data->path);
+        }
+    }
+
+    // Load sounds
+    for (size_t i = 0; i < _SOUND_ID_COUNT_; ++i)
+    {
+        const SoundLoadData *data = sound_load_data + i;
+        if (!sound_load(all_sounds + data->sound_id, data->channel, FALSE, data->path))
+        {
+            printf("Sound %s couldn't be loaded\n", data->path);
         }
     }
 }

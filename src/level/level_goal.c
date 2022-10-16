@@ -8,6 +8,7 @@ void level_goal_draw_effect(const LevelGoal *goal, const GameState *game_state);
 
 void level_goal_init(LevelGoal *goal, float x, float top_y, float bottom_y)
 {
+    // Load sprites
     goal->inactive_sprite = all_sprites + SPRITE_ID_GOAL_INACTIVE;
     goal->active_sprite = all_sprites + SPRITE_ID_GOAL_ACTIVE;
 
@@ -22,6 +23,10 @@ void level_goal_init(LevelGoal *goal, float x, float top_y, float bottom_y)
     goal->bbox.origin.y = top_y;
     goal->bbox.width = sprite->meta.width;
     goal->bbox.height = bottom_y - top_y;
+
+    // Load sounds
+    goal->hit_sfx = all_sounds + SOUND_ID_CHIME_HIT;
+    goal->active_sfx = all_sounds + SOUND_ID_CHIME_ALL;
 }
 
 void level_goal_update(LevelGoal *goal, GameState *game_state)
@@ -36,8 +41,10 @@ void level_goal_update(LevelGoal *goal, GameState *game_state)
     for (size_t i = 0; i < level->n_objectives && goal->active; ++i)
     {
         const LevelObjective *objective = level->objectives + i;
-        goal->active = objective->active;
+        goal->active = objective->state == LEVEL_OBJECTIVE_STATE_ACTIVE;
     }
+
+    sound_play(goal->active_sfx);
 }
 
 void level_goal_draw(const LevelGoal *goal, const GameState *game_state)

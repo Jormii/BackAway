@@ -79,7 +79,7 @@ void player_init(Player *player)
     // Jump related
     player->jump_state = JUMP_STATE_AIRBORNE;
     player->forgiveness_timer.cycle = FALSE;
-    player->forgiveness_timer.countdown = 1.0f;
+    player->forgiveness_timer.countdown = 0.25f;
     player->forgiveness_timer.trigger_cb = player_forgiveness_trigger;
     player->forgiveness_timer.trigger_cb_ptr = player;
 
@@ -333,7 +333,7 @@ void player_handle_attack(const Player *player, GameState *game_state)
     for (size_t i = 0; i < level->n_objectives; ++i)
     {
         LevelObjective *objective = level->objectives + i;
-        if (objective->active)
+        if (objective->state == LEVEL_OBJECTIVE_STATE_ACTIVE)
         {
             continue;
         }
@@ -341,14 +341,12 @@ void player_handle_attack(const Player *player, GameState *game_state)
         Vec2 objective_pos = level_objective_center(objective);
         Vec2 v = vec2_subtract(&objective_pos, &player_pos);
         float sqr_mag = vec2_dot(&v, &v);
-        if (sqr_mag <= radius_sqr)
-        {
-            level_objective_trigger_in_range(objective);
 
-            if (player->attack)
-            {
-                level_objective_set_active(objective);
-            }
+        bool_t in_range = sqr_mag <= radius_sqr;
+        level_objective_trigger_in_range(objective, in_range);
+        if (in_range && player->attack)
+        {
+            level_objective_set_active(objective);
         }
     }
 }

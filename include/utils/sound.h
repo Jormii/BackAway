@@ -8,7 +8,6 @@ typedef struct Sound_st
 {
     int channel;
     bool_t looping;
-    bool_t playing;
     struct OSL_SOUND *osl_data;
 } Sound;
 
