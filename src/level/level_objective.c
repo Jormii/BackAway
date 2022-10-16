@@ -4,8 +4,6 @@
 void level_objective_init(LevelObjective *objective, const Vec2 *position)
 {
     objective->active = FALSE;
-    objective->position = *position;
-
     objective->state = LEVEL_OBJECTIVE_STATE_DEFAULT;
     objective->default_sprite = all_sprites + SPRITE_ID_OBJECTIVE_DEFAULT;
     objective->in_range_sprite = all_sprites + SPRITE_ID_OBJECTIVE_IN_RANGE;
@@ -16,6 +14,9 @@ void level_objective_init(LevelObjective *objective, const Vec2 *position)
     anim_sprite->frames[1] = all_sprites + SPRITE_ID_OBJECTIVE_ACTIVE_2;
     anim_sprite->frames[2] = all_sprites + SPRITE_ID_OBJECTIVE_ACTIVE_3;
     anim_sprite->frames[3] = all_sprites + SPRITE_ID_OBJECTIVE_ACTIVE_4;
+
+    objective->position.x = position->x;
+    objective->position.y = position->y - objective->default_sprite->meta.height;
 }
 
 void level_objective_update(LevelObjective *objective, GameState *game_state)

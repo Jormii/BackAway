@@ -50,8 +50,14 @@ void player_init(Player *player)
     player->swing_sprite = all_sprites + SPRITE_ID_PLAYER_SWING;
 
     // Entity and collider
+    // TODO: This shouldn't be here
+    int grid_size = 30;
+    float position_x = 2.5f * grid_size;
+    float position_y = 2.5f * grid_size;
+    // END TODO
+
     Vec2 gravity = {.x = 0.0f, .y = DEFAULT_GRAVITY_Y};
-    entity_init(&(player->entity), 1.0f, 50.0f, 0.0f, &gravity);
+    entity_init(&(player->entity), 1.0f, position_x, position_y, &gravity);
 
     const Sprite *sprite = player->jump_sprite;
     Rect sprite_rect = {
@@ -288,6 +294,12 @@ void player_handle_input(Player *player, const GameState *game_state)
         if (player->jump_state == JUMP_STATE_FREE_FALLING || input_button_pressed(USE_HOOK))
         {
             hook_release(hook);
+        }
+        else
+        {
+            int hook_input = -input_button_held(INPUT_BUTTON_UP) + input_button_held(INPUT_BUTTON_DOWN);
+            float new_length = hook->length + 100.0f * game_state->delta * hook_input;
+            hook->length = CLAMP(new_length, 0.1f, hook->reach);
         }
     }
 

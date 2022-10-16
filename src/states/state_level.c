@@ -15,43 +15,72 @@ void level_state_init(GameState *game_state)
     player_init(game_state->player);
 
     // TODO: Initialize level somewhere else
+    int grid_size = 30;
     game_state->level = malloc(sizeof(Level));
 
     Level *level = game_state->level;
-    level->spawn_position.x = 0;
-    level->spawn_position.y = 0;
+    level->spawn_position.x = 2.5f * (float)grid_size;
+    level->spawn_position.y = 2.5f * (float)grid_size;
 
     // Initialize goal
-    float goal_x = SCREEN_WIDTH - 100.0f;
-    float goal_top_y = 10.0f;
-    float goal_bottom_y = SCREEN_HEIGHT - 10.0f;
+    float goal_x = 7 * grid_size;
+    float goal_top_y = 1 * grid_size;
+    float goal_bottom_y = 4 * grid_size;
     level_goal_init(&(level->goal), goal_x, goal_top_y, goal_bottom_y);
 
     // Initialize objectives
-    level->n_objectives = 1;
+    level->n_objectives = 2;
     level->objectives = malloc(level->n_objectives * sizeof(LevelObjective));
 
-    Vec2 position = {.x = 100.0f, .y = 100.0f};
-    level_objective_init(level->objectives, &position);
+    Vec2 obj_pos_1 = {.x = 8.5f * grid_size, .y = 4 * grid_size};
+    level_objective_init(level->objectives, &obj_pos_1);
+
+    Vec2 obj_pos_2 = {.x = 12.5f * grid_size, .y = 10 * grid_size};
+    level_objective_init(level->objectives + 1, &obj_pos_2);
 
     // Initialize colliders
-    level->n_colliders = 2;
+    level->n_colliders = 4;
     level->colliders = malloc(level->n_colliders * sizeof(Polygon));
 
-    Rect bbox = {
-        .origin = {.x = SCREEN_WIDTH / 2 - 200, .y = 3.0f / 4.0f * SCREEN_HEIGHT},
-        .width = 400.0f,
-        .height = 30.0f};
-    polygon_from_rect(level->colliders, &bbox);
+    Rect coll_rect_1 = {
+        .origin = {.x = 0, .y = 0},
+        .width = 16 * grid_size,
+        .height = 14 * grid_size};
+    polygon_from_rect(level->colliders, &coll_rect_1);
     level->colliders[0].ephemeral = FALSE;
 
-    Rect bbox_2 = {
-        .origin = {.x = SCREEN_WIDTH / 2 + 100, .y = 0.0f},
-        .width = 400.0f,
-        .height = 30.0f};
-    polygon_from_rect(level->colliders + 1, &bbox_2);
-    level->colliders[1].ephemeral = TRUE;
-    // END TODO
+    Vec2 coll_vert_2[12] = {
+        {.x = 1 * grid_size, .y = 1 * grid_size},
+        {.x = 1 * grid_size, .y = 8 * grid_size},
+        {.x = 5 * grid_size, .y = 8 * grid_size},
+        {.x = 5 * grid_size, .y = 13 * grid_size},
+        {.x = 9 * grid_size, .y = 13 * grid_size},
+        {.x = 9 * grid_size, .y = 10 * grid_size},
+        {.x = 15 * grid_size, .y = 10 * grid_size},
+        {.x = 15 * grid_size, .y = 7 * grid_size},
+        {.x = 14 * grid_size, .y = 7 * grid_size},
+        {.x = 14 * grid_size, .y = 6 * grid_size},
+        {.x = 15 * grid_size, .y = 6 * grid_size},
+        {.x = 15 * grid_size, .y = 1 * grid_size}};
+    polygon_init(level->colliders + 1, coll_vert_2, 12);
+    level->colliders[1].ephemeral = FALSE;
+
+    Vec2 coll_vert_3[6] = {
+        {.x = 6 * grid_size, .y = 1 * grid_size},
+        {.x = 7 * grid_size, .y = 1 * grid_size},
+        {.x = 7 * grid_size, .y = 4 * grid_size},
+        {.x = 12 * grid_size, .y = 4 * grid_size},
+        {.x = 12 * grid_size, .y = 6 * grid_size},
+        {.x = 6 * grid_size, .y = 6 * grid_size}};
+    polygon_init(level->colliders + 2, coll_vert_3, 6);
+    level->colliders[2].ephemeral = FALSE;
+
+    Rect coll_rect_4 = {
+        .origin = {.x = 10 * grid_size, .y = 1 * grid_size},
+        .width = grid_size,
+        .height = 3 * grid_size};
+    polygon_from_rect(level->colliders + 3, &coll_rect_4);
+    level->colliders[3].ephemeral = TRUE;
 }
 
 void level_state_update(GameState *game_state)
