@@ -69,7 +69,14 @@ void load_state_init(GameState *game_state)
 
 void load_state_update(GameState *game_state)
 {
-    game_state->state_id = GAME_STATE_MAIN_MENU;
+    game_state->state_id = GAME_STATE_LEVEL;
+    game_state->level = malloc(sizeof(Level));
+    if (!level_load(game_state->level, LEVEL("Level1")))
+    {
+        printf("ERROR DOWNLOADING LEVEL\n");
+    }
+
+    //game_state->state_id = GAME_STATE_MAIN_MENU;
 }
 
 void load_state_draw(const GameState *game_state)
