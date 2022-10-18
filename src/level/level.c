@@ -39,6 +39,10 @@ bool_t level_load(Level *level, const char *path)
     // Colliders
     sceIoRead(fd, &(level->n_colliders), sizeof(uint32_t));
     level->colliders = malloc(level->n_colliders * sizeof(Polygon));
+
+    uint32_t max_vertices;
+    sceIoRead(fd, &max_vertices, sizeof(uint32_t));
+    Vec2 *tmp_vertices = malloc(max_vertices * sizeof(Vec2));
     for (size_t i = 0; i < level->n_colliders; ++i)
     {
         uint32_t ephemeral;
@@ -47,11 +51,11 @@ bool_t level_load(Level *level, const char *path)
 
         size_t n_vertices;
         sceIoRead(fd, &n_vertices, sizeof(uint32_t));
-        Vec2 *vertices = malloc(n_vertices * sizeof(Vec2));
-        sceIoRead(fd, vertices, n_vertices * sizeof(Vec2));
-        polygon_init(level->colliders + i, vertices, n_vertices);
-        free(vertices);
+        sceIoRead(fd, tmp_vertices, n_vertices * sizeof(Vec2));
+        polygon_init(level->colliders + i, tmp_vertices, n_vertices);
     }
+
+    free(tmp_vertices);
 
     return TRUE;
 }

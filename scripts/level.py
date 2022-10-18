@@ -33,6 +33,8 @@ class Level:
         self.objectives = SCALE * Level.FLIP * objectives
         self.walls = walls
 
+        self.max_wall_vertices = max([len(v.polyline) for v in self.walls])
+
     def write(self, path, output_dir):
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
@@ -57,6 +59,7 @@ class Level:
             # Walls
             n_walls = np.array(len(self.walls), dtype="uint32")
             fd.write(n_walls.tobytes())
+            fd.write(np.array(self.max_wall_vertices, dtype="uint32").tobytes())
             for wall in self.walls:
                 fd.write(np.array(wall.ephemeral, dtype="uint32").tobytes())
                 fd.write(np.array(len(wall.polyline), dtype="uint32").tobytes())
