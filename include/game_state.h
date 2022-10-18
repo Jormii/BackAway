@@ -44,7 +44,6 @@ typedef struct GameState_st
     LevelID level_id;
     struct Level_st *level;
     struct Player_st *player;
-    UIButtonCollection pause_buttons;
 } GameState;
 
 void game_state_init(GameState *game_state, GameStateID initial_state);

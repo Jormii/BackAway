@@ -28,10 +28,6 @@ typedef enum SpriteID_en
     SPRITE_ID_GOAL_INACTIVE,
     SPRITE_ID_GOAL_ACTIVE,
 
-    // Menu
-    SPRITE_ID_MENU_CONTINUE,
-    SPRITE_ID_MENU_RESTART,
-
     // END
     _SPRITE_ID_COUNT_
 } SpriteID;

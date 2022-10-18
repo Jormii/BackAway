@@ -28,32 +28,13 @@ void level_state_init(GameState *game_state)
     game_state->level = NULL;
     game_state->player = malloc(sizeof(Player));
     player_init(game_state->player);
-
-    UIButtonCollection *buttons = &(game_state->pause_buttons);
-    ui_button_collection_init(buttons, 2);
-
-    UIButton *continue_button = buttons->buttons;
-    continue_button->position.x = SCREEN_WIDTH;
-    continue_button->position.y = 0.33f * SCREEN_HEIGHT;
-    continue_button->sprite = all_sprites + SPRITE_ID_MENU_CONTINUE;
-    continue_button->on_press_cb = on_continue_pressed;
-    continue_button->on_highlighted_cb = NULL;
-    continue_button->cb_ptr = game_state;
-
-    UIButton *restart_button = buttons->buttons + 1;
-    restart_button->position.x = SCREEN_WIDTH;
-    restart_button->position.y = 0.66f * SCREEN_HEIGHT;
-    restart_button->sprite = all_sprites + SPRITE_ID_MENU_RESTART;
-    restart_button->on_press_cb = on_restart_pressed;
-    restart_button->on_highlighted_cb = NULL;
-    restart_button->cb_ptr = game_state;
 }
 
 bool_t level_state_update(GameState *game_state)
 {
     game_state->skip_frame = FALSE;
 
-    if (game_state->restart_level)
+    if (game_state->restart_level || input_button_pressed(INPUT_BUTTON_SELECT))
     {
         level_state_reset(game_state);
         return TRUE;
@@ -81,10 +62,6 @@ void level_state_draw(const GameState *game_state)
         {
             screen_buffer_paint(i, &pause_color);
         }
-
-        const UIButton *button = game_state->pause_buttons.buttons + game_state->pause_buttons.highlighted_idx;
-        Vec2 position = button_position(button, game_state);
-        sprite_draw(button->sprite, position.x, position.y, FALSE, FALSE);
     }
 }
 
@@ -136,8 +113,6 @@ bool_t level_state_update_pause(GameState *game_state)
         return TRUE;
     }
 
-    ui_button_collection_update(&(game_state->pause_buttons));
-
     return game_state->skip_frame;
 }
 
@@ -146,7 +121,6 @@ bool_t level_state_update_running(GameState *game_state)
     if (input_button_pressed(INPUT_BUTTON_START))
     {
         game_state->paused = TRUE;
-        game_state->pause_buttons.highlighted_idx = 0;
         return TRUE;
     }
 
