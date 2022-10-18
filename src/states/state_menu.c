@@ -20,7 +20,7 @@ void menu_state_init(GameState *game_state)
         UIButton *button = game_state->buttons.buttons + i;
         button->position.x = 10.0f + (i * 30.0f);
         button->position.y = 0.5f * SCREEN_HEIGHT;
-        button->sprite = all_sprites + SPRITE_ID_GOAL_INACTIVE;
+        button->sprite = all_sprites + SPRITE_ID_OBJECTIVE_DEFAULT;
         button->on_press_cb = on_press;
         button->on_highlighted_cb = NULL;
         button->cb_ptr = data;
