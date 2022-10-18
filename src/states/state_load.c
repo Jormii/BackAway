@@ -69,11 +69,9 @@ void load_state_init(GameState *game_state)
     }
 }
 
-bool_t load_state_update(GameState *game_state)
+void load_state_update(GameState *game_state)
 {
-    game_state->state_id = GAME_STATE_LEVEL;
-    level_state_load_level(game_state, LEVEL_ID_ONE);
-    return TRUE;
+    game_state->state_id = GAME_STATE_MENU;
 }
 
 void load_state_draw(const GameState *game_state)

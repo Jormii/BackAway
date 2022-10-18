@@ -9,8 +9,8 @@
 #include "level_collider.h"
 
 void level_state_reset(GameState *game_state);
-bool_t level_state_update_pause(GameState *game_state);
-bool_t level_state_update_running(GameState *game_state);
+void level_state_update_pause(GameState *game_state);
+void level_state_update_running(GameState *game_state);
 
 void on_button_highlight(UIButton *button);
 void on_continue_pressed(UIButton *button);
@@ -20,7 +20,6 @@ Vec2 button_position(const UIButton *button, const GameState *game_state);
 void level_state_init(GameState *game_state)
 {
     game_state->paused = FALSE;
-    game_state->skip_frame = FALSE;
     game_state->slow_motion = FALSE;
     game_state->restart_level = FALSE;
 
@@ -30,23 +29,22 @@ void level_state_init(GameState *game_state)
     player_init(game_state->player);
 }
 
-bool_t level_state_update(GameState *game_state)
+void level_state_update(GameState *game_state)
 {
-    game_state->skip_frame = FALSE;
-
     if (game_state->restart_level || input_button_pressed(INPUT_BUTTON_SELECT))
     {
         level_state_reset(game_state);
-        return TRUE;
+        game_state->skip_frame = TRUE;
+        return;
     }
 
     if (game_state->paused)
     {
-        return level_state_update_pause(game_state);
+        level_state_update_pause(game_state);
     }
     else
     {
-        return level_state_update_running(game_state);
+        level_state_update_running(game_state);
     }
 }
 
@@ -88,12 +86,8 @@ void level_state_load_level(GameState *game_state, LevelID level_id)
 
 void level_state_end_level(GameState *game_state)
 {
-    LevelID next = game_state->level_id + 1;
-    if (next < _LEVEL_ID_COUNT_)
-    {
-        game_state->skip_frame = TRUE;
-        level_state_load_level(game_state, next);
-    }
+    game_state->skip_frame = TRUE;
+    game_state->state_id = GAME_STATE_MENU;
 }
 
 void level_state_reset(GameState *game_state)
@@ -105,23 +99,26 @@ void level_state_reset(GameState *game_state)
     level_reset(game_state->level);
 }
 
-bool_t level_state_update_pause(GameState *game_state)
+void level_state_update_pause(GameState *game_state)
 {
     if (input_button_pressed(INPUT_BUTTON_START))
     {
         game_state->paused = FALSE;
-        return TRUE;
+        game_state->skip_frame = TRUE;
+        return;
+    } else if (input_button_pressed(INPUT_BUTTON_CIRCLE)) {
+        game_state->state_id = GAME_STATE_MENU;
+        game_state->skip_frame = TRUE;
     }
-
-    return game_state->skip_frame;
 }
 
-bool_t level_state_update_running(GameState *game_state)
+void level_state_update_running(GameState *game_state)
 {
     if (input_button_pressed(INPUT_BUTTON_START))
     {
         game_state->paused = TRUE;
-        return TRUE;
+        game_state->skip_frame = TRUE;
+        return;
     }
 
     if (input_button_held(INPUT_BUTTON_LEFT_TRIGGER))
@@ -136,8 +133,6 @@ bool_t level_state_update_running(GameState *game_state)
 
     level_update(game_state->level, game_state);
     player_update(game_state->player, game_state);
-
-    return game_state->skip_frame;
 }
 
 void on_continue_pressed(UIButton *button)
