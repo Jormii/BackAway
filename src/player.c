@@ -59,6 +59,13 @@ void player_init(Player *player)
     // Set default values
     Vec2 position = {0.0f, 0.0f};
     player_reset(player, &position);
+
+    // Timer
+    Timer *timer = &(player->forgiveness_timer);
+    timer->cycle = FALSE;
+    timer->countdown = 0.2f;
+    timer->trigger_cb = player_forgiveness_trigger;
+    timer->trigger_cb_ptr = player;
 }
 
 void player_update(Player *player, GameState *game_state)
@@ -109,7 +116,7 @@ void player_update(Player *player, GameState *game_state)
 
     // Update timer and check if fell from platform
     Timer *timer = &(player->forgiveness_timer);
-    timer_update(&(player->forgiveness_timer), game_state->delta);
+    timer_update(timer, game_state->delta);
 
     if (player->jump_state == JUMP_STATE_GROUNDED && player->entity.velocity.y > 0.0f)
     {
