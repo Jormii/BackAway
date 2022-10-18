@@ -37,12 +37,14 @@ typedef struct GameState_st
     Vec2 camera_half_extension;
 
     // -- GAME_STATE_LEVEL --
+    bool_t paused;
     bool_t skip_frame;
     bool_t slow_motion;
     bool_t restart_level;
     LevelID level_id;
     struct Level_st *level;
     struct Player_st *player;
+    UIButtonCollection pause_buttons;
 } GameState;
 
 void game_state_init(GameState *game_state, GameStateID initial_state);

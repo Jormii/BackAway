@@ -18,10 +18,11 @@ void ui_button_collection_update(UIButtonCollection *button_coll)
         UIButton *button = button_coll->buttons + i;
         if (i == button_coll->highlighted_idx)
         {
-            button->on_highlighted_cb(button);
+            if (button->on_highlighted_cb != NULL)
+            {
+                button->on_highlighted_cb(button);
+            }
         }
-
-        sprite_draw(button->sprite, button->position.x, button->position.y, FALSE, FALSE);
     }
 
     // Handle input

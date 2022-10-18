@@ -19,6 +19,11 @@ bool_t sound_load(Sound *sound, int channel, bool_t looping, const char *mp3_pat
 
 void sound_play(Sound *sound)
 {
+    if (sound->osl_data == NULL)
+    {
+        return;
+    }
+
     if (sound->looping)
     {
         oslSetSoundEndCallback(sound->osl_data, sound_loop);
@@ -29,6 +34,11 @@ void sound_play(Sound *sound)
 
 void sound_stop(Sound *sound)
 {
+    if (sound->osl_data == NULL)
+    {
+        return;
+    }
+
     oslStopSound(sound->osl_data);
 }
 

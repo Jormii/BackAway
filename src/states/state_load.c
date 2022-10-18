@@ -37,7 +37,9 @@ SpriteLoadData sprite_load_data[_SPRITE_ID_COUNT_] = {
     {SPRITE_ID_OBJECTIVE_ACTIVE_4, SPRITE("Objective_Active4")},
     {SPRITE_ID_GOAL_INACTIVE, SPRITE("Goal_Inactive")},
     {SPRITE_ID_GOAL_ACTIVE, SPRITE("Goal_Active")},
-};
+
+    {SPRITE_ID_MENU_CONTINUE, SPRITE("Menu_Continue")},
+    {SPRITE_ID_MENU_RESTART, SPRITE("Menu_Restart")}};
 
 SoundLoadData sound_load_data[_SOUND_ID_COUNT_] = {
     {0, SOUND_ID_CHIME_IN_RANGE, MP3("Chime_InRange")},
