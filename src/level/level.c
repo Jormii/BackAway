@@ -56,6 +56,18 @@ bool_t level_load(Level *level, const char *path)
     return TRUE;
 }
 
+void level_free(Level *level)
+{
+    for (size_t i = 0; i < level->n_colliders; ++i)
+    {
+        Polygon *polygon = level->colliders + i;
+        polygon_free(polygon);
+    }
+
+    free(level->objectives);
+    free(level->colliders);
+}
+
 void level_update(Level *level, GameState *game_state)
 {
     // Update objectives

@@ -88,7 +88,6 @@ void level_goal_draw_effect(const LevelGoal *goal, const GameState *game_state)
     {
         size_t draw_buffer_idx = SCREEN_BUFFER_INDEX(x0, py);
 
-        // TODO
         float alpha_x = ((float)(py - y0) + y_displacement) / (float)bbox->height;
         alpha_x = 2.0f * alpha_x - 1.0f;
         color.alpha = (int)(255.0f * (0.1f + 0.75f * alpha_x * alpha_x));

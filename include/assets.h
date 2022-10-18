@@ -32,12 +32,6 @@ typedef enum SpriteID_en
     _SPRITE_ID_COUNT_
 } SpriteID;
 
-typedef struct SpriteLoadData_st
-{
-    SpriteID sprite_id;
-    const char *path;
-} SpriteLoadData;
-
 typedef enum SoundID_en
 {
     SOUND_ID_CHIME_IN_RANGE,
@@ -46,25 +40,19 @@ typedef enum SoundID_en
     _SOUND_ID_COUNT_
 } SoundID;
 
-typedef struct SoundLoadData_st
-{
-    int channel;
-    SoundID sound_id;
-    const char *path;
-} SoundLoadData;
-
 typedef enum LevelID_en
 {
     LEVEL_ID_ONE,
-    LEVEL_ID_TWO,
     _LEVEL_ID_COUNT_
 } LevelID;
 
-struct Level_st;
-typedef void (*LevelLoad_fp)(struct Level_st *level);
+typedef struct LoadLevelData_en
+{
+    const char *path;
+} LoadLevelData;
 
 Sprite all_sprites[_SPRITE_ID_COUNT_];
 Sound all_sounds[_SOUND_ID_COUNT_];
-struct Level_st *all_levels[_LEVEL_ID_COUNT_];
+LoadLevelData all_leveles[_LEVEL_ID_COUNT_];
 
 #endif

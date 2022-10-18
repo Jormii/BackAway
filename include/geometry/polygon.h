@@ -17,6 +17,7 @@ typedef struct Polygon_st
 } Polygon;
 
 void polygon_init(Polygon *polygon, const Vec2 *vertices, size_t n_vertices);
+void polygon_free(Polygon *polygon);
 
 void polygon_place_at(Polygon *polygon, const Vec2 *position);
 void polygon_move(Polygon *polygon, const Vec2 *movement);

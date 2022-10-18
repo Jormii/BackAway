@@ -5,6 +5,20 @@
 #include "level.h"
 #include "assets.h"
 #include "state_load.h"
+#include "state_level.h"
+
+typedef struct SpriteLoadData_st
+{
+    SpriteID sprite_id;
+    const char *path;
+} SpriteLoadData;
+
+typedef struct SoundLoadData_st
+{
+    int channel;
+    SoundID sound_id;
+    const char *path;
+} SoundLoadData;
 
 SpriteLoadData sprite_load_data[_SPRITE_ID_COUNT_] = {
     {SPRITE_ID_PLAYER_IDLE_1, SPRITE("Character_Idle1")},
@@ -30,12 +44,8 @@ SoundLoadData sound_load_data[_SOUND_ID_COUNT_] = {
     {1, SOUND_ID_CHIME_HIT, MP3("Chime_Hit")},
     {2, SOUND_ID_CHIME_ALL, MP3("Chime_All")}};
 
-extern void level_one_load(Level *level);
-extern void level_two_load(Level *level);
-
-LevelLoad_fp level_load_cbs[_LEVEL_ID_COUNT_] = {
-    level_one_load,
-    level_two_load};
+LoadLevelData all_leveles[_LEVEL_ID_COUNT_] = {
+    {LEVEL("Level1")}};
 
 void load_state_init(GameState *game_state)
 {
@@ -58,25 +68,13 @@ void load_state_init(GameState *game_state)
             printf("Sound %s couldn't be loaded\n", data->path);
         }
     }
-
-    // Load levels
-    for (size_t i = 0; i < _LEVEL_ID_COUNT_; ++i)
-    {
-        all_levels[i] = malloc(sizeof(Level));
-        level_load_cbs[i](all_levels[i]);
-    }
 }
 
-void load_state_update(GameState *game_state)
+bool_t load_state_update(GameState *game_state)
 {
     game_state->state_id = GAME_STATE_LEVEL;
-    game_state->level = malloc(sizeof(Level));
-    if (!level_load(game_state->level, LEVEL("Level1")))
-    {
-        printf("ERROR DOWNLOADING LEVEL\n");
-    }
-
-    //game_state->state_id = GAME_STATE_MAIN_MENU;
+    level_state_load_level(game_state, LEVEL_ID_ONE);
+    return TRUE;
 }
 
 void load_state_draw(const GameState *game_state)

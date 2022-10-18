@@ -19,6 +19,7 @@ typedef struct Level_st
 } Level;
 
 bool_t level_load(Level *level, const char *path);
+void level_free(Level *level);
 void level_update(Level *level, GameState *game_state);
 void level_draw(const Level *level, const GameState *game_state);
 

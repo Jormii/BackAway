@@ -53,6 +53,13 @@ void polygon_init(Polygon *polygon, const Vec2 *vertices, size_t n_vertices)
     bbox->height = max_corner.y - min_corner.y;
 }
 
+void polygon_free(Polygon *polygon)
+{
+    free(polygon->vertices);
+    free(polygon->normals);
+    free(polygon->vertices_normals);
+}
+
 void polygon_place_at(Polygon *polygon, const Vec2 *position)
 {
     Vec2 v = vec2_subtract(position, polygon->vertices);

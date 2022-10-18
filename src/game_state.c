@@ -6,12 +6,10 @@
 #include "screen_buffer.h"
 
 #include "state_load.h"
-#include "state_menu.h"
 #include "state_level.h"
 
 GameStateCallbacks state_cbs[_GAME_STATE_N_STATES_] = {
     {.init_cb = load_state_init, .update_cb = load_state_update, .draw_cb = load_state_draw},
-    {.init_cb = menu_state_init, .update_cb = menu_state_update, .draw_cb = menu_state_draw},
     {.init_cb = level_state_init, .update_cb = level_state_update, .draw_cb = level_state_draw},
 };
 
@@ -35,8 +33,10 @@ void game_state_update(GameState *game_state, float delta)
     game_state->delta = delta;
 
     GameStateCallbacks cbs = state_cbs[game_state->state_id];
-    cbs.update_cb(game_state);
-    cbs.draw_cb(game_state);
+    if (!cbs.update_cb(game_state))
+    {
+        cbs.draw_cb(game_state);
+    }
 }
 
 Vec2 game_state_camera_transform(const GameState *game_state, const Vec2 *position)
