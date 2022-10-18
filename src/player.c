@@ -34,12 +34,9 @@ Vec2 player_phasing_position(const Player *player);
 void player_on_collision(Entity *entity, const CollisionData *collision, void *ptr);
 void player_forgiveness_trigger(Timer *timer);
 
-// TODO: Mess around to find bugs
-
 void player_init(Player *player)
 {
     // Initialize sprite's first. Other components require the size of the sprites
-    player->flip_x = FALSE;
     animated_sprite_init(&(player->idle_anim_sprite), 2, 6);
     animated_sprite_init(&(player->run_anim_sprite), 2, 6);
 
@@ -51,10 +48,7 @@ void player_init(Player *player)
     player->fall_sprite = all_sprites + SPRITE_ID_PLAYER_FALL;
     player->swing_sprite = all_sprites + SPRITE_ID_PLAYER_SWING;
 
-    // Entity and collider
-    Vec2 gravity = {.x = 0.0f, .y = DEFAULT_GRAVITY_Y};
-    entity_init(&(player->entity), 1.0f, 0.0f, 0.0f, &gravity);
-
+    // Collider
     const Sprite *sprite = player->jump_sprite;
     Rect sprite_rect = {
         .origin = {.x = player->entity.position.x, .y = player->entity.position.y},
@@ -62,29 +56,9 @@ void player_init(Player *player)
         .height = sprite->meta.height};
     polygon_from_rect(&(player->collider), &sprite_rect);
 
-    // Inertia
-    Vec2 inertia_base_velocity = {.x = 100.0f, .y = 150.0f};
-    player_inertia_init(&(player->inertia), &(inertia_base_velocity), 1.0f);
-
-    // Hook
-    Vec2 center = rect_center(&(player->collider.bbox));
-    Vec2 hook_offset = vec2_subtract(&center, &(player->entity.position));
-    hook_init(&(player->hook), &(player->entity), &hook_offset,
-              player->inertia.current_velocity.x, 0.1f);
-
-    // Jump related
-    player->jump_state = JUMP_STATE_AIRBORNE;
-    player->forgiveness_timer.cycle = FALSE;
-    player->forgiveness_timer.countdown = 0.25f;
-    player->forgiveness_timer.trigger_cb = player_forgiveness_trigger;
-    player->forgiveness_timer.trigger_cb_ptr = player;
-
-    // Attack related
-    player->attack = FALSE;
-    player->attack_radius = player->inertia.current_velocity.x;
-
-    // Other
-    player->goal_reached = FALSE;
+    // Set default values
+    Vec2 position = {0.0f, 0.0f};
+    player_reset(player, &position);
 }
 
 void player_update(Player *player, GameState *game_state)
@@ -171,15 +145,14 @@ void player_draw(const Player *player, const GameState *game_state)
     player_draw_attack_radius(player, game_state);
 }
 
-void player_reset(Player *player, const GameState *game_state)
+void player_reset(Player *player, const Vec2 *position)
 {
     Vec2 gravity = {.x = 0, .y = 0};
-    const Vec2 *spawn = &(game_state->level->spawn_position);
     Vec2 base_velocity = {.x = 100.0f, .y = 150.0f};
     float inertia_countdown = 0.2f;
 
-    entity_init(&(player->entity), player->entity.mass, spawn->x, spawn->y, &gravity);
-    polygon_place_at(&(player->collider), spawn);
+    entity_init(&(player->entity), 1.0f, position->x, position->y, &gravity);
+    polygon_place_at(&(player->collider), position);
     player_inertia_init(&(player->inertia), &base_velocity, inertia_countdown);
 
     Vec2 center = rect_center(&(player->collider.bbox));

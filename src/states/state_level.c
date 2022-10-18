@@ -124,7 +124,7 @@ void level_state_reset(GameState *game_state)
     game_state->paused = FALSE;
     game_state->skip_frame = TRUE; // Only exception
     game_state->restart_level = FALSE;
-    player_reset(game_state->player, game_state);
+    player_reset(game_state->player, &(game_state->level->spawn_position));
     level_reset(game_state->level);
 }
 
