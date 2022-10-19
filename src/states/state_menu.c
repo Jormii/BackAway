@@ -20,7 +20,7 @@ void menu_state_init(GameState *game_state)
         UIButton *button = game_state->buttons.buttons + i;
         button->position.x = 10.0f + (i * 30.0f);
         button->position.y = 0.5f * SCREEN_HEIGHT;
-        button->sprite = all_sprites + SPRITE_ID_OBJECTIVE_DEFAULT;
+        button->sprite = all_sprites + SPRITE_ID_MENU_OFF;
         button->on_press_cb = on_press;
         button->on_highlighted_cb = NULL;
         button->cb_ptr = data;
@@ -41,7 +41,7 @@ void menu_state_draw(const GameState *game_state)
         const Sprite *sprite = button->sprite;
         if (i == game_state->buttons.highlighted_idx)
         {
-            sprite = all_sprites + SPRITE_ID_OBJECTIVE_ACTIVE_1;
+            sprite = all_sprites + SPRITE_ID_MENU_ON;
         }
 
         sprite_draw(sprite, button->position.x, button->position.y, 1.0f, FALSE, FALSE);
