@@ -4,7 +4,8 @@ from xml.etree.ElementTree import ElementTree
 
 import numpy as np
 
-SCALE = 30
+SCALE = 35
+PLOT = False
 INPUT_DIR = "./assets/"
 OUTPUT_DIR = "./compilation/resources/levels/"
 EXTENSION = ".ggb"
@@ -66,7 +67,7 @@ class Level:
                 fd.write(wall.polyline.tobytes())
 
 
-def parse_xml(path):
+def parse_xml(path, level_path):
     et = ElementTree()
     tree = et.parse(path)
 
@@ -104,6 +105,7 @@ def parse_xml(path):
     # Polylines
     segments = []
     polylines = []
+    eph_polylines = []
     commands = tree.findall(".//command")
     for c in commands:
         name = c.attrib.get("name")
@@ -112,24 +114,29 @@ def parse_xml(path):
         if name == "Segment":
             tgt_list = segments
         elif name == "PolyLine":
-            tgt_list = polylines
+            output = c.find("./output")
+            if "__" in output.attrib["a0"]:
+                tgt_list = eph_polylines
+            else:
+                tgt_list = polylines
 
         if tgt_list is None:
             continue
 
         segment = []
         vertices = c.find("./input")
+
         for label in vertices.attrib.values():  # TODO: Are in order?
             segment.append(points[label])
 
         tgt_list.append(np.array(segment, dtype="float32"))
 
     # Validate value
-    assert "SPAWN" in complex, f"{path}: No spawn"
-    assert len(polylines) != 0, f"{path}: No walls"
-    assert len(segments) == 1, f"{path}: No goal or multiple goals"
+    assert "SPAWN" in complex, f"{level_path}: No spawn"
+    assert len(polylines) != 0, f"{level_path}: No walls"
+    assert len(segments) == 1, f"{level_path}: No goal or multiple goals"
     assert segments[0][0, 0] == segments[0][1, 0], \
-        f"{path}: Goal X coordinate doesn't match"
+        f"{level_path}: Goal X coordinate doesn't match"
 
     # Add bounding polyline
     min_corner = polylines[0][0]
@@ -155,21 +162,24 @@ def parse_xml(path):
     spawn = complex["SPAWN"]
     goal = Level.Goal(segments[0])
     walls = [Level.Wall(p, False) for p in polylines]
+    walls.extend([Level.Wall(p, True) for p in eph_polylines])
     level = Level(spawn, goal, objectives, walls)
 
-    # TODO: Remove
-    import matplotlib.pyplot as plt
+    if PLOT:
+        import matplotlib.pyplot as plt
 
-    plt.plot(spawn[0], spawn[1], "gx")
-    plt.plot(objectives[:, 0], objectives[:, 1], "g+")
-    for polyline in polylines:
-        plt.plot(polyline[:, 0], polyline[:, 1], "r-")
-    for segment in segments:
-        plt.plot(segment[:, 0], segment[:, 1], "b-")
+        plt.plot(spawn[0], spawn[1], "gx")
+        plt.plot(objectives[:, 0], objectives[:, 1], "g+")
+        for polyline in polylines:
+            plt.plot(polyline[:, 0], polyline[:, 1], "r-")
+        for polyline in eph_polylines:
+            plt.plot(polyline[:, 0], polyline[:, 1], "g-")
+        for segment in segments:
+            plt.plot(segment[:, 0], segment[:, 1], "b-")
 
-    plt.gca().set_aspect("equal")
-    plt.show()
-    plt.close()
+        plt.gca().set_aspect("equal")
+        plt.show()
+        plt.close()
 
     return level
 
@@ -177,7 +187,7 @@ def parse_xml(path):
 def parse_level(path, output_dir):
     with zipfile.ZipFile(path, "r") as fd:
         fd.extract("geogebra.xml")
-        level = parse_xml("geogebra.xml")
+        level = parse_xml("geogebra.xml", path)
         level.write(path, output_dir)
         os.remove("geogebra.xml")
 

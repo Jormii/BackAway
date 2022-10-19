@@ -44,6 +44,9 @@ typedef enum LevelID_en
 {
     LEVEL_ID_ONE,
     LEVEL_ID_TWO,
+    LEVEL_ID_THREE,
+    LEVEL_ID_FOUR,
+    LEVEL_ID_FIVE,
     _LEVEL_ID_COUNT_
 } LevelID;
 

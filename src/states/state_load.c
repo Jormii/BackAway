@@ -45,7 +45,10 @@ SoundLoadData sound_load_data[_SOUND_ID_COUNT_] = {
 
 LoadLevelData all_leveles[_LEVEL_ID_COUNT_] = {
     {LEVEL("Level1")},
-    {LEVEL("Level2")}};
+    {LEVEL("Level2")},
+    {LEVEL("Level3")},
+    {LEVEL("Level4")},
+    {LEVEL("Level5")}};
 
 void load_state_init(GameState *game_state)
 {
