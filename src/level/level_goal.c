@@ -44,7 +44,10 @@ void level_goal_update(LevelGoal *goal, GameState *game_state)
         goal->active = objective->active;
     }
 
-    sound_play(goal->active_sfx);
+    if (goal->active)
+    {
+        sound_play(goal->active_sfx);
+    }
 }
 
 void level_goal_draw(const LevelGoal *goal, const GameState *game_state)
