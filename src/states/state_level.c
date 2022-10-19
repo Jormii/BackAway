@@ -12,16 +12,20 @@ void level_state_reset(GameState *game_state);
 void level_state_update_pause(GameState *game_state);
 void level_state_update_running(GameState *game_state);
 
-void on_button_highlight(UIButton *button);
-void on_continue_pressed(UIButton *button);
-void on_restart_pressed(UIButton *button);
-Vec2 button_position(const UIButton *button, const GameState *game_state);
+void end_level_trigger(Timer *timer);
 
 void level_state_init(GameState *game_state)
 {
     game_state->paused = FALSE;
     game_state->slow_motion = FALSE;
     game_state->restart_level = FALSE;
+
+    Timer *timer = &(game_state->end_level_timer);
+    timer->cycle = FALSE;
+    timer->countdown = 1.5f;
+    timer->trigger_cb = end_level_trigger;
+    timer->trigger_cb_ptr = game_state;
+    timer->running = FALSE;
 
     game_state->level_id = _LEVEL_ID_COUNT_;
     game_state->level = NULL;
@@ -46,6 +50,8 @@ void level_state_update(GameState *game_state)
     {
         level_state_update_running(game_state);
     }
+
+    timer_update(&(game_state->end_level_timer), game_state->delta);
 }
 
 void level_state_draw(const GameState *game_state)
@@ -53,9 +59,24 @@ void level_state_draw(const GameState *game_state)
     player_draw(game_state->player, game_state);
     level_draw(game_state->level, game_state);
 
-    if (game_state->paused)
+    const Timer *timer = &(game_state->end_level_timer);
+    if (game_state->paused || timer->running)
     {
-        Color pause_color = {0, 0, 0, 128};
+        Color pause_color = {11, 1, 25, 128}; // Default color
+        if (timer->running)
+        {
+            float completion_ratio = 1.0f - (timer->left / timer->countdown);
+            pause_color.alpha = (u8_t)(completion_ratio * 255.0f);
+        }
+
+        for (size_t i = 0; i < SCREEN_BUFFER_SIZE; ++i)
+        {
+            screen_buffer_paint(i, &pause_color);
+        }
+    }
+    if (game_state->end_level_timer.running)
+    {
+        Color pause_color = {11, 1, 25, 128};
         for (size_t i = 0; i < SCREEN_BUFFER_SIZE; ++i)
         {
             screen_buffer_paint(i, &pause_color);
@@ -86,8 +107,12 @@ void level_state_load_level(GameState *game_state, LevelID level_id)
 
 void level_state_end_level(GameState *game_state)
 {
-    game_state->skip_frame = TRUE;
-    game_state->state_id = GAME_STATE_MENU;
+    Timer *timer = &(game_state->end_level_timer);
+    if (!timer->running)
+    {
+        timer_reset(timer);
+        timer_start(timer);
+    }
 }
 
 void level_state_reset(GameState *game_state)
@@ -95,6 +120,7 @@ void level_state_reset(GameState *game_state)
     game_state->paused = FALSE;
     game_state->skip_frame = TRUE; // Only exception
     game_state->restart_level = FALSE;
+    timer_stop(&(game_state->end_level_timer));
     player_reset(game_state->player, &(game_state->level->spawn_position));
     level_reset(game_state->level);
 }
@@ -106,7 +132,9 @@ void level_state_update_pause(GameState *game_state)
         game_state->paused = FALSE;
         game_state->skip_frame = TRUE;
         return;
-    } else if (input_button_pressed(INPUT_BUTTON_CIRCLE)) {
+    }
+    else if (input_button_pressed(INPUT_BUTTON_CIRCLE))
+    {
         game_state->state_id = GAME_STATE_MENU;
         game_state->skip_frame = TRUE;
     }
@@ -114,43 +142,32 @@ void level_state_update_pause(GameState *game_state)
 
 void level_state_update_running(GameState *game_state)
 {
-    if (input_button_pressed(INPUT_BUTTON_START))
+    if (!(game_state->end_level_timer.running))
     {
-        game_state->paused = TRUE;
-        game_state->skip_frame = TRUE;
-        return;
-    }
+        if (input_button_pressed(INPUT_BUTTON_START))
+        {
+            game_state->paused = TRUE;
+            game_state->skip_frame = TRUE;
+            return;
+        }
 
-    if (input_button_held(INPUT_BUTTON_LEFT_TRIGGER))
-    {
-        game_state->slow_motion = TRUE;
-        game_state->delta = 0.001f; // Force delta
-    }
-    else
-    {
-        game_state->slow_motion = FALSE;
+        if (input_button_held(INPUT_BUTTON_LEFT_TRIGGER))
+        {
+            game_state->slow_motion = TRUE;
+            game_state->delta = 0.001f; // Force delta
+        }
+        else
+        {
+            game_state->slow_motion = FALSE;
+        }
     }
 
     level_update(game_state->level, game_state);
     player_update(game_state->player, game_state);
 }
 
-void on_continue_pressed(UIButton *button)
+void end_level_trigger(Timer *timer)
 {
-    GameState *game_state = (GameState *)(button->cb_ptr);
-
-    game_state->paused = FALSE;
-    game_state->skip_frame = TRUE;
-}
-
-void on_restart_pressed(UIButton *button)
-{
-    GameState *game_state = (GameState *)(button->cb_ptr);
-    level_state_reset(game_state);
-}
-
-Vec2 button_position(const UIButton *button, const GameState *game_state)
-{
-    Vec2 position = vec2_add(&(game_state->camera_focus), &(button->position));
-    return vec2_subtract(&position, &(game_state->camera_half_extension));
+    GameState *game_state = (GameState *)(timer->trigger_cb_ptr);
+    game_state->state_id = GAME_STATE_MENU;
 }
