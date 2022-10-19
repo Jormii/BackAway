@@ -17,6 +17,11 @@ void animated_sprite_init(AnimatedSprite *anim_sprite, size_t n_frames, int fps)
     timer_start(&anim_sprite->frame_tick);
 }
 
+void animated_sprite_free(AnimatedSprite *anim_sprite)
+{
+    free(anim_sprite->frames);
+}
+
 void animated_sprite_update(AnimatedSprite *anim_sprite, float delta)
 {
     timer_update(&(anim_sprite->frame_tick), delta);

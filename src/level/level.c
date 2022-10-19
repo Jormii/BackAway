@@ -56,12 +56,18 @@ bool_t level_load(Level *level, const char *path)
     }
 
     free(tmp_vertices);
+    sceIoClose(fd);
 
     return TRUE;
 }
 
 void level_free(Level *level)
 {
+    for (size_t i = 0; i < level->n_objectives; ++i)
+    {
+        LevelObjective *objective = level->objectives + i;
+        level_objective_free(objective);
+    }
     for (size_t i = 0; i < level->n_colliders; ++i)
     {
         Polygon *polygon = level->colliders + i;

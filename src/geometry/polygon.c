@@ -6,10 +6,12 @@
 
 void polygon_init(Polygon *polygon, const Vec2 *vertices, size_t n_vertices)
 {
+    Vec2 *geometry_buffer = malloc(3 * n_vertices * sizeof(Vec2));
+
     polygon->n_vertices = n_vertices;
-    polygon->vertices = malloc(n_vertices * sizeof(Vec2));
-    polygon->normals = malloc(n_vertices * sizeof(Vec2));
-    polygon->vertices_normals = malloc(n_vertices * sizeof(Vec2));
+    polygon->vertices = geometry_buffer;
+    polygon->normals = polygon->vertices + n_vertices;
+    polygon->vertices_normals = polygon->normals + n_vertices;
 
     Vec2 min_corner = {.x = INFINITY, .y = INFINITY};
     Vec2 max_corner = {.x = -INFINITY, .y = -INFINITY};
@@ -56,8 +58,6 @@ void polygon_init(Polygon *polygon, const Vec2 *vertices, size_t n_vertices)
 void polygon_free(Polygon *polygon)
 {
     free(polygon->vertices);
-    free(polygon->normals);
-    free(polygon->vertices_normals);
 }
 
 void polygon_place_at(Polygon *polygon, const Vec2 *position)

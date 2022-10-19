@@ -32,16 +32,14 @@ SpriteLoadData sprite_load_data[_SPRITE_ID_COUNT_] = {
     {SPRITE_ID_OBJECTIVE_DEFAULT, SPRITE("Objective_Default")},
     {SPRITE_ID_OBJECTIVE_IN_RANGE, SPRITE("Objective_InRange")},
     {SPRITE_ID_OBJECTIVE_ACTIVE_1, SPRITE("Objective_Active1")},
-    {SPRITE_ID_OBJECTIVE_ACTIVE_2, SPRITE("Objective_Active2")},
-    {SPRITE_ID_OBJECTIVE_ACTIVE_3, SPRITE("Objective_Active3")},
-    {SPRITE_ID_OBJECTIVE_ACTIVE_4, SPRITE("Objective_Active4")},
+    {SPRITE_ID_OBJECTIVE_ACTIVE_2, SPRITE("Objective_Active3")},
     {SPRITE_ID_GOAL_INACTIVE, SPRITE("Goal_Inactive")},
     {SPRITE_ID_GOAL_ACTIVE, SPRITE("Goal_Active")},
     {SPRITE_ID_MENU_OFF, SPRITE("MenuButton_Off")},
     {SPRITE_ID_MENU_ON, SPRITE("MenuButton_On")}};
 
 SoundLoadData sound_load_data[_SOUND_ID_COUNT_] = {
-    {0, SOUND_ID_CHIME_HIT, MP3("Chime_Hit")},
+    {0, SOUND_ID_CHIME_HIT, MP3("Chime_InRange")},
     {1, SOUND_ID_CHIME_ALL, MP3("Chime_All")}};
 
 LoadLevelData all_leveles[_LEVEL_ID_COUNT_] = {

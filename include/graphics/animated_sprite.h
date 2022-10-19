@@ -14,6 +14,7 @@ typedef struct AnimatedSprite_st
 } AnimatedSprite;
 
 void animated_sprite_init(AnimatedSprite *anim_sprite, size_t n_frames, int fps);
+void animated_sprite_free(AnimatedSprite *anim_sprite);
 void animated_sprite_update(AnimatedSprite *anim_sprite, float delta);
 
 const Sprite *animated_sprite_get(const AnimatedSprite *anim_sprite);

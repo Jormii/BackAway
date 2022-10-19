@@ -19,6 +19,7 @@ typedef struct LevelObjective_st
 } LevelObjective;
 
 void level_objective_init(LevelObjective *objective, const Vec2 *position);
+void level_objective_free(LevelObjective *objective);
 void level_objective_update(LevelObjective *objective, GameState *game_state);
 void level_objective_draw(const LevelObjective *objective, const GameState *game_state);
 

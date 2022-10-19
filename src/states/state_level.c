@@ -50,8 +50,6 @@ void level_state_update(GameState *game_state)
     {
         level_state_update_running(game_state);
     }
-
-    timer_update(&(game_state->end_level_timer), game_state->delta);
 }
 
 void level_state_draw(const GameState *game_state)
@@ -122,8 +120,8 @@ void level_state_reset(GameState *game_state)
     game_state->restart_level = FALSE;
     game_state->camera_focus = game_state->level->spawn_position;
     timer_stop(&(game_state->end_level_timer));
-    player_reset(game_state->player, &(game_state->level->spawn_position));
     level_reset(game_state->level);
+    player_reset(game_state->player, &(game_state->level->spawn_position));
 }
 
 void level_state_update_pause(GameState *game_state)
@@ -136,8 +134,9 @@ void level_state_update_pause(GameState *game_state)
     }
     else if (input_button_pressed(INPUT_BUTTON_CIRCLE))
     {
-        game_state->state_id = GAME_STATE_MENU;
         game_state->skip_frame = TRUE;
+        game_state->state_id = GAME_STATE_MENU;
+        return;
     }
 
     Vec2 input_vector = {
@@ -173,6 +172,7 @@ void level_state_update_running(GameState *game_state)
 
     level_update(game_state->level, game_state);
     player_update(game_state->player, game_state);
+    timer_update(&(game_state->end_level_timer), game_state->delta);
 }
 
 void end_level_trigger(Timer *timer)

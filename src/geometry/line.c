@@ -1,4 +1,5 @@
 #include "line.h"
+#include "macros.h"
 
 Vec2 line_segment_interpolate(const Vec2 *p, const Vec2 *q, float t)
 {
@@ -18,6 +19,11 @@ bool_t line_segments_intersect(const Vec2 *p0, const Vec2 *pf, const Vec2 *q0, c
     float det_PT = w.y * u.x - w.x * u.y;
     float det_QT = v.x * w.y - v.y * w.x;
     float det_A = v.y * u.x - v.x * u.y;
+
+    if (EQUAL_EPSILON(det_A, 0.0f, __FLT_EPSILON__))
+    {
+        return FALSE;
+    }
 
     float pt = det_PT / det_A;
     float qt = det_QT / det_A;

@@ -8,11 +8,9 @@ void level_objective_init(LevelObjective *objective, const Vec2 *position)
     objective->in_range_sprite = all_sprites + SPRITE_ID_OBJECTIVE_IN_RANGE;
 
     AnimatedSprite *anim_sprite = &(objective->active_anim_sprite);
-    animated_sprite_init(anim_sprite, 4, 6);
+    animated_sprite_init(anim_sprite, 2, 6);
     anim_sprite->frames[0] = all_sprites + SPRITE_ID_OBJECTIVE_ACTIVE_1;
     anim_sprite->frames[1] = all_sprites + SPRITE_ID_OBJECTIVE_ACTIVE_2;
-    anim_sprite->frames[2] = all_sprites + SPRITE_ID_OBJECTIVE_ACTIVE_3;
-    anim_sprite->frames[3] = all_sprites + SPRITE_ID_OBJECTIVE_ACTIVE_4;
 
     // Position requires sprite's data
     objective->active = FALSE;
@@ -21,6 +19,11 @@ void level_objective_init(LevelObjective *objective, const Vec2 *position)
 
     // Load sounds
     objective->hit_sfx = all_sounds + SOUND_ID_CHIME_HIT;
+}
+
+void level_objective_free(LevelObjective *objective)
+{
+    animated_sprite_free(&(objective->active_anim_sprite));
 }
 
 void level_objective_update(LevelObjective *objective, GameState *game_state)

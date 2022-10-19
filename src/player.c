@@ -450,7 +450,7 @@ Vec2 player_phasing_position(const Player *player)
 {
     float v_mag = vec2_magnitude(&(player->entity.velocity));
     float v_inertia_mag = vec2_magnitude(&(player->inertia.current_velocity));
-    float ratio = v_inertia_mag / v_mag;
+    float ratio = v_mag / v_inertia_mag;
     float delta_increment = sqrtf((1.0f/80.0f) * ratio);
 
     Entity entity_copy = player->entity;
