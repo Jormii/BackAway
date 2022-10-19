@@ -118,8 +118,9 @@ void level_state_end_level(GameState *game_state)
 void level_state_reset(GameState *game_state)
 {
     game_state->paused = FALSE;
-    game_state->skip_frame = TRUE; // Only exception
+    game_state->skip_frame = TRUE;
     game_state->restart_level = FALSE;
+    game_state->camera_focus = game_state->level->spawn_position;
     timer_stop(&(game_state->end_level_timer));
     player_reset(game_state->player, &(game_state->level->spawn_position));
     level_reset(game_state->level);
@@ -138,6 +139,14 @@ void level_state_update_pause(GameState *game_state)
         game_state->state_id = GAME_STATE_MENU;
         game_state->skip_frame = TRUE;
     }
+
+    Vec2 input_vector = {
+        .x = input_button_held(INPUT_BUTTON_RIGHT) - input_button_held(INPUT_BUTTON_LEFT),
+        .y = input_button_held(INPUT_BUTTON_DOWN) - input_button_held(INPUT_BUTTON_UP)};
+
+    float camera_speed = 100.0f;
+    Vec2 camera_velocity = vec2_mult_scalar(game_state->delta * camera_speed, &input_vector);
+    game_state->camera_focus = vec2_add(&(game_state->camera_focus), &camera_velocity);
 }
 
 void level_state_update_running(GameState *game_state)
