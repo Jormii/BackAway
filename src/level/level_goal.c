@@ -41,7 +41,7 @@ void level_goal_update(LevelGoal *goal, GameState *game_state)
     for (size_t i = 0; i < level->n_objectives && goal->active; ++i)
     {
         const LevelObjective *objective = level->objectives + i;
-        goal->active = objective->state == LEVEL_OBJECTIVE_STATE_ACTIVE;
+        goal->active = objective->active;
     }
 
     sound_play(goal->active_sfx);
@@ -55,12 +55,12 @@ void level_goal_draw(const LevelGoal *goal, const GameState *game_state)
 
     Vec2 pixel = {.x = goal->x, goal->top_y};
     pixel = game_state_camera_transform(game_state, &pixel);
-    sprite_draw(sprite, pixel.x, pixel.y, FALSE, TRUE);
+    sprite_draw(sprite, pixel.x, pixel.y, 1.0f, FALSE, TRUE);
 
     pixel.x = goal->x;
     pixel.y = goal->bottom_y;
     pixel = game_state_camera_transform(game_state, &pixel);
-    sprite_draw(sprite, pixel.x, pixel.y, FALSE, FALSE);
+    sprite_draw(sprite, pixel.x, pixel.y, 1.0f, FALSE, FALSE);
 }
 
 void level_goal_draw_effect(const LevelGoal *goal, const GameState *game_state)

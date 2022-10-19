@@ -16,7 +16,6 @@
 #define DOWN INPUT_BUTTON_DOWN
 #define JUMP INPUT_BUTTON_CROSS
 #define USE_HOOK INPUT_BUTTON_SQUARE
-#define ATTACK INPUT_BUTTON_RIGHT_TRIGGER
 
 #define GLIDING_GRAVITY_Y 200.0f
 #define FREE_FALL_GRAVITY_Y 4000.0f
@@ -71,7 +70,6 @@ void player_init(Player *player)
 void player_update(Player *player, GameState *game_state)
 {
     // Defaults and derived
-    player->attack = FALSE;
     player->delta = game_state->delta;
 
     float reach = MIN(0.45f * SCREEN_HEIGHT, 0.5 * player->inertia.current_velocity.x);
@@ -144,12 +142,15 @@ void player_draw(const Player *player, const GameState *game_state)
         hook_draw_hook_preview(&(player->hook), game_state);
     }
 
-    // Player's sprite
-    Vec2 origin = game_state_camera_transform(game_state, &(player->entity.position));
+    // Player's sprites
     const Sprite *sprite = player_get_sprite(player);
-    sprite_draw(sprite, origin.x, origin.y, player->flip_x, FALSE);
+    Vec2 origin = game_state_camera_transform(game_state, &(player->entity.position));
+    Vec2 phasing = player_phasing_position(player);
+    phasing = game_state_camera_transform(game_state, &phasing);
 
     player_draw_attack_radius(player, game_state);
+    sprite_draw(sprite, phasing.x, phasing.y, 0.25f, player->flip_x, FALSE);
+    sprite_draw(sprite, origin.x, origin.y, 1.0f, player->flip_x, FALSE);
 }
 
 void player_reset(Player *player, const Vec2 *position)
@@ -170,7 +171,6 @@ void player_reset(Player *player, const Vec2 *position)
 
     player->jump_state = JUMP_STATE_AIRBORNE;
     timer_stop(&(player->forgiveness_timer));
-    player->attack = FALSE;
     player->attack_radius = player->inertia.current_velocity.x;
     player->goal_reached = FALSE;
     player->flip_x = FALSE;
@@ -282,12 +282,6 @@ void player_handle_input(Player *player, const GameState *game_state)
         timer_reset(&(player->inertia.button_press_timer));
     }
 
-    // Attack
-    if (input_button_pressed(ATTACK))
-    {
-        player->attack = TRUE;
-    }
-
     // Handle hook
     Hook *hook = &(player->hook);
     if (hook->fixed)
@@ -334,7 +328,7 @@ void player_handle_attack(const Player *player, GameState *game_state)
     for (size_t i = 0; i < level->n_objectives; ++i)
     {
         LevelObjective *objective = level->objectives + i;
-        if (objective->state == LEVEL_OBJECTIVE_STATE_ACTIVE)
+        if (objective->active)
         {
             continue;
         }
@@ -344,8 +338,7 @@ void player_handle_attack(const Player *player, GameState *game_state)
         float sqr_mag = vec2_dot(&v, &v);
 
         bool_t in_range = sqr_mag <= radius_sqr;
-        level_objective_trigger_in_range(objective, in_range);
-        if (in_range && player->attack)
+        if (in_range)
         {
             level_objective_set_active(objective);
         }

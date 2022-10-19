@@ -47,7 +47,7 @@ bool_t level_load(Level *level, const char *path)
     {
         uint32_t ephemeral;
         sceIoRead(fd, &ephemeral, sizeof(uint32_t));
-        
+
         size_t n_vertices;
         sceIoRead(fd, &n_vertices, sizeof(uint32_t));
         sceIoRead(fd, tmp_vertices, n_vertices * sizeof(Vec2));
@@ -110,6 +110,6 @@ void level_reset(Level *level)
     for (size_t i = 0; i < level->n_objectives; ++i)
     {
         LevelObjective *objective = level->objectives + i;
-        objective->state = LEVEL_OBJECTIVE_STATE_DEFAULT;
+        objective->active = FALSE;
     }
 }

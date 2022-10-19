@@ -29,7 +29,7 @@ bool_t sprite_load(Sprite *sprite, const char *path)
     return TRUE;
 }
 
-void sprite_draw(const Sprite *sprite, int x, int y, bool_t flip_x, bool_t flip_y)
+void sprite_draw(const Sprite *sprite, int x, int y, float alpha_factor, bool_t flip_x, bool_t flip_y)
 {
     const SpriteMeta *meta = &(sprite->meta);
     int x0 = MAX(0, x);
@@ -48,8 +48,9 @@ void sprite_draw(const Sprite *sprite, int x, int y, bool_t flip_x, bool_t flip_
 
         for (int px = x0; px < xf; ++px)
         {
-            const Color *bitmap_pixel = sprite->bitmap + bitmap_idx;
-            screen_buffer_paint(drawbuffer_idx, bitmap_pixel);
+            Color bitmap_pixel = sprite->bitmap[bitmap_idx];
+            bitmap_pixel.alpha *= alpha_factor;
+            screen_buffer_paint(drawbuffer_idx, &bitmap_pixel);
 
             bitmap_idx += x_inc;
             drawbuffer_idx += 1;

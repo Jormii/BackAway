@@ -34,7 +34,6 @@ typedef enum SpriteID_en
 
 typedef enum SoundID_en
 {
-    SOUND_ID_CHIME_IN_RANGE,
     SOUND_ID_CHIME_HIT,
     SOUND_ID_CHIME_ALL,
     _SOUND_ID_COUNT_

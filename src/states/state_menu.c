@@ -44,7 +44,7 @@ void menu_state_draw(const GameState *game_state)
             sprite = all_sprites + SPRITE_ID_OBJECTIVE_ACTIVE_1;
         }
 
-        sprite_draw(sprite, button->position.x, button->position.y, FALSE, FALSE);
+        sprite_draw(sprite, button->position.x, button->position.y, 1.0f, FALSE, FALSE);
     }
 }
 
