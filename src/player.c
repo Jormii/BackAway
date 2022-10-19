@@ -448,9 +448,15 @@ bool_t player_is_idle(const Player *player)
 
 Vec2 player_phasing_position(const Player *player)
 {
-    float scalar = 0.75f * (float)(player->inertia.button_press_count);
-    Vec2 delta_p = vec2_mult_scalar(scalar * player->delta, &(player->entity.velocity));
-    return vec2_add(&(player->entity.position), &delta_p);
+    float v_mag = vec2_magnitude(&(player->entity.velocity));
+    float v_inertia_mag = vec2_magnitude(&(player->inertia.current_velocity));
+    float ratio = v_inertia_mag / v_mag;
+    float delta_increment = sqrtf((1.0f/80.0f) * ratio);
+
+    Entity entity_copy = player->entity;
+    float delta = player->delta + delta_increment;
+    entity_update(&entity_copy, delta);
+    return entity_copy.position;
 }
 
 void player_on_collision(Entity *entity, const CollisionData *collision, void *ptr)
