@@ -6,6 +6,7 @@
 typedef struct MenuButtonData_st
 {
     LevelID level_id;
+    float level_target_time;
     GameState *game_state;
 } MenuButtonData;
 

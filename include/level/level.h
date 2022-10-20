@@ -5,6 +5,7 @@
 #include "polygon.h"
 #include "game_state.h"
 #include "level_goal.h"
+#include "level_clock.h"
 #include "level_objective.h"
 
 typedef struct Level_st
@@ -16,6 +17,7 @@ typedef struct Level_st
     LevelObjective *objectives;
     size_t n_colliders;
     Polygon *colliders;
+    LevelClock level_clock;
 } Level;
 
 bool_t level_load(Level *level, const char *path);

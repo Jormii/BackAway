@@ -3,6 +3,7 @@
 
 #include "input.h"
 #include "level.h"
+#include "macros.h"
 #include "player.h"
 #include "state_level.h"
 #include "screen_buffer.h"
@@ -83,6 +84,7 @@ void level_state_load_level(GameState *game_state, LevelID level_id)
     else
     {
         game_state->level = malloc(sizeof(Level));
+        level_clock_init(&(game_state->level->level_clock));
     }
 
     const char *path = all_leveles[level_id].path;
@@ -102,6 +104,17 @@ void level_state_end_level(GameState *game_state)
     {
         timer_reset(timer);
         timer_start(timer);
+
+        LevelClock *clock = &(game_state->level->level_clock);
+        level_clock_pause(clock);
+        if (clock->target_time == LEVEL_CLOCK_NO_TIME_RECORDED)
+        {
+            clock->target_time = clock->current_time;
+        }
+        else
+        {
+            clock->target_time = MIN(clock->target_time, clock->current_time);
+        }
     }
 }
 
@@ -175,5 +188,6 @@ void level_state_update_running(GameState *game_state)
 void end_level_trigger(Timer *timer)
 {
     GameState *game_state = (GameState *)(timer->trigger_cb_ptr);
+    game_state->store_time = TRUE;
     game_state->state_id = GAME_STATE_MENU;
 }

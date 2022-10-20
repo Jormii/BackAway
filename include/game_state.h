@@ -42,6 +42,7 @@ typedef struct GameState_st
     Vec2 camera_half_extension;
 
     // -- GAME_STATE_MENU --
+    bool_t store_time;
     UIButtonCollection buttons;
     struct MenuButtonData_st *buttons_data;
 

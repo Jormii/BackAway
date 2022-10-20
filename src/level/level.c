@@ -89,6 +89,9 @@ void level_update(Level *level, GameState *game_state)
 
     // Update goal
     level_goal_update(&(level->goal), game_state);
+
+    // Update clock
+    level_clock_update(&(level->level_clock), game_state);
 }
 
 void level_draw(const Level *level, const GameState *game_state)
@@ -108,6 +111,9 @@ void level_draw(const Level *level, const GameState *game_state)
 
     // Draw goal
     level_goal_draw(&(level->goal), game_state);
+
+    // Draw clock
+    level_clock_draw(&(level->level_clock), game_state);
 }
 
 void level_reset(Level *level)
@@ -118,4 +124,6 @@ void level_reset(Level *level)
         LevelObjective *objective = level->objectives + i;
         objective->active = FALSE;
     }
+
+    level_clock_reset(&(level->level_clock));
 }
