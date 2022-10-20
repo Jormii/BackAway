@@ -72,14 +72,6 @@ void level_state_draw(const GameState *game_state)
             screen_buffer_paint(i, &pause_color);
         }
     }
-    if (game_state->end_level_timer.running)
-    {
-        Color pause_color = {11, 1, 25, 128};
-        for (size_t i = 0; i < SCREEN_BUFFER_SIZE; ++i)
-        {
-            screen_buffer_paint(i, &pause_color);
-        }
-    }
 }
 
 void level_state_load_level(GameState *game_state, LevelID level_id)
@@ -162,7 +154,12 @@ void level_state_update_running(GameState *game_state)
         if (input_button_held(INPUT_BUTTON_LEFT_TRIGGER))
         {
             game_state->slow_motion = TRUE;
-            game_state->delta = 0.001f; // Force delta
+
+            // Force delta
+            float new_delta = 0.001f;
+            float delta_diff = game_state->delta - new_delta;
+            game_state->delta = new_delta;
+            game_state->delta_accumulated -= delta_diff;
         }
         else
         {

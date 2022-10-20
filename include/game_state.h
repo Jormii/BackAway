@@ -35,6 +35,7 @@ typedef struct GameState_st
 {
     // -- Shared across states --
     float delta;
+    float delta_accumulated;
     bool_t skip_frame;
     GameStateID state_id;
     Vec2 camera_focus;

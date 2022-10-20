@@ -17,7 +17,9 @@ void level_collider_draw(const Polygon *collider, const GameState *game_state)
         color.red = 120;
         color.green = 190;
         color.blue = 252;
-        color.alpha = 64;
+
+        float alpha = 0.4f * sinf(2.0f * game_state->delta_accumulated) + 0.6f;
+        color.alpha = (u8_t)(255.0f * alpha);
     }
 
     level_draw_polygon(collider, &color, game_state);

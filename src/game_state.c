@@ -18,6 +18,7 @@ GameStateCallbacks state_cbs[_GAME_STATE_N_STATES_] = {
 void game_state_init(GameState *game_state, GameStateID initial_state)
 {
     game_state->delta = 0.0f;
+    game_state->delta_accumulated = 0.0f;
     game_state->skip_frame = FALSE;
     game_state->state_id = initial_state;
     game_state->camera_focus.x = 0.0f;
@@ -34,6 +35,7 @@ void game_state_init(GameState *game_state, GameStateID initial_state)
 void game_state_update(GameState *game_state, float delta)
 {
     game_state->delta = delta;
+    game_state->delta_accumulated += delta;
     game_state->skip_frame = FALSE;
 
     GameStateCallbacks cbs = state_cbs[game_state->state_id];

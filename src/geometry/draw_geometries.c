@@ -36,7 +36,7 @@ void draw_line(const Vec2 *p, const Vec2 *q, const Color *color)
             if (y >= 0 && y < SCREEN_HEIGHT)
             {
                 size_t idx = SCREEN_BUFFER_INDEX(x, y);
-                draw_buffer[idx] = *color;
+                screen_buffer_paint(idx, color);
             }
         }
     }
@@ -57,7 +57,7 @@ void draw_vertical_line(int x, int y0, int yf, const Color *color)
     for (int y = _y0; y <= _yf; ++y)
     {
         size_t idx = SCREEN_BUFFER_INDEX(x, y);
-        draw_buffer[idx] = *color;
+        screen_buffer_paint(idx, color);
     }
 }
 
