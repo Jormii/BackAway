@@ -75,7 +75,7 @@ void level_state_draw(const GameState *game_state)
     }
 }
 
-void level_state_load_level(GameState *game_state, LevelID level_id)
+void level_state_load_level(GameState *game_state, LevelID level_id, float target_time)
 {
     if (game_state->level != NULL)
     {
@@ -95,6 +95,7 @@ void level_state_load_level(GameState *game_state, LevelID level_id)
 
     game_state->restart_level = TRUE;
     game_state->level_id = level_id;
+    game_state->level->level_clock.target_time = target_time;
 }
 
 void level_state_end_level(GameState *game_state)

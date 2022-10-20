@@ -64,9 +64,9 @@ void menu_state_draw(const GameState *game_state)
 void on_press(UIButton *button)
 {
     MenuButtonData *data = (MenuButtonData *)(button->cb_ptr);
+    GameState *game_state = data->game_state;
 
-    data->game_state->skip_frame = TRUE;
-    data->game_state->level->level_clock.target_time = data->level_target_time;
-    data->game_state->state_id = GAME_STATE_LEVEL;
-    level_state_load_level(data->game_state, data->level_id);
+    game_state->skip_frame = TRUE;
+    game_state->state_id = GAME_STATE_LEVEL;
+    level_state_load_level(game_state, data->level_id, data->level_target_time);
 }
