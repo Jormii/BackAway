@@ -148,9 +148,16 @@ void player_draw(const Player *player, const GameState *game_state)
     Vec2 phasing = player_phasing_position(player);
     phasing = game_state_camera_transform(game_state, &phasing);
 
+    float alpha = 1.0f;
+    const Timer *timer = &(game_state->end_level_timer);
+    if (timer->running)
+    {
+        alpha = timer->left / timer->countdown;
+    }
+
     player_draw_attack_radius(player, game_state);
-    sprite_draw(sprite, phasing.x, phasing.y, 0.33f, player->flip_x, FALSE);
-    sprite_draw(sprite, origin.x, origin.y, 1.0f, player->flip_x, FALSE);
+    sprite_draw(sprite, phasing.x, phasing.y, 0.33f * alpha, player->flip_x, FALSE);
+    sprite_draw(sprite, origin.x, origin.y, alpha, player->flip_x, FALSE);
 }
 
 void player_reset(Player *player, const Vec2 *position)

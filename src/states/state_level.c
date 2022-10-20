@@ -58,16 +58,9 @@ void level_state_draw(const GameState *game_state)
     player_draw(game_state->player, game_state);
     level_draw(game_state->level, game_state);
 
-    const Timer *timer = &(game_state->end_level_timer);
-    if (game_state->paused || timer->running)
+    if (game_state->paused)
     {
         Color pause_color = {11, 1, 25, 128}; // Default color
-        if (timer->running)
-        {
-            float completion_ratio = 1.0f - (timer->left / timer->countdown);
-            pause_color.alpha = (u8_t)(completion_ratio * 255.0f);
-        }
-
         for (size_t i = 0; i < SCREEN_BUFFER_SIZE; ++i)
         {
             screen_buffer_paint(i, &pause_color);
@@ -149,7 +142,7 @@ void level_state_update_pause(GameState *game_state)
         .x = input_button_held(INPUT_BUTTON_RIGHT) - input_button_held(INPUT_BUTTON_LEFT),
         .y = input_button_held(INPUT_BUTTON_DOWN) - input_button_held(INPUT_BUTTON_UP)};
 
-    float camera_speed = 100.0f;
+    float camera_speed = 150.0f;
     Vec2 camera_velocity = vec2_mult_scalar(game_state->delta * camera_speed, &input_vector);
     game_state->camera_focus = vec2_add(&(game_state->camera_focus), &camera_velocity);
 }
