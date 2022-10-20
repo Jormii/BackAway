@@ -18,7 +18,7 @@
 #define USE_HOOK INPUT_BUTTON_SQUARE
 
 #define GLIDING_GRAVITY_Y 200.0f
-#define FREE_FALL_GRAVITY_Y 4000.0f
+#define FREE_FALL_GRAVITY_Y 2500.0f
 #define DEFAULT_GRAVITY_Y 700.0f
 
 void player_handle_input(Player *player, const GameState *game_state);
@@ -149,7 +149,7 @@ void player_draw(const Player *player, const GameState *game_state)
     phasing = game_state_camera_transform(game_state, &phasing);
 
     player_draw_attack_radius(player, game_state);
-    sprite_draw(sprite, phasing.x, phasing.y, 0.25f, player->flip_x, FALSE);
+    sprite_draw(sprite, phasing.x, phasing.y, 0.33f, player->flip_x, FALSE);
     sprite_draw(sprite, origin.x, origin.y, 1.0f, player->flip_x, FALSE);
 }
 
@@ -452,10 +452,17 @@ Vec2 player_phasing_position(const Player *player)
     float v_inertia_mag = vec2_magnitude(&(player->inertia.current_velocity));
     float ratio = v_mag / v_inertia_mag;
     float delta_increment = sqrtf((1.0f / 80.0f) * ratio);
+    float delta = player->delta + delta_increment;
 
     Entity entity_copy = player->entity;
-    float delta = player->delta + delta_increment;
+    if (entity_copy.velocity.y < 0.0f)
+    {
+        // If going up, disable gravity and up the velocity
+        entity_copy.gravity.y = 0.0f;
+    }
+
     entity_update(&entity_copy, delta);
+
     return entity_copy.position;
 }
 
