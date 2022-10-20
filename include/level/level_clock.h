@@ -10,7 +10,6 @@ typedef struct LevelClock_st
     bool_t running;
     float current_time;
     float target_time;
-    Sprite *semicolon_sprite;
     Sprite *numeric_sprites[10];
 } LevelClock;
 

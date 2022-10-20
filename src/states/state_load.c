@@ -35,6 +35,18 @@ SpriteLoadData sprite_load_data[_SPRITE_ID_COUNT_] = {
     {SPRITE_ID_OBJECTIVE_ACTIVE_2, SPRITE("Objective_Active3")},
     {SPRITE_ID_GOAL_INACTIVE, SPRITE("Goal_Inactive")},
     {SPRITE_ID_GOAL_ACTIVE, SPRITE("Goal_Active")},
+
+    {SPRITE_ID_NUMBER_0, SPRITE("Number_0")},
+    {SPRITE_ID_NUMBER_1, SPRITE("Number_1")},
+    {SPRITE_ID_NUMBER_2, SPRITE("Number_2")},
+    {SPRITE_ID_NUMBER_3, SPRITE("Number_3")},
+    {SPRITE_ID_NUMBER_4, SPRITE("Number_4")},
+    {SPRITE_ID_NUMBER_5, SPRITE("Number_5")},
+    {SPRITE_ID_NUMBER_6, SPRITE("Number_6")},
+    {SPRITE_ID_NUMBER_7, SPRITE("Number_7")},
+    {SPRITE_ID_NUMBER_8, SPRITE("Number_8")},
+    {SPRITE_ID_NUMBER_9, SPRITE("Number_9")},
+
     {SPRITE_ID_MENU_OFF, SPRITE("MenuButton_Off")},
     {SPRITE_ID_MENU_ON, SPRITE("MenuButton_On")}};
 
