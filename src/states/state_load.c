@@ -64,7 +64,10 @@ LoadLevelData all_leveles[_LEVEL_ID_COUNT_] = {
     {LEVEL("Level7")},
     {LEVEL("Level8")},
     {LEVEL("Level9")},
-    {LEVEL("Level10")}};
+    {LEVEL("Level10")},
+    {LEVEL("Level11")},
+    {LEVEL("Level12")},
+    {LEVEL("Level13")}};
 
 void load_state_init(GameState *game_state)
 {
