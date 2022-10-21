@@ -22,6 +22,7 @@ void level_clock_update(LevelClock *level_clock, GameState *game_state)
     if (level_clock->running)
     {
         level_clock->current_time += game_state->delta;
+        level_clock->current_time = MIN(level_clock->current_time, LEVEL_CLOCK_TIME_LIMIT);
     }
 }
 

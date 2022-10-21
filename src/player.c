@@ -18,7 +18,7 @@
 #define USE_HOOK INPUT_BUTTON_SQUARE
 
 #define GLIDING_GRAVITY_Y 200.0f
-#define FREE_FALL_GRAVITY_Y 2500.0f
+#define FREE_FALL_GRAVITY_Y 3000.0f
 #define DEFAULT_GRAVITY_Y 700.0f
 
 void player_handle_input(Player *player, const GameState *game_state);

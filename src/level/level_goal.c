@@ -75,7 +75,7 @@ void level_goal_draw_effect(const LevelGoal *goal, const GameState *game_state)
     int x0 = MAX(0, origin.x + x_offset);
     int y0 = MAX(0, origin.y + y_offset);
     int xf = MIN(origin.x + bbox->width - x_offset, SCREEN_WIDTH);
-    int yf = MIN(origin.y + bbox->height - y_offset, SCREEN_HEIGHT);
+    int yf = MIN(ceilf(origin.y + bbox->height - y_offset), SCREEN_HEIGHT);
 
     Color color = {11, 1, 25, 255};
     if (goal->active)
@@ -86,7 +86,7 @@ void level_goal_draw_effect(const LevelGoal *goal, const GameState *game_state)
         color.alpha = 255;
     }
 
-    int y_displacement = y0 - origin.y;
+    int y_displacement = y0 - floorf(origin.y);
     for (int py = y0; py < yf; ++py)
     {
         size_t draw_buffer_idx = SCREEN_BUFFER_INDEX(x0, py);

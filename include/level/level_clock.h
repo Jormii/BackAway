@@ -3,6 +3,7 @@
 
 #include "game_state.h"
 
+#define LEVEL_CLOCK_TIME_LIMIT 599.999f
 #define LEVEL_CLOCK_NO_TIME_RECORDED -1.0f
 
 typedef struct LevelClock_st
