@@ -10,7 +10,7 @@
 #include "game_state.h"
 #include "screen_buffer.h"
 
-PSP_MODULE_INFO("BackAway", 0, 1, 1);
+PSP_MODULE_INFO("Phase", 0, 1, 1);
 PSP_MAIN_THREAD_ATTR(THREAD_ATTR_USER);
 
 int main()

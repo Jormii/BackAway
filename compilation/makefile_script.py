@@ -135,7 +135,7 @@ def main():
     makefile = Makefile()
 
     # Titles and flags
-    makefile.eboot_title = "BackAway"
+    makefile.eboot_title = "Phase"
     makefile.c_flags = ["-g", "-G0", "-O2", "-Wall", "-Wno-unknown-pragmas"]
     makefile.extras["PSP_EBOOT_ICON"] = "icon.png"
 
