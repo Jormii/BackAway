@@ -20,6 +20,8 @@ BUILD_PRX = 1
 EXTRA_TARGETS = EBOOT.PBP
 PSP_EBOOT_TITLE = {eboot_title}
 
+{extras}
+
 PSPSDK=$(shell psp-config --pspsdk-path)
 include $(PSPSDK)/lib/build.mak
 """
@@ -31,6 +33,7 @@ class Makefile:
         self.psp_target = "PSP_TARGET"
         self.eboot_title = "EBOOT"
         self.c_flags = []
+        self.extras = {}
 
         self.objs = IWhereList()
         self.libs = IWhereList()
@@ -39,6 +42,10 @@ class Makefile:
     def create(self, output_dir):
         path = os.path.join(output_dir, "Makefile")
         with open(path, "w") as fd:
+            extras = []
+            for key, value in self.extras.items():
+                extras.append(f"{key}={value}")
+
             fd.write(MAKEFILE.format(
                 psp_target=self.psp_target,
                 eboot_title=self.eboot_title,
@@ -46,7 +53,8 @@ class Makefile:
 
                 objs=self.objs.where(),
                 libs=self.libs.where(),
-                include_dirs=self.include_dirs.where()
+                include_dirs=self.include_dirs.where(),
+                extras="\n".join(extras)
             ))
 
 
@@ -129,6 +137,7 @@ def main():
     # Titles and flags
     makefile.eboot_title = "BackAway"
     makefile.c_flags = ["-g", "-G0", "-O2", "-Wall", "-Wno-unknown-pragmas"]
+    makefile.extras["PSP_EBOOT_ICON"] = "icon.png"
 
     if PPSSPP_COMPILATION:
         makefile.c_flags.extend(["-D", "PPSSPP"])
