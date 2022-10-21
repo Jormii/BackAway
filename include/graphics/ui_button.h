@@ -12,7 +12,7 @@ typedef void (*UIButtonOnHighlighted_fp)(struct UIButton_st *button);
 typedef struct UIButton_st
 {
     Vec2 position;
-    Sprite *sprite;
+    const Sprite *sprite;
     UIButtonOnPress_fp on_press_cb;
     UIButtonOnHighlighted_fp on_highlighted_cb;
     void *cb_ptr;

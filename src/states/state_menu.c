@@ -14,6 +14,11 @@ void menu_state_init(GameState *game_state)
     ui_button_collection_init(&(game_state->buttons), _LEVEL_ID_COUNT_);
     game_state->buttons_data = malloc(game_state->buttons.n_buttons * sizeof(MenuButtonData));
 
+    float gap = 9.6f;
+    const Sprite *sprite = all_sprites + SPRITE_ID_MENU_OFF;
+    float width = sprite->meta.width;
+    float y = 0.5f * SCREEN_HEIGHT - 0.5f * sprite->meta.height;
+    
     for (size_t i = 0; i < game_state->buttons.n_buttons; ++i)
     {
         MenuButtonData *data = game_state->buttons_data + i;
@@ -22,9 +27,9 @@ void menu_state_init(GameState *game_state)
         data->game_state = game_state;
 
         UIButton *button = game_state->buttons.buttons + i;
-        button->position.x = 10.0f + (i * 30.0f);
-        button->position.y = 0.5f * SCREEN_HEIGHT;
-        button->sprite = all_sprites + SPRITE_ID_MENU_OFF;
+        button->position.x = (i + 1) * gap + (i * width);
+        button->position.y = y;
+        button->sprite = sprite;
         button->on_press_cb = on_press;
         button->on_highlighted_cb = NULL;
         button->cb_ptr = data;
